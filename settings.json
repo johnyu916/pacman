@@ -1,0 +1,33 @@
+{
+    "animations_dir": "../animations",
+    "geometries_dir": "../geometries",
+    "things_dir": "../things",
+    "shaders":{
+        "world": {
+            "fragment_shader_path": "../../waffle-lib/shaders/Shader.fsh",
+            "vertex_shader_path": "../../waffle-lib/shaders/flat_shader.vsh"
+        },
+        "interface": {
+            "fragment_shader_path": "../../waffle-lib/shaders/Shader.fsh",
+            "vertex_shader_path": "../../waffle-lib/shaders/flat_shader.vsh"
+        }
+    },
+    "camera": {
+        "comment": "fovy is in radians. orientation is right and front",
+        "fovy": 1.570796,
+        "near": 0.3,
+        "far": 1000.0,
+        "resolution": [900.0,900.0],
+        "placement":{
+            "orientation": {
+                "right" : [1.0,0.0,0.0],
+                "front" : [0.0,1.0,0.0]
+            },
+            "position": [0.0,-50.0,0.0]
+        }
+    },
+    "syrup": {
+        "source": "../syrup",
+        "python_output": "."
+    }
+}

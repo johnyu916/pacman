@@ -1,0 +1,14 @@
+from wafflecore.thing import (thing_new)
+from wafflecore.compute import (new_id)
+
+(object world) new_world(object state):
+    world = thing_new(new_id(state), "World", [0.0, 0.0, 0.0], [], [], null)
+
+(object state) new_state(object settings):
+    state = {
+        "counter": 1,
+        "world": null
+    }
+    update(state, settings)
+    state.world = new_world(state)
+    state.interface = thing_new(new_id(state), "Interface", [0.0,0.0,0.0], [], [] , null)

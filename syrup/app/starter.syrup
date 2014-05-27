@@ -1,0 +1,31 @@
+from pacman import pacman_new
+from wafflecore.compute import (new_id)
+
+() start(array argv, object state):
+    # load pacman
+    # load animations
+    names = file_list_dir(state.animations_dir)
+    for name in names:
+        if file_is_file(name):
+            text = null
+            file_read(join([state.animations_dir, name], "/"), text)
+            animation = from_json(text)
+            state.animations{name} = animation
+
+    names = file_list_dir(state.geometries_dir)
+    print(["starter names", names])
+    geometries = {}
+    for name in names:
+        filepath = join([state.geometries_dir, name], "/")
+        if file_is_file(filepath):
+            text = null
+            file_read(filepath, text)
+            geometry = {
+                "vertices": from_json(text),
+                "id": new_id(state)
+            }
+            geometries{name} = geometry
+    state.geometries = geometries
+    pacman = pacman_new(state)
+    state.pacman = pacman
+    append(state.world.children, pacman)

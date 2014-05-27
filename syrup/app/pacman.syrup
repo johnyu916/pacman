@@ -1,0 +1,11 @@
+from wafflecore.thing import (thing_new)
+from wafflecore.compute import (new_id)
+(object pacman) pacman_new(object state):
+    text = null
+    file_read(join([state.things_dir, "pacman"], "/"), text)
+    map = from_json(text)
+
+    name = map.geometry_names[map.geometry_index]
+    geometry = state.geometries{name}
+    pacman = thing_new(new_id(state), "Pacman", [0.0,0.0,0.0], [], [], geometry)
+    update(pacman, map)
