@@ -7,5 +7,5 @@ from wafflecore.compute import (new_id)
 
     name = map.geometry_names[map.geometry_index]
     geometry = state.geometries{name}
-    pacman = thing_new(new_id(state), "Pacman", [0.0,0.0,0.0], [], [], geometry)
+    pacman = thing_new(new_id(state), "Pacman", [0.0,0.0,0.0], [], [], geometry, null)
     update(pacman, map)

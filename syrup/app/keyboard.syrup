@@ -1,11 +1,35 @@
-from wafflecore.compute import (matrix_placement, point_transformed, rotates_ortho_new)
+from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed)
+
+(object keyboard) new_keyboard():
+    KEYS = ["a","d","s","w"]
+    keys = {}
+    for key in KEYS:
+        keys{key} = {
+            "state": "KEY_UP",
+            "down_time": 0
+        }
+    keyboard = { "keys_state": keys }
 # if you hold the key down, glut will keep generating key_pressed events
-() keyboard_on_event(object state, string key, string key_state):
-    if key_state == "KEY_DOWN":
-        #record("pressed: {}".format( key))
-        keyboard_on_down(state, key, state.camera)
-    else:
-        keyboard_on_release(state, key)
+() keyboard_on_event(object state, string button, string key_state):
+    keys_state = state.keyboard.keys_state
+    for key in keys(keys_state):
+        if button == key:
+            if key_state == "KEY_DOWN":
+                old_state = keys_state{button}.state
+                if old_state == "KEY_UP":
+                    keys_state{button}.state = key_state
+                    keys_state{button}.down_time = time()
+            else key_state == "KEY_UP":
+                keys_state{button}.state = key_state
+            break
+
+() keyboard_idle(object state):
+    keys_state = state.keyboard.keys_state
+    for key in keys(keys_state):
+        if keys_state{key}.state == "KEY_DOWN":
+            keyboard_on_down(state, key)
+    #else:
+    #    keyboard_on_release(state, key)
         #record("handler released: {}".format( key))
 
 () keyboard_on_release(object state, string key):
@@ -24,20 +48,29 @@ from wafflecore.compute import (matrix_placement, point_transformed, rotates_ort
 
 () place_pacman(object pacman, number axis, number sign):
     matrix = matrix_placement(pacman.position, pacman.rotates)
-    print(["place_pacman matrix", matrix])
-    point = point_transformed(matrix, pacman.bounds.position)
-    print(["place_pacman position rotates, point", pacman.position, pacman.rotates, point])
+    #print(["place_pacman matrix", matrix])
+    bounds = pacman.bounds
+    (new_point, new_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+    #point = point_transformed(matrix, pacman.bounds.position)
+    #print(["place_pacman position rotates, point", pacman.position, pacman.rotates, new_point])
     if axis == 0:
         if sign == 0:
-            pacman.position = [point[0] + 13, point[1], point[2]]
+            pacman.position = [new_point[0] + 13, new_point[1] + 1, new_point[2]]
             pacman.rotates = rotates_ortho_new(180, 2, 0, 0)
         else:
-            pacman.position = point
+            pacman.position = new_point
             pacman.rotates = []
+    elif axis == 1:
+        if sign == 0:
+            pacman.position = [new_point[0], new_point[1], new_point[2] + 13]
+            pacman.rotates = rotates_ortho_new(90, 1, 0, 0)
+        else:
+            pacman.position = [new_point[0] + 13, new_point[1], new_point[2]]
+            pacman.rotates = rotates_ortho_new(270, 1, 0, 0)
 
 
-
-() keyboard_on_down(object state, string key, object camera):
+() keyboard_on_down(object state, string key):
+    #state.keyboard.
     move_keys = ["a", "d", "s", "w"]
     # left
     pacman = state.pacman
@@ -51,6 +84,10 @@ from wafflecore.compute import (matrix_placement, point_transformed, rotates_ort
         animate_pacman(state, pacman)
     elif key == "s":
         pacman.position[2] -= 1
+        place_pacman(pacman, 1, 0)
+        animate_pacman(state, pacman)
     elif key == "w":
         pacman.position[2] += 1
+        place_pacman(pacman, 1, 1)
+        animate_pacman(state, pacman)
 

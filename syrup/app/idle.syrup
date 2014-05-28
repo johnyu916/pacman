@@ -1,3 +1,5 @@
-
+from keyboard import keyboard_idle
 () idle(object state):
+    state.now = time()
+    keyboard_idle(state)
     return
