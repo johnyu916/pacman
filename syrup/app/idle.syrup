@@ -13,15 +13,26 @@ from keyboard import keyboard_idle
             matrix = matrix_placement(child.position, child.rotates)
             bounds = child.bounds
             (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
-            # see if they touch
-            (axis, sign) = cuboids_face_touch(new_point, new_size, child_point, child_size)
-            if axis != null:
-                friction_force = 0.0
-                # decrease the force in that direction up to 0.
+            # see if they touch. axis vector
+            (axis, sign) = face_overlap(new_point, new_size, child_point, child_size)
+            if axis == null:
+                continue
+
+            friction_mag = 0
+            if sign == 0:
+                if thing.force[axis] < 0:
+                    friction_mag = coef * thing.force[axis]
+            else:
+                if thing.force[axis] > 0:
+                    friction_mag = coef * thing.force[axis]
+
+            friction = scaled_array(vector_unit(thing.velocity), friction_mag)
+            # decrease the force in that direction up to 0.
+            thing.force = sum_arrays(thing.force, friction)
 
     # try moving, then back off.
     acc = thing.force / thing.mass
-    thing.velocity = acc * delta
+    thing.velocity += acc * delta
     displacement += thing.velocity * delta
 
     move(state, displacement)
