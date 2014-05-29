@@ -3,5 +3,25 @@ from keyboard import keyboard_idle
     state.now = time()
     keyboard_idle(state)
 
+    # get all forces first.
+    pacman_id = state.pacman.id
+    matrix = matrix_placement(pacman.position, pacman.rotates)
+    bounds = pacman.bounds
+    (new_point, new_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+    for child in state.world.children:
+        if child.id != pacman_id:
+            matrix = matrix_placement(child.position, child.rotates)
+            bounds = child.bounds
+            (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+            # see if they touch
+            (axis, sign) = cuboids_face_touch(new_point, new_size, child_point, child_size)
+            if axis != null:
+                friction_force = 0.0
+                # decrease the force in that direction up to 0.
+
     # try moving, then back off.
-    return
+    acc = thing.force / thing.mass
+    thing.velocity = acc * delta
+    displacement += thing.velocity * delta
+
+    move(state, displacement)
