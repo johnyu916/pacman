@@ -1,0 +1,16 @@
+The basic challenge is to find what happened during the past delta.
+
+What is the best way to do collision?
+
+- based on force during the past delta, update the acceleration and the velocity, and determine the distance to move.
+- move as much as you can:
+    try colliding with all objects and see if you'll hit anything.
+    if collided, stop moving.
+
+
+- find all forces that are acting on the thing, for everything.
+   - inner force 
+   - frictional force
+   - force from other objects
+
+- find the highest point in some direction.

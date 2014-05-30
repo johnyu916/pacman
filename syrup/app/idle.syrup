@@ -2,14 +2,33 @@ from keyboard import keyboard_idle
 () idle(object state):
     now = time()
     delta = now - state.now
+
+    for thing in state.world.children:
+        matrix = matrix_placement(thing.position, thing.rotates)
+        bounds = thing.bounds
+        (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+        # try moving, then back off.
+        accel = scaled_array(thing.force, 1.0/thing.mass)
+        velocity_i = pacman.velocity
+        velocity_f = sum_arrays(scaled_array(accel * delta), velocity_i)
+        velocity_avg = scaled_array(sum_arrays(velocity_f, velocity_i) , 1/2.0)
+        pacman.velocity = velocity_f
+
+        distance_delta = scaled_array(velocity_avg, delta)
+        position_i = position
+        position_f = sum_arrays(position_i, distance_delta)
+        
+        # crash it against others
+
+    # 1. update all forces.
     keyboard_idle(state)
 
-    # get all forces first.
-    pacman = state.pacman
     pacman_id = pacman.id
     matrix = matrix_placement(pacman.position, pacman.rotates)
     bounds = pacman.bounds
     (new_point, new_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+
+    # do friction stuff later.
     for child in state.world.children:
         if child.id != pacman_id:
             matrix = matrix_placement(child.position, child.rotates)
@@ -32,14 +51,15 @@ from keyboard import keyboard_idle
             # decrease the force in that direction up to 0.
             thing.force = sum_arrays(thing.force, friction)
 
-    # try moving, then back off.
-    accel = scaled_array(thing.force, 1.0/thing.mass)
-    velocity_i = pacman.velocity
-    velocity_f = sum_arrays(scaled_array(accel * delta), velocity_i)
-    velocity_avg = scaled_array(sum_arrays(velocity_f, velocity_i) , 1/2.0)
-    pacman.velocity = velocity_f
-
-    displacement = scaled_array(velocity_avg, delta)
-    pacman.position = sum_arrays(pacman.position, distance_delta)
-
     move(state, displacement, delta)
+
+() crash(number thing_id, array position, array size, array things):
+    for thing in things:
+        if thing.id == thing_id:
+            continue
+
+        matrix = matrix_placement(thing.position, thing.rotates)
+        bounds = child.bounds
+        (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+
+
