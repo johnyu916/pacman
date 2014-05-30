@@ -1,10 +1,12 @@
 from keyboard import keyboard_idle
 () idle(object state):
-    state.now = time()
+    now = time()
+    delta = now - state.now
     keyboard_idle(state)
 
     # get all forces first.
-    pacman_id = state.pacman.id
+    pacman = state.pacman
+    pacman_id = pacman.id
     matrix = matrix_placement(pacman.position, pacman.rotates)
     bounds = pacman.bounds
     (new_point, new_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
@@ -31,8 +33,13 @@ from keyboard import keyboard_idle
             thing.force = sum_arrays(thing.force, friction)
 
     # try moving, then back off.
-    acc = thing.force / thing.mass
-    thing.velocity += acc * delta
-    displacement += thing.velocity * delta
+    accel = scaled_array(thing.force, 1.0/thing.mass)
+    velocity_i = pacman.velocity
+    velocity_f = sum_arrays(scaled_array(accel * delta), velocity_i)
+    velocity_avg = scaled_array(sum_arrays(velocity_f, velocity_i) , 1/2.0)
+    pacman.velocity = velocity_f
 
-    move(state, displacement)
+    displacement = scaled_array(velocity_avg, delta)
+    pacman.position = sum_arrays(pacman.position, distance_delta)
+
+    move(state, displacement, delta)

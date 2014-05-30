@@ -93,19 +93,15 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     #distance = integer(speed * elapsed_time)
     pacman = state.pacman
     if distance[0] < 0:
-        pacman.position[0] -= distance
         place_pacman(pacman, 0, 0)
         animate_pacman(state, pacman, elapsed_time)
     elif distance[0] > 0:
-        pacman.position[0] += distance
         place_pacman(pacman, 0, 1)
         animate_pacman(state, pacman, elapsed_time)
     elif distance[2] < 0:
-        pacman.position[2] -= distance
         place_pacman(pacman, 1, 0)
         animate_pacman(state, pacman, elapsed_time)
     elif distance[2] > 0:
-        pacman.position[2] += distance
         place_pacman(pacman, 1, 1)
         animate_pacman(state, pacman, elapsed_time)
 
