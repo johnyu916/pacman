@@ -9,7 +9,3 @@ from wafflecore.compute import (new_id)
     geometry = state.geometries{name}
     pacman = thing_new(new_id(state), "Pacman", [0.0,0.0,0.0], [], [], geometry, null)
     update(pacman, map)
-
-    pacman.mass = 1
-    pacman.force = 0
-    pacman.velocity = 0

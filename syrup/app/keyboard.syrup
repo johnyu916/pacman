@@ -1,4 +1,5 @@
 from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed)
+from wafflecore.animation import animate
 
 (object keyboard) new_keyboard():
     KEYS = ["a","d","s","w"]
@@ -19,7 +20,7 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
                 if old_state == "KEY_UP":
                     keys_state{button}.state = key_state
                     keys_state{button}.down_time = time()
-            else key_state == "KEY_UP":
+            else:
                 keys_state{button}.state = key_state
             break
 
@@ -74,28 +75,29 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
 
 () keyboard_on_down(object state, string key, object key_state):
     #state.keyboard.
+    elapsed_time = state.now - key_state.down_time
     pacman = state.pacman
-    if key == "a":
-        pacman.force = [-5,0,0]
-    elif key == "d":
-        pacman.force = [5,0,0]
-    elif key == "s":
-        pacman.force = [0,0,-5]
-    elif key == "w":
-        pacman.force = [0,0,5]
+
+    keys = ["a", "d", "s", "w"]
+    plus = state.pacman.input_velocity
+    minus = -1*plus
+    velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+    places = [[0,0], [0,1], [1,0], [1,1]]
+    for i in range(4):
+        if key == keys[i]:
+            pacman.velocity = velocities[i]
+            place_pacman(pacman, places[i][0], places[i][1])
+
+    animate_pacman(state, pacman, elapsed_time)
 
 
-() move(object state, array distance):
+() move_old(object state, array distance):
     move_keys = ["a", "d", "s", "w"]
     speed = 1
     # time since user pressed and held on to key
-    elapsed_time = state.now - key_state.down_time
     #distance = integer(speed * elapsed_time)
     pacman = state.pacman
-    if distance[0] < 0:
-        place_pacman(pacman, 0, 0)
-        animate_pacman(state, pacman, elapsed_time)
-    elif distance[0] > 0:
+    if distance[0] > 0:
         place_pacman(pacman, 0, 1)
         animate_pacman(state, pacman, elapsed_time)
     elif distance[2] < 0:

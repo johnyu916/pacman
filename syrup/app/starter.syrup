@@ -1,16 +1,21 @@
 from pacman import pacman_new
 from wafflecore.compute import (new_id)
+from wafflecore.thing import (thing_new)
 
 () start(array argv, object state):
     # load pacman
     # load animations
     names = file_list_dir(state.animations_dir)
+    print(["start", names])
+    animations = {}
     for name in names:
-        if file_is_file(name):
+        filepath = join([state.animations_dir, name], "/")
+        if file_is_file(filepath):
             text = null
-            file_read(join([state.animations_dir, name], "/"), text)
+            file_read(filepath, text)
             animation = from_json(text)
-            state.animations{name} = animation
+            animations{name} = animation
+    state.animations = animations
 
     names = file_list_dir(state.geometries_dir)
     print(["starter names", names])
@@ -29,3 +34,16 @@ from wafflecore.compute import (new_id)
     pacman = pacman_new(state)
     state.pacman = pacman
     append(state.world.children, pacman)
+
+    thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right"]
+    for name in thing_names:
+        text = null
+        file_read(join([state.things_dir, name], "/"), text)
+        map = from_json(text)
+
+        name = map.geometry_names[map.geometry_index]
+        geometry = state.geometries{name}
+        thing = thing_new(new_id(state), "Wall", [0.0,0.0,0.0], [], [], geometry, null)
+        update(thing, map)
+
+        append(state.world.children, thing)
