@@ -35,7 +35,8 @@ from wafflecore.thing import (thing_new)
     state.pacman = pacman
     append(state.world.children, pacman)
 
-    thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right"]
+    thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right", "blue_square_inner"]
+    #thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right"]
     for name in thing_names:
         text = null
         file_read(join([state.things_dir, name], "/"), text)

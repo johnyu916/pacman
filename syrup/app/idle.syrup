@@ -1,4 +1,4 @@
-from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, distance_directional)
+from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_plane_point, is_overlap_cuboids)
 from keyboard import keyboard_idle
 () idle(object state):
     now = time()
@@ -9,9 +9,11 @@ from keyboard import keyboard_idle
     # 2. attempt to apply the change in position,
     #    but do not go through anything.
     for thing in state.world.children:
+        print(["idle 0.5", thing.type, thing.position, thing.bounds])
         matrix = matrix_placement(thing.position, thing.rotates)
         bounds = thing.bounds
         (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+        print(["idle 0.6", thing.type, position])
         #print([thing.type, thing.force])
         accel = array_scaled(thing.force, 1.0/thing.mass)
         velocity_i = thing.velocity
@@ -19,10 +21,16 @@ from keyboard import keyboard_idle
         velocity_avg = array_scaled(sum_arrays(velocity_f, velocity_i) , 1/2.0)
         # new velocity
         thing.velocity = velocity_f
+        #if thing.type == "Pacman":
+        #    print(["idle", velocity_i, velocity_f, velocity_avg])
+
+        if (velocity_avg[0] == 0.0 && velocity_avg[1] == 0.0 && velocity_avg[2] == 0.0):
+            continue
 
         distance_delta = array_scaled(velocity_avg, delta)
         position_i = position
         position_f = sum_arrays(position_i, distance_delta)
+        print(["idle", thing.type, position_f, position_i])
 
         # crash it against others
         (crash_position, hit_thing) = crash(thing.id, position_i, position_f, size, state.world.children)
@@ -31,10 +39,11 @@ from keyboard import keyboard_idle
             thing.velocity = [0.0, 0.0, 0.0]
         thing.force = [0.0, 0.0, 0.0]
 
-        delta = subtract_arrays(crash_position, position)
-        #print(["idle delta", delta])
-        last = sum_arrays(thing.position, delta)
+        crash_delta = subtract_arrays(crash_position, position)
+        #print(["idle delta", crash_delta])
+        last = sum_arrays(thing.position, crash_delta)
         thing.position = [last[0], last[1], last[2]]
+        print(["idle 2", thing.type, crash_position, thing.position])
 
     keyboard_idle(state)
 
@@ -72,6 +81,8 @@ from keyboard import keyboard_idle
 # see if i can 
 (array final, object hit_thing) crash(number thing_id, array position_i, array position_f, array size, array things):
     delta = subtract_arrays(position_f, position_i)
+    delta_inv = array_scaled(delta, -1)
+    peak = point_farthest(position_i, size, delta)
     #magnitude = vector_magnitude(delta)
     #unit = vector_unit(delta)
     #(axis, sign) = axis_sign_vector(delta)
@@ -84,10 +95,23 @@ from keyboard import keyboard_idle
         matrix = matrix_placement(thing.position, thing.rotates)
         bounds = thing.bounds
         (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
-        time = distance_directional(delta, child_point, child_size, position_i, size)
-        if time < min_time:
-            min_time = time
-            hit_thing = thing
+        child_start = point_farthest(child_point, child_size, delta_inv)
+        begin_time = time_plane_point(child_start, delta, peak)
+        #time = distance_directional(delta, child_point, child_size)
+        if begin_time >= 0.0 && begin_time < min_time:
+            child_end = point_farthest(child_point, child_size, delta)
+            end_time = time_plane_point(child_end, delta, peak)
+            if begin_time == end_time:
+                continue
+            elif begin_time > end_time:
+                print(["Error end_time greater than begin_time", begin_time, end_time])
+                continue
+            else:
+                test_time = (begin_time + end_time)/2.0
+                test_position = sum_arrays(position_i, array_scaled(delta, test_time))
+                if is_overlap_cuboids(test_position, size, child_point, child_size):
+                    min_time = begin_time
+                    hit_thing = thing
 
     scale = array_scaled(delta, min_time)
     final = sum_arrays(position_i, scale)

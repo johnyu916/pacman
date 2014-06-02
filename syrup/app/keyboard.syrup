@@ -11,6 +11,7 @@ from wafflecore.animation import animate
         }
     keyboard = { "keys_state": keys }
 # if you hold the key down, glut will keep generating key_pressed events
+# TODO:redo keyboard stuff. trigger immediately.
 () keyboard_on_event(object state, string button, string key_state):
     keys_state = state.keyboard.keys_state
     for key in keys(keys_state):
@@ -22,6 +23,7 @@ from wafflecore.animation import animate
                     keys_state{button}.down_time = time()
             else:
                 keys_state{button}.state = key_state
+                keyboard_on_release(state, key)
             break
 
 () keyboard_idle(object state):
@@ -30,12 +32,16 @@ from wafflecore.animation import animate
         key_state = keys_state{key}
         if key_state.state == "KEY_DOWN":
             keyboard_on_down(state, key, key_state)
-    #else:
-    #    keyboard_on_release(state, key)
+        #else:
+        #    keyboard_on_release(state, key)
         #record("handler released: {}".format( key))
 
 () keyboard_on_release(object state, string key):
-    return
+    pacman = state.pacman
+    if key == "a" || key == "d":
+        pacman.velocity[0] = 0.0
+    elif key == "s" || key == "w":
+        pacman.velocity[2] = 0.0
 
 (number next) loop_next(number index, number length):
     next = index + 1
@@ -45,11 +51,10 @@ from wafflecore.animation import animate
 () animate_pacman(object state, object pacman, object elapsed_time):
     animation = state.animations.pacman
     animate(animation, pacman, state.geometries, elapsed_time)
-    #names = length(pacman.geometry_names)
-    #next = loop_next(pacman.geometry_index, names)
-    #pacman.geometry_index = next
-    #pacman.geometry = state.geometries{pacman.geometry_names[next]}
 
+# assumes that by default:
+#  1. pacman is facing right.
+#  2. pacman's bounds position is [0.0, 0.0, 0.0].
 () place_pacman(object pacman, number axis, number sign):
     matrix = matrix_placement(pacman.position, pacman.rotates)
     #print(["place_pacman matrix", matrix])
@@ -57,19 +62,20 @@ from wafflecore.animation import animate
     (new_point, new_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
     #point = point_transformed(matrix, pacman.bounds.position)
     #print(["place_pacman position rotates, point", pacman.position, pacman.rotates, new_point])
+    bound_size = bounds.size
     if axis == 0:
         if sign == 0:
-            pacman.position = [new_point[0] + 13, new_point[1] + 1, new_point[2]]
+            pacman.position = [new_point[0] + bound_size[0], new_point[1] + bound_size[1], new_point[2]]
             pacman.rotates = rotates_ortho_new(180, 2, 0, 0)
         else:
             pacman.position = new_point
             pacman.rotates = []
     elif axis == 1:
         if sign == 0:
-            pacman.position = [new_point[0], new_point[1], new_point[2] + 13]
+            pacman.position = [new_point[0], new_point[1], new_point[2] + bound_size[2]]
             pacman.rotates = rotates_ortho_new(90, 1, 0, 0)
         else:
-            pacman.position = [new_point[0] + 13, new_point[1], new_point[2]]
+            pacman.position = [new_point[0] + bound_size[0], new_point[1], new_point[2]]
             pacman.rotates = rotates_ortho_new(270, 1, 0, 0)
 
 
@@ -86,6 +92,7 @@ from wafflecore.animation import animate
     for i in range(4):
         if key == keys[i]:
             pacman.velocity = velocities[i]
+            #print(["keyboard_on_down", pacman.velocity])
             place_pacman(pacman, places[i][0], places[i][1])
 
     animate_pacman(state, pacman, elapsed_time)
