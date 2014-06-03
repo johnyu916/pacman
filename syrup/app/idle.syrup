@@ -9,11 +9,11 @@ from keyboard import keyboard_idle
     # 2. attempt to apply the change in position,
     #    but do not go through anything.
     for thing in state.world.children:
-        print(["idle 0.5", thing.type, thing.position, thing.bounds])
+        #print(["idle 0.5", thing.type, thing.position, thing.bounds])
         matrix = matrix_placement(thing.position, thing.rotates)
         bounds = thing.bounds
         (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
-        print(["idle 0.6", thing.type, position])
+        #print(["idle 0.6", thing.type, position])
         #print([thing.type, thing.force])
         accel = array_scaled(thing.force, 1.0/thing.mass)
         velocity_i = thing.velocity

@@ -16,32 +16,29 @@ from wafflecore.animation import animate
     keys_state = state.keyboard.keys_state
     for key in keys(keys_state):
         if button == key:
-            if key_state == "KEY_DOWN":
-                old_state = keys_state{button}.state
-                if old_state == "KEY_UP":
-                    keys_state{button}.state = key_state
-                    keys_state{button}.down_time = time()
-            else:
+            old_state = keys_state{button}.state
+            if old_state != key_state:
                 keys_state{button}.state = key_state
-                keyboard_on_release(state, key)
+                if key_state == "KEY_DOWN":
+                    keys_state{button}.down_time = state.now
             break
 
+# if any key is down, move in that direction (but only one
+# direction).
+# if no key is down, don't move.
 () keyboard_idle(object state):
     keys_state = state.keyboard.keys_state
     for key in keys(keys_state):
         key_state = keys_state{key}
         if key_state.state == "KEY_DOWN":
             keyboard_on_down(state, key, key_state)
-        #else:
-        #    keyboard_on_release(state, key)
-        #record("handler released: {}".format( key))
+            return
 
-() keyboard_on_release(object state, string key):
-    pacman = state.pacman
-    if key == "a" || key == "d":
-        pacman.velocity[0] = 0.0
-    elif key == "s" || key == "w":
-        pacman.velocity[2] = 0.0
+    keyboard_none(state)
+    #record("handler released: {}".format( key))
+
+() keyboard_none(object state):
+    state.pacman.velocity = [0.0, 0.0, 0.0]
 
 (number next) loop_next(number index, number length):
     next = index + 1
@@ -83,7 +80,7 @@ from wafflecore.animation import animate
     #state.keyboard.
     elapsed_time = state.now - key_state.down_time
     pacman = state.pacman
-
+    #print(["keyboard_on_down inside", key, key_state])
     keys = ["a", "d", "s", "w"]
     plus = state.pacman.input_velocity
     minus = -1*plus
@@ -94,6 +91,7 @@ from wafflecore.animation import animate
             pacman.velocity = velocities[i]
             #print(["keyboard_on_down", pacman.velocity])
             place_pacman(pacman, places[i][0], places[i][1])
+            break
 
     animate_pacman(state, pacman, elapsed_time)
 
