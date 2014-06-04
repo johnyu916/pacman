@@ -1,6 +1,6 @@
-from pacman import pacman_new
+#from pacman import pacman_new
 from wafflecore.compute import (new_id)
-from wafflecore.thing import (thing_new)
+from wafflecore.thing import (thing_new, thing_load)
 
 () start(array argv, object state):
     # load pacman
@@ -18,7 +18,7 @@ from wafflecore.thing import (thing_new)
     state.animations = animations
 
     names = file_list_dir(state.geometries_dir)
-    print(["starter names", names])
+    print(["starter geometry names", names])
     geometries = {}
     for name in names:
         filepath = join([state.geometries_dir, name], "/")
@@ -30,21 +30,29 @@ from wafflecore.thing import (thing_new)
                 "id": new_id(state)
             }
             geometries{name} = geometry
+
     state.geometries = geometries
-    pacman = pacman_new(state)
+    pacman = thing_load(state, "pacman")
     state.pacman = pacman
     append(state.world.children, pacman)
+
+    shadow = thing_load(state, "shadow")
+    shadow.last_position = [0.0, 0.0, 0.0]
+    state.shadow = shadow
+    append(state.world.children, shadow)
 
     thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right", "blue_square_inner"]
     #thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right"]
     for name in thing_names:
-        text = null
-        file_read(join([state.things_dir, name], "/"), text)
-        map = from_json(text)
+        #text = null
+        #file_read(join([state.things_dir, name], "/"), text)
+        #map = from_json(text)
 
-        name = map.geometry_names[map.geometry_index]
-        geometry = state.geometries{name}
-        thing = thing_new(new_id(state), "Wall", [0.0,0.0,0.0], [], [], geometry, null)
-        update(thing, map)
+        #name = map.geometry_names[map.geometry_index]
+        #geometry = state.geometries{name}
+        #thing = thing_new(new_id(state), "Wall", [0.0,0.0,0.0], [], [], geometry, null)
+        #update(thing, map)
+        print(["loading thing", name])
+        thing = thing_load(state, name)
 
         append(state.world.children, thing)

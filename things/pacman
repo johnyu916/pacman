@@ -8,5 +8,6 @@
         "size": [14.0, 1.0, 14.0]
     },
     "mass": 1,
-    "input_velocity": 60.0
+    "input_velocity": 60.0,
+    "type": "Pacman"
 }

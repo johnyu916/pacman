@@ -1,10 +1,15 @@
 from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_plane_point, is_overlap_cuboids)
 from keyboard import keyboard_idle
+from ai import ai_idle
 () idle(object state):
     now = time()
     delta = now - state.now
     state.now = now
+    collisions(state, delta)
+    ai_idle(state)
+    keyboard_idle(state)
 
+() collisions(object state, number delta):
     # 1. calculate the force, velocity, and position.
     # 2. attempt to apply the change in position,
     #    but do not go through anything.
@@ -30,7 +35,7 @@ from keyboard import keyboard_idle
         distance_delta = array_scaled(velocity_avg, delta)
         position_i = position
         position_f = sum_arrays(position_i, distance_delta)
-        print(["idle", thing.type, position_f, position_i])
+        #print(["idle", thing.type, position_f, position_i])
 
         # crash it against others
         (crash_position, hit_thing) = crash(thing.id, position_i, position_f, size, state.world.children)
@@ -43,9 +48,8 @@ from keyboard import keyboard_idle
         #print(["idle delta", crash_delta])
         last = sum_arrays(thing.position, crash_delta)
         thing.position = [last[0], last[1], last[2]]
-        print(["idle 2", thing.type, crash_position, thing.position])
+        #print(["idle 2", thing.type, crash_position, thing.position])
 
-    keyboard_idle(state)
 
 () do_friction(object state):
     # do friction stuff later.
@@ -83,9 +87,6 @@ from keyboard import keyboard_idle
     delta = subtract_arrays(position_f, position_i)
     delta_inv = array_scaled(delta, -1)
     peak = point_farthest(position_i, size, delta)
-    #magnitude = vector_magnitude(delta)
-    #unit = vector_unit(delta)
-    #(axis, sign) = axis_sign_vector(delta)
     min_time = 1.0
     hit_thing = null
     for thing in things:

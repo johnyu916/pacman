@@ -1,6 +1,7 @@
-from wafflecore.thing import (thing_new)
-from wafflecore.compute import (new_id)
-(object pacman) pacman_new(object state):
+from wafflecore.thing import thing_new
+from wafflecore.compute import new_id
+from wafflecore.standard import in_array
+(object pacman) pacman_new_old(object state):
     text = null
     file_read(join([state.things_dir, "pacman"], "/"), text)
     map = from_json(text)
