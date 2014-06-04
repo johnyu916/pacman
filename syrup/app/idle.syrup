@@ -1,4 +1,4 @@
-from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_plane_point, is_overlap_cuboids)
+from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_point_plane, is_overlap_cuboids)
 from keyboard import keyboard_idle
 from ai import ai_idle
 () idle(object state):
@@ -33,12 +33,11 @@ from ai import ai_idle
             continue
 
         distance_delta = array_scaled(velocity_avg, delta)
-        position_i = position
-        position_f = sum_arrays(position_i, distance_delta)
-        #print(["idle", thing.type, position_f, position_i])
+        position_f = sum_arrays(position, distance_delta)
+        #print(["idle", thing.type, position_f, position])
 
         # crash it against others
-        (crash_position, hit_thing) = crash(thing.id, position_i, position_f, size, state.world.children)
+        (crash_position, hit_thing) = crash(thing.id, position, position_f, size, state.world.children)
         if hit_thing != null:
             #print(["idle hit_thing", hit_thing.type])
             thing.velocity = [0.0, 0.0, 0.0]
@@ -82,8 +81,9 @@ from ai import ai_idle
             thing.force = sum_arrays(thing.force, friction)
 
 
-# see if i can 
-(array final, object hit_thing) crash(number thing_id, array position_i, array position_f, array size, array things):
+# thing is currently in position_i. It wants to go to position_f.
+# how far can I actually go? and what did i hit?
+(array final, object hit_thing) crash_things(number thing_id, array position_i, array position_f, array size, array things):
     delta = subtract_arrays(position_f, position_i)
     delta_inv = array_scaled(delta, -1)
     peak = point_farthest(position_i, size, delta)
@@ -93,26 +93,39 @@ from ai import ai_idle
         if thing.id == thing_id:
             continue
 
-        matrix = matrix_placement(thing.position, thing.rotates)
+        (is_hit, thing_min_time) = crash_thing(delta, peak, thing, min_time, matrix_identity())
+        if is_hit:
+            min_time = thing_min_time
+            hit_thing = thing
+
+    scale = array_scaled(delta, min_time)
+    final = sum_arrays(position_i, scale)
+
+(bool is_hit, number min_time) crash_thing(array delta, array peak, object thing, number min_time, array offset):
+    matrix = matrix_placement(thing.position, thing.rotates)
+    offset = product_matrices(offset, matrix)
+    if length(thing.children) > 0:
+        for child in thing.children:
+            (child_is_hit, child_min_time) = crash_thing(delta, peak, child, min_time, offset)
+            if child_min_time < min_time:
+                min_time = child_min_time
+                is_hit = true 
+    else:
+        # if crashed with thing before the destination, report it.
         bounds = thing.bounds
         (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
         child_start = point_farthest(child_point, child_size, delta_inv)
-        begin_time = time_plane_point(child_start, delta, peak)
-        #time = distance_directional(delta, child_point, child_size)
+        begin_time = time_point_plane(peak, child_start, delta)
         if begin_time >= 0.0 && begin_time < min_time:
             child_end = point_farthest(child_point, child_size, delta)
-            end_time = time_plane_point(child_end, delta, peak)
+            end_time = time_point_plane(peak, child_end, delta)
             if begin_time == end_time:
-                continue
             elif begin_time > end_time:
                 print(["Error end_time greater than begin_time", begin_time, end_time])
-                continue
             else:
                 test_time = (begin_time + end_time)/2.0
                 test_position = sum_arrays(position_i, array_scaled(delta, test_time))
                 if is_overlap_cuboids(test_position, size, child_point, child_size):
                     min_time = begin_time
-                    hit_thing = thing
+                    is_hit = true
 
-    scale = array_scaled(delta, min_time)
-    final = sum_arrays(position_i, scale)

@@ -42,16 +42,7 @@ from wafflecore.thing import (thing_new, thing_load)
     append(state.world.children, shadow)
 
     thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right", "blue_square_inner"]
-    #thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right"]
     for name in thing_names:
-        #text = null
-        #file_read(join([state.things_dir, name], "/"), text)
-        #map = from_json(text)
-
-        #name = map.geometry_names[map.geometry_index]
-        #geometry = state.geometries{name}
-        #thing = thing_new(new_id(state), "Wall", [0.0,0.0,0.0], [], [], geometry, null)
-        #update(thing, map)
         print(["loading thing", name])
         thing = thing_load(state, name)
 
