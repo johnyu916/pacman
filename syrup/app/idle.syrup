@@ -103,22 +103,26 @@ from ai import ai_idle
     scale = array_scaled(delta, min_time)
     final = sum_arrays(position_i, scale)
 
-(bool is_hit, number min_time) crash_thing(array delta, array delta_inv, array position_i, array peak, object thing, number min_time, array offset):
+(bool is_hit, number thing_min_time) crash_thing(array delta, array delta_inv, array position_i, array peak, object thing, number min_time, array offset):
+    thing_min_time = min_time
     matrix = matrix_placement(thing.position, thing.rotates)
     offset = product_matrices(offset, matrix)
     if length(thing.children) > 0:
         for child in thing.children:
-            (child_is_hit, child_min_time) = crash_thing(delta, delta_inv, position_i, peak, child, min_time, offset)
-            if child_min_time < min_time:
-                min_time = child_min_time
+            (child_is_hit, child_min_time) = crash_thing(delta, delta_inv, position_i, peak, child, thing_min_time, offset)
+            if child_min_time < thing_min_time:
+                thing_min_time = child_min_time
                 is_hit = true 
     else:
         # if crashed with thing before the destination, report it.
         bounds = thing.bounds
+        if bounds == null:
+            is_hit = false
+            return
         (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
         child_start = point_farthest(child_point, child_size, delta_inv)
         begin_time = time_point_plane(peak, child_start, delta)
-        if begin_time >= 0.0 && begin_time < min_time:
+        if begin_time >= 0.0 && begin_time < thing_min_time:
             child_end = point_farthest(child_point, child_size, delta)
             end_time = time_point_plane(peak, child_end, delta)
             if begin_time == end_time:
@@ -129,6 +133,6 @@ from ai import ai_idle
                 test_time = (begin_time + end_time)/2.0
                 test_position = sum_arrays(position_i, array_scaled(delta, test_time))
                 if is_overlap_cuboids(test_position, size, child_point, child_size):
-                    min_time = begin_time
+                    thing_min_time = begin_time
                     is_hit = true
 

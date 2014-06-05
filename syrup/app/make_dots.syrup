@@ -1,0 +1,27 @@
+(array things) run():
+    byte_color = []
+    graph = []
+    x_length = 10
+    y_length = 10
+    for a in range(x_length):
+        row = []
+        for b in range(y_length):
+            append(row, false)
+        append(graph, row)
+
+    # add dots here.
+    for i in range(x_length):
+        graph[0][i] = true
+
+    x_offset = 5
+    y_offset = 5
+    things = []
+    for i in range(x_length):
+        for j in range(y_length):
+            if graph[i][j]:
+                x = x_offset + space*i
+                y = y_offset + space*j
+                position = [x, 0, y]
+                vertices = vertices_cube([0.0, 0.0, 0.0], 1, byte_color, 0.05)
+                append(things, thing_new())
+

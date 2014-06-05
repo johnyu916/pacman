@@ -1,5 +1,6 @@
 from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
-() run():
+
+() one():
     geometry = []
     byte_color = [38, 38, 217, 255]
     zero = [0.0, 0.0, 0.0]
@@ -10,3 +11,41 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
 
     filename = join(["../geometries", "blue1by70"], "/")
     file_write(filename, to_json(geometry))
+
+() rectangle(number x_length, number z_length):
+    geometry = []
+    byte_color = [38, 38, 217, 255]
+    z_s = [0.0, z_length-1]
+    x_s = [0.0, x_length-1]
+    for i in range(2):
+        z = z_s[i]
+        x = x_s[i]
+        for j in range(2, x_length - 2):
+            position = [i, 0.0, z]
+            vertices = vertices_cube(position, 1, byte_color, 0.05)
+            extend(geometry, vertices)
+        for j in range(2, z_length - 2):
+            position = [x, 0.0, i]
+            vertices = vertices_cube(position, 1, byte_color, 0.05)
+            extend(geometry, vertices)
+
+    cubes = [[1.0, 0.0, 1.0],[1.0, 0.0, z_length-2], [x_length-2, 0.0, 1.0],[x_length-2, 0.0, z_length-2]]
+
+    name = join(["blue", integer_string(x_length), "by", integer_string(z_length)], "")
+    filename = join(["../geometries", name], "/")
+    file_write(filename, to_json(geometry))
+
+() cubes():
+    geometry = []
+    positions = [
+    
+    ]
+    for position in positions:
+        vertices = vertices_cube(position, 1, byte_color, 0.05)
+        extend(geometry, vertices)
+
+    filename = join(["../geometries", "stage_cubes"], "/")
+    file_write(filename, to_json(geometry))
+
+() run():
+    rectangle(24,8)

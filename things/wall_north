@@ -1,0 +1,6 @@
+{
+    "position": [0.0, 0.0, 0.0],
+    "rotates": [],
+    "children_names": ["blue_c_nw", "blue1by70_0", "blue102by1_0", "blue1by29_0", "blue4by1_0", "blue1by29_1", "blue102by1_1", "blue1by70_1", "blue_c_ne"],
+    "type": "Stage"
+}

@@ -1,4 +1,3 @@
-#from pacman import pacman_new
 from wafflecore.compute import (new_id)
 from wafflecore.thing import (thing_new, thing_load)
 
@@ -41,7 +40,6 @@ from wafflecore.thing import (thing_new, thing_load)
     state.shadow = shadow
     append(state.world.children, shadow)
 
-    #thing_names = ["blue_bottom", "blue_top", "blue_left", "blue_right", "blue_square_inner"]
     thing_names = ["stage"]
     for name in thing_names:
         print(["loading thing", name])
