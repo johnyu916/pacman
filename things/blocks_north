@@ -1,5 +1,6 @@
 {
-    "position": [0.0, 0.0, 0.0],
+    "position": [0.0, 0.0, 5.0],
     "rotates": [],
-    "children_names": ["blue_square_inner"],
+    "children_names": ["blue24by16_0"],
+    "type": "Wall"
 }

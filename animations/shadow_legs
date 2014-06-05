@@ -1,0 +1,19 @@
+{
+    "name": "shadow_legs",
+    "thing__name": "shadow_legs",
+    "loop": true,
+    "duration": 0.250,
+    "actions":
+    [
+        {
+            "time": 0,
+            "type": "vertices",
+            "geometry_name": "shadow_legs_0"
+        },
+        {
+            "time": 0.125,
+            "type": "vertices",
+            "geometry_name": "shadow_legs_1"
+        }
+    ]
+}

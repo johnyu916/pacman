@@ -1,0 +1,12 @@
+from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
+() run():
+    geometry = []
+    byte_color = [38, 38, 217, 255]
+    zero = [0.0, 0.0, 0.0]
+    for i in range(70):
+        position = [0.0, 0.0, i]
+        vertices = vertices_cube(position, 1, byte_color, 0.05)
+        extend(geometry, vertices)
+
+    filename = join(["../geometries", "blue1by70"], "/")
+    file_write(filename, to_json(geometry))
