@@ -1,15 +1,18 @@
 from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
 
-() one():
+(object geometry) column_geometry(number x_length, number z_length, array offset):
     geometry = []
     byte_color = [38, 38, 217, 255]
-    zero = [0.0, 0.0, 0.0]
-    for i in range(70):
-        position = [0.0, 0.0, i]
-        vertices = vertices_cube(position, 1, byte_color, 0.05)
-        extend(geometry, vertices)
+    for i in range(x_length):
+        for j in range(z_length):
+            position = [i+offset[0], offset[1], j + offset[2]]
+            vertices = vertices_cube(position, 1, byte_color, 0.05)
+            extend(geometry, vertices)
 
-    filename = join(["../geometries", "blue1by70"], "/")
+() column(number x_length, number z_length):
+    geometry = column_geometry(x_length, z_length, [0.0, 0.0, 0.0])
+    name = join(["blue", integer_string(x_length), "by", integer_string(z_length)], "")
+    filename = join(["../geometries", name], "/")
     file_write(filename, to_json(geometry))
 
 () rectangle(number x_length, number z_length):
@@ -35,10 +38,55 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
     filename = join(["../geometries", name], "/")
     file_write(filename, to_json(geometry))
 
+() c_shape(number up_length, number side_length, number down_length):
+    byte_color = [38, 38, 217, 255]
+    geometry = []
+    column = column_geometry(down_length, 1, [2,0,0])
+    append(geometry, column)
+    column = column_geometry(1, side_length, [0,0,2])
+    append(geometry, column)
+    column = column_geometry(up_length, 1, [2,0,3 + side_length])
+    append(geometry, column)
+
+    vertices = vertices_cube([1,0,1], 1, byte_color, 0.05)
+    append(geometry, vertices)
+    vertices = vertices_cube([1,0,2+side_length], 1, byte_color, 0.05)
+    append(geometry, vertices)
+
+    filename = join(["../geometries", "blue_c_ne"], "/")
+    file_write(filename, to_json(geometry))
+
+() t_very_long():
+    byte_color = [38, 38, 217, 255]
+    geometry = []
+    # long ones
+    column = column_geometry(68, 1, [2,0,0])
+    append(geometry, column)
+    column = column_geometry(21, 1, [2,0,7])
+    append(geometry, column)
+    column = column_geometry(37, 1, [33,0,7])
+    append(geometry, column)
+    # sides
+    column = column_geometry(1, 4, [0,0,2])
+    append(geometry, column)
+    column = column_geometry(1, 4, [71,0,2])
+    append(geometry, column)
+    # cubes
+    column = column_geometry(1, 1, [1,0,1])
+    append(geometry, column)
+    column = column_geometry(1, 1, [70,0,1])
+    append(geometry, column)
+    column = column_geometry(1, 4, [70,0,6])
+    append(geometry, column)
+    column = column_geometry(1, 4, [1,0,6])
+    append(geometry, column)
+
+    filename = join(["../geometries", "t_68"], "/")
+    file_write(filename, to_json(geometry))
+
 () cubes():
     geometry = []
     positions = [
-    
     ]
     for position in positions:
         vertices = vertices_cube(position, 1, byte_color, 0.05)
@@ -48,4 +96,7 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
     file_write(filename, to_json(geometry))
 
 () run():
-    rectangle(24,8)
+    #c_shape(37, 28, 42)
+    #column(214,1)
+    #rectangle(8,32)
+    t_very_long()
