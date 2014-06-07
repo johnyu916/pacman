@@ -1,6 +1,6 @@
 {
     "position": [0.0, 0.0, 0.0],
     "rotates": [],
-    "child_names": ["t_68", "t_bottom_1"],
+    "children_names": ["t_68", "t_bottom_1"],
     "type": "Wall"
 }

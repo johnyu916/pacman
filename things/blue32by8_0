@@ -1,7 +1,7 @@
 {
-    "position": [132.0, 0.0, 228.0],
+    "position": [0.0, 0.0, 0.0],
     "rotates": [],
-    "geometry_names": ["blue32by16"],
+    "geometry_names": ["blue32by8"],
     "geometry_index": 0,
     "bounds": {
         "position": [-1.0, 0.0, -1.0],

@@ -95,7 +95,7 @@ from ai import ai_idle
         if thing.id == thing_id:
             continue
 
-        (is_hit, thing_min_time) = crash_thing(delta, delta_inv, position_i, peak, thing, min_time, matrix_identity())
+        (is_hit, thing_min_time) = crash_thing(delta, delta_inv, position_i, size, peak, thing, min_time, matrix_identity())
         if is_hit:
             min_time = thing_min_time
             hit_thing = thing
@@ -103,13 +103,13 @@ from ai import ai_idle
     scale = array_scaled(delta, min_time)
     final = sum_arrays(position_i, scale)
 
-(bool is_hit, number thing_min_time) crash_thing(array delta, array delta_inv, array position_i, array peak, object thing, number min_time, array offset):
+(bool is_hit, number thing_min_time) crash_thing(array delta, array delta_inv, array position_i, array size, array peak, object thing, number min_time, array offset):
     thing_min_time = min_time
     matrix = matrix_placement(thing.position, thing.rotates)
     offset = product_matrices(offset, matrix)
     if length(thing.children) > 0:
         for child in thing.children:
-            (child_is_hit, child_min_time) = crash_thing(delta, delta_inv, position_i, peak, child, thing_min_time, offset)
+            (child_is_hit, child_min_time) = crash_thing(delta, delta_inv, position_i, size, peak, child, thing_min_time, offset)
             if child_min_time < thing_min_time:
                 thing_min_time = child_min_time
                 is_hit = true 
