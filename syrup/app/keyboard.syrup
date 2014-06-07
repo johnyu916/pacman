@@ -1,8 +1,9 @@
 from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed)
 from wafflecore.animation import animate
+from wafflecore.camera import camera_translate
 
 (object keyboard) new_keyboard():
-    KEYS = ["a","d","s","w"]
+    KEYS = ["a","d","s","w", "c", "e", "j", "l", "k", "i"]
     keys = {}
     for key in KEYS:
         keys{key} = {
@@ -81,7 +82,7 @@ from wafflecore.animation import animate
     elapsed_time = state.now - key_state.down_time
     pacman = state.pacman
     #print(["keyboard_on_down inside", key, key_state])
-    keys = ["a", "d", "s", "w"]
+    keys = ["j", "l", "k", "i"]
     plus = state.pacman.input_velocity
     minus = -1*plus
     velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
@@ -91,9 +92,20 @@ from wafflecore.animation import animate
             pacman.velocity = velocities[i]
             #print(["keyboard_on_down", pacman.velocity])
             place_pacman(pacman, places[i][0], places[i][1])
+            animate_pacman(state, pacman, elapsed_time)
             break
 
-    animate_pacman(state, pacman, elapsed_time)
+    camera = state.camera
+    scale = 1.0
+    rotate_scale = 0.1
+    translate_keys = ["a", "d", "s", "w", "c", "e"]
+    axes = [ [0,0], [0,1], [1,0], [1,1], [2,0], [2,1] ]
+    print(["camera before", camera.placement])
+    for i in range(6):
+        this_key = translate_keys[i]
+        if key == this_key:
+            camera_translate(scale, axes[i][0], axes[i][1], camera)
+            return
 
 
 () move_old(object state, array distance):

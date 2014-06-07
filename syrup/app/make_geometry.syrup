@@ -18,17 +18,21 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
 () rectangle(number x_length, number z_length):
     geometry = []
     byte_color = [38, 38, 217, 255]
-    z_s = [0.0, z_length-1]
-    x_s = [0.0, x_length-1]
+    z_s = [0.0, z_length - 1]
+    x_s = [0.0, x_length - 1]
     for i in range(2):
         z = z_s[i]
         x = x_s[i]
-        vertices = column_geometry(x_length-16, 1, [2,0,z])
+        vertices = column_geometry(x_length - 4, 1, [2,0,z])
         extend(geometry, vertices)
-        vertices = column_geometry(1, z_length -4, [x,0,2])
+        vertices = column_geometry(1, z_length - 4, [x,0,2])
         extend(geometry, vertices)
 
-    cubes = [[1.0, 0.0, 1.0],[1.0, 0.0, z_length-2], [x_length-2, 0.0, 1.0],[x_length-2, 0.0, z_length-2]]
+    cubes = [[1.0, 0.0, 1.0],[1.0, 0.0, z_length - 2], [x_length - 2, 0.0, 1.0],[x_length - 2, 0.0, z_length - 2]]
+
+    for cube in cubes:
+        vertices = vertices_cube(cube, 1, byte_color, 0.05)
+        extend(geometry, vertices)
 
     name = join(["blue", integer_string(x_length), "by", integer_string(z_length)], "")
     filename = join(["../geometries", name], "/")
@@ -72,9 +76,9 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
     extend(geometry, column)
     column = column_geometry(1, 1, [70,0,1])
     extend(geometry, column)
-    column = column_geometry(1, 4, [70,0,6])
+    column = column_geometry(1, 1, [70,0,6])
     extend(geometry, column)
-    column = column_geometry(1, 4, [1,0,6])
+    column = column_geometry(1, 1, [1,0,6])
     extend(geometry, column)
 
     filename = join(["../geometries", "t_68"], "/")
@@ -96,6 +100,6 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
 () run():
     #c_shape(42, 28, 37)
     #column(214,1)
-    rectangle(24,8)
-    #t_very_long()
+    #rectangle(8,32)
+    t_very_long()
     #cubes()

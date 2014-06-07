@@ -1,6 +1,7 @@
 {
     "position": [0.0, 0.0, 5.0],
     "rotates": [],
-    "children_names": ["blue8by32_0", "blue32by8_0", "blue32by8_1", "blue8by32_1", "blue_t_n", "blue_t_s", "blue_t_w", "blue_t_e", "blue_l_west", "blue_l_east"],
+    "children_names_old": ["blue8by32_0", "blue32by8_0", "blue32by8_1", "blue8by32_1", "blue_t_n", "blue_t_s", "blue_t_w", "blue_t_e", "blue_l_west", "blue_l_east"],
+    "children_names": ["blue8by32_0", "blue32by8_0", "blue32by8_1", "blue8by32_1","blue_t_n", "blue_t_s", "blue_t_w", "blue_t_e", "blue_l_west", "blue_l_east" ],
     "type": "Wall"
 }

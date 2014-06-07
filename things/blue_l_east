@@ -1,5 +1,5 @@
 {
-    "position": [0.0, 0.0, 0.0],
+    "position": [180.0, 0.0, 60.0],
     "rotates": [],
     "geometry_names": ["right"],
     "geometry_index": 0,

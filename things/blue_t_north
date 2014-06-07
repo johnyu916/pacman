@@ -1,5 +1,5 @@
 {
-    "position": [0.0, 0.0, 0.0],
+    "position": [84.0, 0.0, 180.0],
     "rotates": [],
     "children_names": ["t_long", "t_bottom"],
     "type": "Wall"
