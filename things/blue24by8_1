@@ -4,8 +4,8 @@
     "geometry_names": ["blue24by8"],
     "geometry_index": 0,
     "bounds": {
-        "position": [-1.0, 0.0, -1.0],
-        "size": [26.0, 1.0, 18.0]
+        "position": [0.0, 0.0, 0.0],
+        "size": [24.0, 1.0, 8.0]
     },
     "mass": 1,
     "type": "Wall"

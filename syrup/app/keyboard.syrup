@@ -1,4 +1,4 @@
-from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed)
+from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, axis_sign_vector, sum_arrays)
 from wafflecore.animation import animate
 from wafflecore.camera import camera_translate
 
@@ -6,10 +6,7 @@ from wafflecore.camera import camera_translate
     KEYS = ["a","d","s","w", "c", "e", "j", "l", "k", "i"]
     keys = {}
     for key in KEYS:
-        keys{key} = {
-            "state": "KEY_UP",
-            "down_time": 0
-        }
+        keys{key} = "KEY_UP"
     keyboard = { "keys_state": keys }
 # if you hold the key down, glut will keep generating key_pressed events
 # TODO:redo keyboard stuff. trigger immediately.
@@ -17,25 +14,19 @@ from wafflecore.camera import camera_translate
     keys_state = state.keyboard.keys_state
     for key in keys(keys_state):
         if button == key:
-            old_state = keys_state{button}.state
+            old_state = keys_state{button}
             if old_state != key_state:
-                keys_state{button}.state = key_state
-                if key_state == "KEY_DOWN":
-                    keys_state{button}.down_time = state.now
+                keys_state{button} = key_state
             break
 
 # if any key is down, move in that direction (but only one
 # direction).
 # if no key is down, don't move.
 () keyboard_idle(object state):
-    keys_state = state.keyboard.keys_state
-    for key in keys(keys_state):
-        key_state = keys_state{key}
-        if key_state.state == "KEY_DOWN":
-            keyboard_on_down(state, key, key_state)
-            return
+    move_pacman(state)
 
-    keyboard_none(state)
+    move_camera(state)
+    #keyboard_none(state)
     #record("handler released: {}".format( key))
 
 () keyboard_none(object state):
@@ -69,6 +60,8 @@ from wafflecore.camera import camera_translate
             pacman.position = new_point
             pacman.rotates = []
     elif axis == 1:
+        return
+    elif axis == 2:
         if sign == 0:
             pacman.position = [new_point[0], new_point[1], new_point[2] + bound_size[2]]
             pacman.rotates = rotates_ortho_new(90, 1, 0, 0)
@@ -76,36 +69,60 @@ from wafflecore.camera import camera_translate
             pacman.position = [new_point[0] + bound_size[0], new_point[1], new_point[2]]
             pacman.rotates = rotates_ortho_new(270, 1, 0, 0)
 
+(bool yes) is_array_zero(array vector):
+    yes = vector[0] == 0.0 && vector[1] == 0.0 && vector[2] == 0.0
 
-() keyboard_on_down(object state, string key, object key_state):
-    #state.keyboard.
-    elapsed_time = state.now - key_state.down_time
+() move_pacman(object state):
+    keys_state = state.keyboard.keys_state
+
     pacman = state.pacman
+
+    if is_array_zero(pacman.position_delta):
+        pacman.animate_start = state.now
+    else:
+        #place_pacman(pacman, places[i][0], places[i][1])
+        (axis, sign) = axis_sign_vector(pacman.position_delta)
+        place_pacman(pacman, axis, sign)
+
+    elapsed_time = state.now - pacman.animate_start
+
     #print(["keyboard_on_down inside", key, key_state])
-    keys = ["j", "l", "k", "i"]
+    move_keys = ["j", "l", "k", "i"]
     plus = state.pacman.input_velocity
     minus = -1*plus
     velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
     places = [[0,0], [0,1], [1,0], [1,1]]
-    for i in range(4):
-        if key == keys[i]:
-            pacman.velocity = velocities[i]
-            #print(["keyboard_on_down", pacman.velocity])
-            place_pacman(pacman, places[i][0], places[i][1])
-            animate_pacman(state, pacman, elapsed_time)
-            break
+    velocity = [0.0, 0.0, 0.0]
 
+    for key in keys(keys_state):
+        key_state = keys_state{key}
+        if key_state == "KEY_UP":
+            continue
+        for i in range(4):
+            if key == move_keys[i]:
+                velocity = sum_arrays(velocity, velocities[i])
+                #print(["keyboard_on_down", key, key_state, velocity])
+
+    pacman.velocity = velocity
+    animate_pacman(state, pacman, elapsed_time)
+
+
+() move_camera(object state):
+    keys_state = state.keyboard.keys_state
     camera = state.camera
     scale = 1.0
     rotate_scale = 0.1
     translate_keys = ["a", "d", "s", "w", "c", "e"]
     axes = [ [0,0], [0,1], [1,0], [1,1], [2,0], [2,1] ]
-    print(["camera before", camera.placement])
-    for i in range(6):
-        this_key = translate_keys[i]
-        if key == this_key:
-            camera_translate(scale, axes[i][0], axes[i][1], camera)
-            return
+    #print(["camera before", camera.placement])
+    for key in keys(keys_state):
+        key_state = keys_state{key}
+        if key_state == "KEY_UP":
+            continue
+        for i in range(6):
+            this_key = translate_keys[i]
+            if key == this_key:
+                camera_translate(scale, axes[i][0], axes[i][1], camera)
 
 
 () move_old(object state, array distance):

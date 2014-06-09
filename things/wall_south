@@ -1,7 +1,6 @@
 {
     "position": [0.0, 0.0, 0.0],
     "rotates": [],
-    "children_names_old": ["blue_c_sw", "blue1by38_10", "blue13by1_10", "blue1by4_10", "blue13by1_11", "blue1by38_11", "blue214by1", "blue1by38_12", "blue13by1_12", "blue1by4_11", "blue13by1_13", "blue1by38_13", "blue_c_se"],
     "children_names": ["blue_c_sw", "blue1by38_10", "blue13by1_10", "blue1by4_10", "blue13by1_11", "blue1by38_11", "blue214by1", "blue1by38_12", "blue13by1_12", "blue1by4_11", "blue13by1_13", "blue1by38_13", "blue_c_se"],
     "type": "Stage"
 }

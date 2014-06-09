@@ -6,9 +6,10 @@ from ai import ai_idle
     delta = now - state.now
     state.now = now
     collisions(state, delta)
-    ai_idle(state)
+    #ai_idle(state)
     keyboard_idle(state)
 
+# move objects according to mechanics, handle collisions
 () collisions(object state, number delta):
     # 1. calculate the force, velocity, and position.
     # 2. attempt to apply the change in position,
@@ -32,11 +33,12 @@ from ai import ai_idle
         #    print(["idle", velocity_i, velocity_f, velocity_avg])
 
         if (velocity_avg[0] == 0.0 && velocity_avg[1] == 0.0 && velocity_avg[2] == 0.0):
+            thing.delta = [0.0, 0.0, 0.0]
             continue
 
         distance_delta = array_scaled(velocity_avg, delta)
         position_f = sum_arrays(position, distance_delta)
-        #print(["idle", thing.type, position_f, position])
+        print(["idle", thing.type, position_f, position])
 
         # crash it against others
         (crash_position, hit_thing) = crash_things(thing.id, position, position_f, size, state.world.children)
@@ -49,6 +51,7 @@ from ai import ai_idle
         #print(["idle delta", crash_delta])
         last = sum_arrays(thing.position, crash_delta)
         thing.position = [last[0], last[1], last[2]]
+        thing.position_delta = crash_delta
         #print(["idle 2", thing.type, crash_position, thing.position])
 
 
@@ -89,6 +92,7 @@ from ai import ai_idle
     delta = subtract_arrays(position_f, position_i)
     delta_inv = array_scaled(delta, -1)
     peak = point_farthest(position_i, size, delta)
+    print(["crash_things peak", position_i, peak])
     min_time = 1.0
     hit_thing = null
     for thing in things:
@@ -116,15 +120,23 @@ from ai import ai_idle
     else:
         # if crashed with thing before the destination, report it.
         bounds = thing.bounds
+        if thing.type == "TLong":
+            print(["crash_thing tlong", thing.bounds])
         if bounds == null:
             is_hit = false
             return
-        (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+        (child_point, child_size) = cuboid_transformed(offset, bounds.position, bounds.size)
+        if thing.type == "TLong":
+            print(["crash_thing tlong 2", child_point, child_size])
         child_start = point_farthest(child_point, child_size, delta_inv)
         begin_time = time_point_plane(peak, child_start, delta)
+        if thing.type == "TLong":
+            print(["crash_thing child_start", child_start, begin_time, delta])
         if begin_time >= 0.0 && begin_time < thing_min_time:
             child_end = point_farthest(child_point, child_size, delta)
             end_time = time_point_plane(peak, child_end, delta)
+            if thing.type == "TLong":
+                print(["crash_thing child_end", child_end, end_time])
             if begin_time == end_time:
                 print(["crash_thing begin_time same as end_time", child_start, child_end])
             elif begin_time > end_time:

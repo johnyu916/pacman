@@ -1,12 +1,6 @@
 {
     "position": [180.0, 0.0, 60.0],
     "rotates": [],
-    "geometry_names": ["right"],
-    "geometry_index": 0,
-    "bounds": {
-        "position": [-1.0, 0.0, -1.0],
-        "size": [26.0, 1.0, 18.0]
-    },
-    "mass": 1,
+    "children_names": ["l_long", "l_short"],
     "type": "Wall"
 }

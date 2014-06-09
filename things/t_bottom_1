@@ -13,8 +13,8 @@
     "geometry_names": ["t_bottom"],
     "geometry_index": 0,
     "bounds": {
-        "position": [-1.0, 0.0, -1.0],
-        "size": [26.0, 1.0, 18.0]
+        "position": [1.0, 0.0, 0.0],
+        "size": [8.0, 1.0, 24.0]
     },
     "mass": 1,
     "type": "Wall"

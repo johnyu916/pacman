@@ -1,11 +1,11 @@
 {
-    "position": [20.0, 0.0, 204.0],
+    "position": [8.0, 0.0, 24.0],
     "rotates": [],
-    "geometry_names": ["blue24by8"],
+    "geometry_names": ["l_short"],
     "geometry_index": 0,
     "bounds": {
         "position": [0.0, 0.0, 0.0],
-        "size": [24.0, 1.0, 8.0]
+        "size": [16.0, 1.0, 8.0]
     },
     "mass": 1,
     "type": "Wall"
