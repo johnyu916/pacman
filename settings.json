@@ -29,5 +29,20 @@
     "syrup": {
         "source": "../syrup",
         "python_output": "."
+    },
+    "game": {
+        "lives": 3,
+        "states": [
+            {
+                "name": "ready",
+            },
+            {
+                "name": "playing"
+            },
+            {
+                "name": "dying"
+            }
+        ],
+        "state_name": "ready"
     }
 }

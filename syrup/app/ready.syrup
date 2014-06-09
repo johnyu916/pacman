@@ -1,0 +1,24 @@
+() ready_start(object state):
+    ready = state.game.state
+    ready.time_start = state.now
+
+() ready_idle(object state):
+    ready = state.game.state
+    elapsed = state.now - ready.time_start
+    if state.now > 5.0:
+        # change state
+        start_state(state)
+
+() ready_playing(object state):
+    collisions(state, delta)
+    #ai_idle(state)
+    keyboard_idle(state)
+
+() ready_dying(object state):
+    ready = state.game.state
+    elapsed = state.now - ready.time_start
+    if state.now > 5.0:
+        # change state
+        state.game.state = game_game_state(state, "ready")
+        start_state(state)
+    # die!

@@ -1,13 +1,18 @@
-from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_point_plane, is_overlap_cuboids, matrix_identity, product_matrices)
+from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_point_plane, is_overlap_cuboids, matrix_identity, product_matrices, axis_signs_visible, vector_axis_sign)
 from keyboard import keyboard_idle
 from ai import ai_idle
 () idle(object state):
     now = time()
     delta = now - state.now
     state.now = now
-    collisions(state, delta)
-    #ai_idle(state)
-    keyboard_idle(state)
+
+    game_state = state.game.state
+    if game_state == "ready":
+        ready_idle(state)
+        # display ready for 5 seconds then move to playing
+    elif game_state == "playing":
+        ready_playing(state)
+    elif game_state == "dying":
 
 # move objects according to mechanics, handle collisions
 () collisions(object state, number delta):
@@ -44,6 +49,7 @@ from ai import ai_idle
         (crash_position, hit_thing) = crash_things(thing.id, position, position_f, size, state.world.children)
         if hit_thing != null:
             #print(["idle hit_thing", hit_thing.type])
+            handle_collision(thing, hit_thing)
             thing.velocity = [0.0, 0.0, 0.0]
         thing.force = [0.0, 0.0, 0.0]
 
@@ -54,6 +60,12 @@ from ai import ai_idle
         thing.position_delta = crash_delta
         #print(["idle 2", thing.type, crash_position, thing.position])
 
+# two objects collided. specifically, one ran into two. what to do?
+() handle_collision(object one, object two):
+    if one.type == "Shadow" || two.type == "Shadow" &&
+      one.type == "Pacman" || two.type == "Pacman":
+        # die pacman
+        dying()
 
 () do_friction(object state):
     # do friction stuff later.
@@ -128,23 +140,28 @@ from ai import ai_idle
         (child_point, child_size) = cuboid_transformed(offset, bounds.position, bounds.size)
         if thing.type == "TLong":
             print(["crash_thing tlong 2", child_point, child_size])
-        child_start = point_farthest(child_point, child_size, delta_inv)
-        begin_time = time_point_plane(peak, child_start, delta)
-        if thing.type == "TLong":
-            print(["crash_thing child_start", child_start, begin_time, delta])
-        if begin_time >= 0.0 && begin_time < thing_min_time:
-            child_end = point_farthest(child_point, child_size, delta)
-            end_time = time_point_plane(peak, child_end, delta)
+
+        axis_signs = axis_signs_visible(delta)
+        for axis_sign in axis_signs:
+            vector = vector_axis_sign(1, axis_sign.axis, axis_sign.sign)
+            vector_inv = array_scaled(delta, -1)
+            child_start = point_farthest(child_point, child_size, vector_inv)
+            begin_time = time_point_plane(peak, child_start, vector)
             if thing.type == "TLong":
-                print(["crash_thing child_end", child_end, end_time])
-            if begin_time == end_time:
-                print(["crash_thing begin_time same as end_time", child_start, child_end])
-            elif begin_time > end_time:
-                print(["Error end_time greater than begin_time", begin_time, end_time])
-            else:
-                test_time = (begin_time + end_time)/2.0
-                test_position = sum_arrays(position_i, array_scaled(delta, test_time))
-                if is_overlap_cuboids(test_position, size, child_point, child_size):
-                    thing_min_time = begin_time
-                    is_hit = true
+                print(["crash_thing child_start", child_start, begin_time, vector])
+            if begin_time >= 0.0 && begin_time < thing_min_time:
+                child_end = point_farthest(child_point, child_size, vector)
+                end_time = time_point_plane(peak, child_end, vector)
+                if thing.type == "TLong":
+                    print(["crash_thing child_end", child_end, end_time])
+                if begin_time == end_time:
+                    print(["crash_thing begin_time same as end_time", child_start, child_end])
+                elif begin_time > end_time:
+                    print(["Error end_time greater than begin_time", begin_time, end_time])
+                else:
+                    test_time = (begin_time + end_time)/2.0
+                    test_position = sum_arrays(position_i, array_scaled(delta, test_time))
+                    if is_overlap_cuboids(test_position, size, child_point, child_size):
+                        thing_min_time = begin_time
+                        is_hit = true
 

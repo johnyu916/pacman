@@ -33,16 +33,35 @@ from wafflecore.thing import (thing_new, thing_load)
     state.geometries = geometries
     pacman = thing_load(state, "pacman")
     state.pacman = pacman
-    append(state.world.children, pacman)
+    #append(state.world.children, pacman)
 
     shadow = thing_load(state, "shadow")
     shadow.last_position = [0.0, 0.0, 0.0]
     state.shadow = shadow
-    append(state.world.children, shadow)
+    #append(state.world.children, shadow)
 
     thing_names = ["stage"]
+    stage = []
     for name in thing_names:
         print(["loading thing", name])
         thing = thing_load(state, name)
+        append(stage, thing)
 
-        append(state.world.children, thing)
+    state.world.stage = stage
+
+    # prepare ready
+    state.game.state = get_game_state(state, state.game.state_name)
+    start_state(state)
+
+() start_state(object state):
+    if start.game.state.name == "ready":
+        ready_start(state)
+
+() start_playing(object state):
+    state.world.children = []
+    append(state.world.children, state.pacman)
+    append(state.world.children, state.shadow)
+
+() start_dying(object state):
+    dying = state.game.state
+    dying.time_start = state.now

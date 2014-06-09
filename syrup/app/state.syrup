@@ -10,7 +10,9 @@ from keyboard import new_keyboard
         "counter": 1,
         "world": null,
         "keyboard": new_keyboard(),
-        "now": time()
+        "now": time(),
+        "game": {
+        }
     }
     update(state, settings)
     state.world = new_world(state)

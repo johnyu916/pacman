@@ -1,0 +1,7 @@
+
+(object value) get_game_state(object state, string name):
+    for game_state in state.game.states:
+        if game_state.name == name:
+            value = game_state
+            return
+    value = null
