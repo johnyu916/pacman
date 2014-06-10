@@ -34,7 +34,7 @@
         "lives": 3,
         "states": [
             {
-                "name": "ready",
+                "name": "ready"
             },
             {
                 "name": "playing"
@@ -43,6 +43,6 @@
                 "name": "dying"
             }
         ],
-        "state_name": "ready"
+        "init_state_name": "ready"
     }
 }

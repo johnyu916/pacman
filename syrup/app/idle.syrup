@@ -1,167 +1,17 @@
-from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_point_plane, is_overlap_cuboids, matrix_identity, product_matrices, axis_signs_visible, vector_axis_sign)
-from keyboard import keyboard_idle
+from ready import (ready_idle, playing_idle, dying_idle)
 from ai import ai_idle
 () idle(object state):
     now = time()
     delta = now - state.now
     state.now = now
+    state.delta = delta
 
-    game_state = state.game.state
-    if game_state == "ready":
+    game_name = state.game.state.name
+
+    if game_name == "ready":
         ready_idle(state)
         # display ready for 5 seconds then move to playing
-    elif game_state == "playing":
-        ready_playing(state)
-    elif game_state == "dying":
-
-# move objects according to mechanics, handle collisions
-() collisions(object state, number delta):
-    # 1. calculate the force, velocity, and position.
-    # 2. attempt to apply the change in position,
-    #    but do not go through anything.
-    for thing in state.world.children:
-        #print(["idle 0.5", thing.type, thing.position, thing.bounds])
-        matrix = matrix_placement(thing.position, thing.rotates)
-        bounds = thing.bounds
-        if bounds == null:
-            continue
-        (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
-        #print(["idle 0.6", thing.type, position])
-        #print([thing.type, thing.force])
-        accel = array_scaled(thing.force, 1.0/thing.mass)
-        velocity_i = thing.velocity
-        velocity_f = sum_arrays(array_scaled(accel, delta), velocity_i)
-        velocity_avg = array_scaled(sum_arrays(velocity_f, velocity_i) , 1/2.0)
-        # new velocity
-        thing.velocity = velocity_f
-        #if thing.type == "Pacman":
-        #    print(["idle", velocity_i, velocity_f, velocity_avg])
-
-        if (velocity_avg[0] == 0.0 && velocity_avg[1] == 0.0 && velocity_avg[2] == 0.0):
-            thing.delta = [0.0, 0.0, 0.0]
-            continue
-
-        distance_delta = array_scaled(velocity_avg, delta)
-        position_f = sum_arrays(position, distance_delta)
-        print(["idle", thing.type, position_f, position])
-
-        # crash it against others
-        (crash_position, hit_thing) = crash_things(thing.id, position, position_f, size, state.world.children)
-        if hit_thing != null:
-            #print(["idle hit_thing", hit_thing.type])
-            handle_collision(thing, hit_thing)
-            thing.velocity = [0.0, 0.0, 0.0]
-        thing.force = [0.0, 0.0, 0.0]
-
-        crash_delta = subtract_arrays(crash_position, position)
-        #print(["idle delta", crash_delta])
-        last = sum_arrays(thing.position, crash_delta)
-        thing.position = [last[0], last[1], last[2]]
-        thing.position_delta = crash_delta
-        #print(["idle 2", thing.type, crash_position, thing.position])
-
-# two objects collided. specifically, one ran into two. what to do?
-() handle_collision(object one, object two):
-    if one.type == "Shadow" || two.type == "Shadow" &&
-      one.type == "Pacman" || two.type == "Pacman":
-        # die pacman
-        dying()
-
-() do_friction(object state):
-    # do friction stuff later.
-    pacman = state.pacman
-    pacman_id = pacman.id
-    matrix = matrix_placement(pacman.position, pacman.rotates)
-    bounds = pacman.bounds
-    (new_point, new_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
-
-    for child in state.world.children:
-        if child.id != pacman_id:
-            matrix = matrix_placement(child.position, child.rotates)
-            bounds = child.bounds
-            (child_point, child_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
-            # see if they touch. axis vector
-            (axis, sign) = face_overlap(new_point, new_size, child_point, child_size)
-            if axis == null:
-                continue
-
-            friction_mag = 0
-            if sign == 0:
-                if thing.force[axis] < 0:
-                    friction_mag = coef * thing.force[axis]
-            else:
-                if thing.force[axis] > 0:
-                    friction_mag = coef * thing.force[axis]
-
-            friction = array_scaled(vector_unit(thing.velocity), friction_mag)
-            # decrease the force in that direction up to 0.
-            thing.force = sum_arrays(thing.force, friction)
-
-
-# thing is currently in position_i. It wants to go to position_f.
-# how far can I actually go? and what did i hit?
-(array final, object hit_thing) crash_things(number thing_id, array position_i, array position_f, array size, array things):
-    delta = subtract_arrays(position_f, position_i)
-    delta_inv = array_scaled(delta, -1)
-    peak = point_farthest(position_i, size, delta)
-    print(["crash_things peak", position_i, peak])
-    min_time = 1.0
-    hit_thing = null
-    for thing in things:
-        if thing.id == thing_id:
-            continue
-
-        (is_hit, thing_min_time) = crash_thing(delta, delta_inv, position_i, size, peak, thing, min_time, matrix_identity())
-        if is_hit:
-            min_time = thing_min_time
-            hit_thing = thing
-
-    scale = array_scaled(delta, min_time)
-    final = sum_arrays(position_i, scale)
-
-(bool is_hit, number thing_min_time) crash_thing(array delta, array delta_inv, array position_i, array size, array peak, object thing, number min_time, array offset):
-    thing_min_time = min_time
-    matrix = matrix_placement(thing.position, thing.rotates)
-    offset = product_matrices(offset, matrix)
-    if length(thing.children) > 0:
-        for child in thing.children:
-            (child_is_hit, child_min_time) = crash_thing(delta, delta_inv, position_i, size, peak, child, thing_min_time, offset)
-            if child_min_time < thing_min_time:
-                thing_min_time = child_min_time
-                is_hit = true 
-    else:
-        # if crashed with thing before the destination, report it.
-        bounds = thing.bounds
-        if thing.type == "TLong":
-            print(["crash_thing tlong", thing.bounds])
-        if bounds == null:
-            is_hit = false
-            return
-        (child_point, child_size) = cuboid_transformed(offset, bounds.position, bounds.size)
-        if thing.type == "TLong":
-            print(["crash_thing tlong 2", child_point, child_size])
-
-        axis_signs = axis_signs_visible(delta)
-        for axis_sign in axis_signs:
-            vector = vector_axis_sign(1, axis_sign.axis, axis_sign.sign)
-            vector_inv = array_scaled(delta, -1)
-            child_start = point_farthest(child_point, child_size, vector_inv)
-            begin_time = time_point_plane(peak, child_start, vector)
-            if thing.type == "TLong":
-                print(["crash_thing child_start", child_start, begin_time, vector])
-            if begin_time >= 0.0 && begin_time < thing_min_time:
-                child_end = point_farthest(child_point, child_size, vector)
-                end_time = time_point_plane(peak, child_end, vector)
-                if thing.type == "TLong":
-                    print(["crash_thing child_end", child_end, end_time])
-                if begin_time == end_time:
-                    print(["crash_thing begin_time same as end_time", child_start, child_end])
-                elif begin_time > end_time:
-                    print(["Error end_time greater than begin_time", begin_time, end_time])
-                else:
-                    test_time = (begin_time + end_time)/2.0
-                    test_position = sum_arrays(position_i, array_scaled(delta, test_time))
-                    if is_overlap_cuboids(test_position, size, child_point, child_size):
-                        thing_min_time = begin_time
-                        is_hit = true
-
+    elif game_name == "playing":
+        playing_idle(state)
+    elif game_name == "dying":
+        dying_idle(state)

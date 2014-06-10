@@ -1,5 +1,7 @@
 from wafflecore.compute import (new_id)
 from wafflecore.thing import (thing_new, thing_load)
+from ready import start_state
+from shared import get_game_state
 
 () start(array argv, object state):
     # load pacman
@@ -40,28 +42,12 @@ from wafflecore.thing import (thing_new, thing_load)
     state.shadow = shadow
     #append(state.world.children, shadow)
 
-    thing_names = ["stage"]
-    stage = []
-    for name in thing_names:
-        print(["loading thing", name])
-        thing = thing_load(state, name)
-        append(stage, thing)
+    print(["loading thing", name])
+    thing = thing_load(state, "stage")
 
-    state.world.stage = stage
+    state.stage = thing
 
     # prepare ready
-    state.game.state = get_game_state(state, state.game.state_name)
+    state.game.state = get_game_state(state, state.game.init_state_name)
+    print(["starter", state.game.state])
     start_state(state)
-
-() start_state(object state):
-    if start.game.state.name == "ready":
-        ready_start(state)
-
-() start_playing(object state):
-    state.world.children = []
-    append(state.world.children, state.pacman)
-    append(state.world.children, state.shadow)
-
-() start_dying(object state):
-    dying = state.game.state
-    dying.time_start = state.now
