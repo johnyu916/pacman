@@ -1,6 +1,7 @@
 from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_point_plane, is_overlap_cuboids, matrix_identity, product_matrices, axis_signs_visible, vector_axis_sign, vectors_component, vectors_component_unit)
 from keyboard import keyboard_idle
 from shared import get_game_state
+from ai import ai_idle
 
 () ready_start(object state):
     ready = state.game.state
@@ -42,18 +43,70 @@ from shared import get_game_state
 
 () playing_idle(object state):
     collisions(state)
+    touching_all(state)
     keyboard_idle(state)
+    ai_idle(state)
 
 () dying_start(object state):
     dying = state.game.state
     dying.time_start = state.now
 
+() touching_all(object state):
+    # who is touching each other?
+    things = state.world.children
+    for thing in things:
+        thing.touching = []
+    for i in range(length(things)):
+        one = things[i]
+        for j in range(i, length(things)):
+            two = things[j]
+            (yes, normals) = touching(one, two)
+            if yes:
+                touch = {
+                    "thing": two,
+                    "normals": [normals]
+                }
+                append(one.touching, touch)
+
+                inv_normals = []
+                for normal in normals:
+                    inv_normal = array_scaled(normal, -1)
+                    append(inv_normals, inv_normal)
+                touch = {
+                    "thing": one,
+                    "normals": inv_normals
+                }
+                append(two.touching, touch)
+
+(bool yes, array normals) touching_one(object one, object two):
+    if one.bounds == null:
+        for child in one.children:
+            (child_yes, child_normals) = touching_one(child, two)
+            if child_yes:
+                yes = true
+                extend(normals, child_normals)
+    else:
+        (yes, normals) = touching_two(one.bounds, two)
+
+(bool yes, array normals) touching_two(object one_bounds, object two):
+    if two.bounds == null:
+        for child in t wo.children:
+            (child_yes, child_normals) = touching_two(one, child)
+    else:
+        two_bounds = two.bounds
+        (axis, sign) = face_overlap(one_bounds.position, one_bounds.size, two_bounds.position, two_bounds.size)
+        if axis != null:
+            yes = true
+            append(normals, vector_axis_sign(1, axis, sign))
 
 # move objects according to mechanics, handle collisions
 () collisions(object state):
     # 1. calculate the force, velocity, and position.
     # 2. attempt to apply the change in position,
     #    but do not go through anything.
+    for thing in state.world.children:
+        thing.collisions = []
+
     delta = state.delta
     for thing in state.world.children:
         #print(["idle 0.5", thing.type, thing.position, thing.bounds])
@@ -81,15 +134,32 @@ from shared import get_game_state
         position_f = sum_arrays(position, distance_delta)
         print(["collisions", thing.type, position_f, position])
 
-        # crash it against others. GET DIRECITON
+        # crash it against others. GET DIRECTION
         (crash_position, hit_thing, hit_normal) = crash_things(thing.id, position, position_f, size, state.world.children)
+
+        # if crash position is same as initial position, there was no movement.
+        # no movement, no crash.
+        crash_delta = subtract_arrays(crash_position, position)
+        if crash_delta[0] == 0.0 && crash_delta[1] == 0.0 and crash_delta[2] == 0.0:
+            continue
+
         if hit_thing != null:
             #print(["idle hit_thing", hit_thing.type])
+            collision = {
+                "thing": hit_thing,
+                "normal": hit_normal
+            }
+            append(thing.collisions, collision)
+            collision = {
+                "thing": thing,
+                "normal": array_scaled(hit_normal, -1)
+            }
+            append(hit_thing.collisions, collision)
             handle_collision(thing, hit_thing)
             thing.velocity = [0.0, 0.0, 0.0]
+
         thing.force = [0.0, 0.0, 0.0]
 
-        crash_delta = subtract_arrays(crash_position, position)
         #print(["idle delta", crash_delta])
         last = sum_arrays(thing.position, crash_delta)
         thing.position = [last[0], last[1], last[2]]
@@ -136,6 +206,7 @@ from shared import get_game_state
 
 # thing is currently in position_i. It wants to go to position_f.
 # how far can I actually go? and what did i hit?
+# hit_normal is outward direction from thing_id to other things.
 (array final, object hit_thing, array hit_normal) crash_things(number thing_id, array position_i, array position_f, array size, array things):
     delta = subtract_arrays(position_f, position_i)
     delta_inv = array_scaled(delta, -1)

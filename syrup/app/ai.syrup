@@ -24,8 +24,10 @@ from wafflecore.animation import animate
     shadow.last_position = shadow.position
     if delta == [0.0, 0.0, 0.0]:
         plus = shadow.input_velocity
+        #plus = shadow.input_force
         minus = -1*plus
         velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+        forces = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
 
         shadow_eyes = get_shadow_eyes(shadow)
         geometries = state.geometries

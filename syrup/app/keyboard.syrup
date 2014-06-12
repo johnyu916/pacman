@@ -9,7 +9,6 @@ from wafflecore.camera import camera_translate
         keys{key} = "KEY_UP"
     keyboard = { "keys_state": keys }
 # if you hold the key down, glut will keep generating key_pressed events
-# TODO:redo keyboard stuff. trigger immediately.
 () keyboard_on_event(object state, string button, string key_state):
     keys_state = state.keyboard.keys_state
     for key in keys(keys_state):
@@ -88,11 +87,14 @@ from wafflecore.camera import camera_translate
 
     #print(["keyboard_on_down inside", key, key_state])
     move_keys = ["j", "l", "k", "i"]
-    plus = state.pacman.input_velocity
+    #plus = state.pacman.input_velocity
+    plus = shadow.input_force
     minus = -1*plus
-    velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+    forces = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+    #velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
     places = [[0,0], [0,1], [1,0], [1,1]]
-    velocity = [0.0, 0.0, 0.0]
+    #velocity = [0.0, 0.0, 0.0]
+    force = [0.0, 0.0, 0.0]
 
     for key in keys(keys_state):
         key_state = keys_state{key}
@@ -100,12 +102,19 @@ from wafflecore.camera import camera_translate
             continue
         for i in range(4):
             if key == move_keys[i]:
-                velocity = sum_arrays(velocity, velocities[i])
+                #velocity = sum_arrays(velocity, velocities[i])
+                force = sum_arrays(force, forces[i])
                 #print(["keyboard_on_down", key, key_state, velocity])
 
-    pacman.velocity = velocity
+    pacman.force = oppose_force(thing, force)
+    #pacman.velocity = velocity
     animate_pacman(state, pacman, elapsed_time)
 
+(array force) oppose_force(object thing, array input):
+    for touch in thing.touching:
+        for normal in touch.normals:
+            input = nullify_input(normal, input)
+    force = input
 
 () move_camera(object state):
     keys_state = state.keyboard.keys_state
