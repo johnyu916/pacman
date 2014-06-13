@@ -1,4 +1,4 @@
-from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, axis_sign_vector, sum_arrays)
+from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, axis_sign_vector, sum_arrays, nullify_input)
 from wafflecore.animation import animate
 from wafflecore.camera import camera_translate
 
@@ -79,7 +79,6 @@ from wafflecore.camera import camera_translate
     if is_array_zero(pacman.position_delta):
         pacman.animate_start = state.now
     else:
-        #place_pacman(pacman, places[i][0], places[i][1])
         (axis, sign) = axis_sign_vector(pacman.position_delta)
         place_pacman(pacman, axis, sign)
 
@@ -88,7 +87,7 @@ from wafflecore.camera import camera_translate
     #print(["keyboard_on_down inside", key, key_state])
     move_keys = ["j", "l", "k", "i"]
     #plus = state.pacman.input_velocity
-    plus = shadow.input_force
+    plus = pacman.input_force
     minus = -1*plus
     forces = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
     #velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
@@ -105,10 +104,26 @@ from wafflecore.camera import camera_translate
                 #velocity = sum_arrays(velocity, velocities[i])
                 force = sum_arrays(force, forces[i])
                 #print(["keyboard_on_down", key, key_state, velocity])
-
-    pacman.force = oppose_force(thing, force)
+    if force[0] == 0.0 && force[1] == 0.0 && force[2] == 0.0:
+        # stop it.
+        pacman.force = force
+        pacman.velocity = [0.0,0.0,0.0]
+    else:
+        pacman.force = oppose_force(pacman, force)
     #pacman.velocity = velocity
+    # cap pacman's velocity
+    cap_velocity(pacman)
     animate_pacman(state, pacman, elapsed_time)
+
+() cap_velocity(object pacman):
+    velocity = pacman.velocity
+    max_speed = pacman.max_speed
+    min_speed = -1*max_speed
+    for i in range(3):
+        if velocity[i] > max_speed:
+            velocity[i] = max_speed
+        elif velocity[i] < min_speed:
+            velocity[i] = min_speed
 
 (array force) oppose_force(object thing, array input):
     for touch in thing.touching:

@@ -12,7 +12,9 @@ from keyboard import new_keyboard
         "keyboard": new_keyboard(),
         "now": time(),
         "game": {
-        }
+        },
+        "frames": 0,
+        "frame_start_time": 0
     }
     update(state, settings)
     state.world = new_world(state)
