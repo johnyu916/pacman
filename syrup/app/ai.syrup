@@ -20,29 +20,43 @@ from wafflecore.animation import animate
 () ai_idle(object state):
     shadow = state.shadow
     # try to move
-    delta = subtract_arrays(shadow.position, shadow.last_position)
-    shadow.last_position = shadow.position
-    if delta == [0.0, 0.0, 0.0]:
-        plus = shadow.input_velocity
-        #plus = shadow.input_force
-        minus = -1*plus
-        velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
-        forces = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+    if state == "normal":
+        delta = subtract_arrays(shadow.position, shadow.last_position)
+        shadow.last_position = shadow.position
+        if delta == [0.0, 0.0, 0.0]:
+            plus = shadow.input_velocity
+            #plus = shadow.input_force
+            minus = -1*plus
+            velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+            forces = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
 
-        shadow_eyes = get_shadow_eyes(shadow)
-        geometries = state.geometries
-        value = random()
-        if value < 0.25:
-            shadow.velocity = velocities[0]
-            shadow_eyes.geometry = geometries{"shadow_eyes_left"}
-        elif value < 0.50:
-            shadow.velocity = velocities[1]
-            shadow_eyes.geometry = geometries{"shadow_eyes_right"}
-        elif value < 0.75:
-            shadow.velocity = velocities[2]
-            shadow_eyes.geometry = geometries{"shadow_eyes_down"}
-        else:
-            shadow.velocity = velocities[3]
-            shadow_eyes.geometry = geometries{"shadow_eyes_up"}
+            shadow_eyes = get_shadow_eyes(shadow)
+            geometries = state.geometries
+            value = random()
+            if value < 0.25:
+                shadow.velocity = velocities[0]
+                shadow_eyes.geometry = geometries{"shadow_eyes_left"}
+            elif value < 0.50:
+                shadow.velocity = velocities[1]
+                shadow_eyes.geometry = geometries{"shadow_eyes_right"}
+            elif value < 0.75:
+                shadow.velocity = velocities[2]
+                shadow_eyes.geometry = geometries{"shadow_eyes_down"}
+            else:
+                shadow.velocity = velocities[3]
+                shadow_eyes.geometry = geometries{"shadow_eyes_up"}
 
-    animate_shadow(state, shadow)
+        animate_shadow(state, shadow)
+
+() change_state(object enemy, string enemy_state):
+    if enemy_state == "blue":
+        enemy.blue_time = now
+        enemy.state = "blue"
+    elif enemy_state == "eyes":
+        enemy.state = "eyes"
+        # change geometry
+        #enemy.geometry
+
+() blue_enemies(array enemies):
+    for enemy in enemies:
+        change_state(enemy, "blue")
