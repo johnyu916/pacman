@@ -110,6 +110,7 @@ from wafflecore.camera import camera_translate
         pacman.velocity = [0.0,0.0,0.0]
     else:
         pacman.force = oppose_force(pacman, force)
+        #print(["pacmans force", pacman.force])
     #pacman.velocity = velocity
     # cap pacman's velocity
     cap_velocity(pacman)
@@ -126,9 +127,11 @@ from wafflecore.camera import camera_translate
             velocity[i] = min_speed
 
 (array force) oppose_force(object thing, array input):
+    #print(["pacman input 0", input])
     for touch in thing.touching:
         for normal in touch.normals:
             input = nullify_input(normal, input)
+    #print(["pacman input 1", input])
     force = input
 
 () move_camera(object state):
@@ -147,21 +150,4 @@ from wafflecore.camera import camera_translate
             this_key = translate_keys[i]
             if key == this_key:
                 camera_translate(scale, axes[i][0], axes[i][1], camera)
-
-
-() move_old(object state, array distance):
-    move_keys = ["a", "d", "s", "w"]
-    speed = 1
-    # time since user pressed and held on to key
-    #distance = integer(speed * elapsed_time)
-    pacman = state.pacman
-    if distance[0] > 0:
-        place_pacman(pacman, 0, 1)
-        animate_pacman(state, pacman, elapsed_time)
-    elif distance[2] < 0:
-        place_pacman(pacman, 1, 0)
-        animate_pacman(state, pacman, elapsed_time)
-    elif distance[2] > 0:
-        place_pacman(pacman, 1, 1)
-        animate_pacman(state, pacman, elapsed_time)
 
