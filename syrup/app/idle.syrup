@@ -1,4 +1,4 @@
-from ready import (ready_idle, playing_idle, dying_idle)
+from ready import (intro_start, intro_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle)
 from ai import ai_idle
 () idle(object state):
     now = time()
@@ -7,15 +7,44 @@ from ai import ai_idle
     state.now = now
     state.delta = delta
 
-    game_name = state.game.state.name
-
-    if game_name == "ready":
-        ready_idle(state)
+    game_state = state.game.state
+    game_name = game_state.name
+    if game_name == "intro":
+        if game_state.status == "start":
+            intro_start(state)
+        else:
+            intro_idle(state)
+    elif game_name == "main_menu":
+        if game_state.status == "start":
+            main_menu_start(state)
+        else:
+            main_menu_idle(state)
+    elif game_name == "player_ready":
+        if game_state.status == "start":
+            player_ready_start(state)
+        else:
+            player_ready_idle(state)
+    elif game_name == "ready":
+        if game_state.status == "start":
+            ready_start(state)
+        else:
+            ready_idle(state)
         # display ready for 5 seconds then move to playing
     elif game_name == "playing":
-        playing_idle(state)
+        if game_state.status == "start":
+            playing_start(state)
+        else:
+            playing_idle(state)
     elif game_name == "dying":
-        dying_idle(state)
+        if game_state.status == "start":
+            dying_start(state)
+        else:
+            dying_idle(state)
+    elif game_name == "game_over":
+        if game_state.status == "start":
+            game_over_start(state)
+        else:
+            game_over_idle(state)
 
 () print_fps(object state):
     frame_time = state.now - state.frame_start_time

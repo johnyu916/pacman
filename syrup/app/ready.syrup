@@ -1,55 +1,122 @@
 from collisions import (collisions, touching_all)
 from keyboard import keyboard_idle
 from shared import get_game_state
+from wafflecore.animation import animate
 from ai import ai_idle
 
-() ready_start(object state):
-    ready = state.game.state
-    ready.time_start = state.now
-    #print(["ready_start", state.game])
+() remove_thing(array things, number id):
+    for thing in things:
+        if thing.id == id:
+            remove(things, thing)
+            break
 
-() ready_idle(object state):
-    ready = state.game.state
-    elapsed = state.now - ready.time_start
-    if state.now > 1.0:
-        # start playing
-        state.game.state = get_game_state(state, "playing")
-        start_state(state)
+() intro_start(object state):
+    intro = state.game.state
+    intro.time_start = state.now
+    state.world.children = [intro.texts[0]]
+    intro.status = "idle"
 
-() dying_idle(object state):
-    ready = state.game.state
-    elapsed = state.now - ready.time_start
-    if state.now > 5.0:
-        # change state
-        state.game.state = get_game_state(state, "ready")
-        start_state(state)
-    else:
-        animate_pacman(state, pacman, "death")
-        livse = state.game.lives
-        lives -= 1
+() intro_idle(object state):
+    intro = state.game.state
+    elapsed = state.now - intro.time_start
+    if elapsed > 2.0:
+        state.game.state = get_game_state(state, "main_menu")
+        state.game.state.status = "start"
+    elif elapsed > 1.0:
+        state.world.children = [intro.texts[0], intro.texts[1]]
 
-        if lives > 0:
-            state.game.state = get_game_state(state, "playing")
-            start_state(state)
-        else:
-            state.game.state = get_game_state(state, "game_over")
-            start_state(state)
+() main_menu_start(object state):
+    main_menu = state.game.state
+    state.world.children = main_menu.texts
+    main_menu.status = "idle"
 
-() game_over_start(object state):
-    state.world.children = []
-    # different keyboard handler
-
-() game_over_idle(object state):
+() main_menu_idle(object state):
     keys_state = state.keyboard.keys_state
     for key in keys(keys_state):
+        key_state = keys_state{key}
         if key_state == "KEY_DOWN":
             if key == "q":
                 exit()
             elif key == "s":
-                state.game.state = get_game_state(state, "ready")
-                start_state(state)
+                state.game.state = get_game_state(state, "player_ready")
+                state.game.state.status = "start"
 
-() start_state(object state):
+
+() player_ready_start(object state):
+    game = state.game
+    player_ready = state.game.state
+    player_ready.time_start = state.now
+    state.world.children = [game.info, game.materials, game.items, player_ready.text]
+    player_ready.status = "idle"
+
+() player_ready_idle(object state):
+    game = state.game
+    player_ready = state.game.state
+    elapsed = state.now - player_ready.time_start
+    if elapsed > 1.0:
+        remove_thing(state.world.children, player_ready.text.id)
+        # start playing
+        game.state = get_game_state(state, "ready")
+        game.state.status = "start"
+
+() ready_start(object state):
+    game = state.game
+    ready = game.state
+    game.info.children = [ready.ready_text]
+
+    ready.time_start = state.now
+    ready.status = "idle"
+    #print(["ready_start", state.game])
+
+() ready_idle(object state):
+    game = state.game
+    ready = game.state
+    elapsed = state.now - ready.time_start
+    if elapsed > 1.0:
+        remove_thing(game.info.children, ready.ready_text.id)
+        # start playing
+        state.game.state = get_game_state(state, "playing")
+        state.game.state.status = "start"
+
+() dying_start(object state):
+    dying = state.game.state
+    dying.time_start = state.now
+    dying.status = "idle"
+
+() dying_idle(object state):
+    pacman = state.game.pacman
+    dying = state.game.state
+    elapsed = state.now - dying.time_start
+    if elapsed > 7.0:
+        # change state
+        lives = state.game.lives
+        lives -= 1
+
+        if lives > 0:
+            state.game.state = get_game_state(state, "ready")
+            state.game.state.status = "start"
+        else:
+            state.game.state = get_game_state(state, "game_over")
+            state.game.state.status = "start"
+    else:
+        #print(["dying_idle animating"])
+        animate(state.animations.pacman_die, pacman, state.geometries, elapsed)
+
+() game_over_start(object state):
+    game_over = state.game.state
+    game_over.time_start = state.now
+    state.world.children = [game_over.text]
+    # different keyboard handler
+
+() game_over_idle(object state):
+    game_over = state.game.state
+    elapsed = state.now - game_over.time_start
+    if elapsed > 1.0:
+        state.game.state = get_game_state(state, "main_menu")
+        state.game.state.status = "start"
+
+
+() start_state_old(object state):
     state_name = state.game.state.name
     print(["start_state", state_name])
     if state_name == "ready":
@@ -60,52 +127,36 @@ from ai import ai_idle
         dying_start(state)
 
 () playing_start(object state):
-    state.world.children = []
-    append(state.world.children, state.stage)
-    append(state.world.children, state.pacman)
-    append(state.world.children, state.shadow)
 
     # dots
     state.game.score = 0
     state.game.highscore = 0
-    dots_make(state)
-    balls_make(state)
+    state.game.state.status = "idle"
 
 () playing_idle(object state):
     collisions(state)
     touching_all(state)
-    game_logic(state)
+    stop = game_logic(state)
+    if stop:
+        return
     keyboard_idle(state)
     ai_idle(state)
     #print(["pacman velocity", state.pacman.velocity])
 
-() dying_start(object state):
-    dying = state.game.state
-    dying.time_start = state.now
-
-() dots_make(object state):
-    dot = {
-        "position": [0.0, 0.0, 0.0],
-        "children": []
-    }
-    # TODO: no dots yet
-    state.dots = []
-
-() balls_make(object state):
-    state.balls = []
-
 
 # two objects collided. specifically, one ran into two. what to do?
 #() handle_collision(object one, object two):
-() game_logic(object state):
-    pacman = state.pacman
+(bool stop) game_logic(object state):
+    pacman = state.game.pacman
     game = state.game
     for touch in pacman.touching:
         thing = touch.thing
         if thing.type == "Shadow":
             if thing.state == "normal":
                 state.game.state = get_game_state(state, "dying")
-                start_state("dying")
+                state.game.state.status = "start"
+                stop = true
+                return
             elif thing.state == "blue":
                 state.game.score += 100
                 change_state(thing, "eyes")
@@ -128,7 +179,7 @@ from ai import ai_idle
 
 () do_friction(object state):
     # do friction stuff later.
-    pacman = state.pacman
+    pacman = state.game.pacman
     pacman_id = pacman.id
     matrix = matrix_placement(pacman.position, pacman.rotates)
     bounds = pacman.bounds

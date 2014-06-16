@@ -1,0 +1,19 @@
+from wafflecore.compute import (new_id)
+from wafflecore.thing import (thing_new, thing_blank)
+
+(object thing) get_text(object state, string text):
+    children = []
+    x = 0.0
+    for letter in text:
+        if letter == "!":
+            geometry = state.geometries.exclamation
+        elif letter == " ":
+            x += 8.0
+            continue
+        else:
+            geometry = state.geometries{letter}
+        letter_thing = thing_new(new_id(state), "Letter", [x, 0.0, 0.0], [], [], geometry, null)
+        append(children, letter_thing)
+        x += 8.0
+    thing = thing_blank(new_id(state), "String")
+    thing.children = children

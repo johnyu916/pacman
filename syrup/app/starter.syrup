@@ -1,7 +1,7 @@
 from wafflecore.compute import (new_id)
-from wafflecore.thing import (thing_new, thing_load)
-from ready import start_state
+from wafflecore.thing import (thing_load, thing_blank)
 from shared import get_game_state
+from text import get_text
 
 () start(array argv, object state):
     # load pacman
@@ -34,20 +34,70 @@ from shared import get_game_state
 
     state.geometries = geometries
     pacman = thing_load(state, "pacman")
-    state.pacman = pacman
+    game = state.game
+    game.info = thing_blank(new_id(state), "Info")
+
+    game.pacman = pacman
     #append(state.world.children, pacman)
 
     shadow = thing_load(state, "shadow")
     shadow.last_position = [0.0, 0.0, 0.0]
-    state.shadow = shadow
+    game.shadow = shadow
     #append(state.world.children, shadow)
 
     print(["loading thing", name])
     thing = thing_load(state, "stage")
 
-    state.stage = thing
+    game.stage = thing
+    game.materials = thing_blank(new_id(state), "Materials")
+    game.materials.children = [game.stage, game.pacman, game.shadow]
+
+    dots_make(state)
+    balls_make(state)
+    game.items = thing_blank(new_id(state), "Items")
+    #game.items.children = [game.balls, game.dots]
+    # dots, balls, etc
+
+    #ready = thing_load(state, "ready")
+    intro_state = get_game_state(state, "intro")
+    chars = get_text(state, "CHARACTERS")
+    chars.position = [80, 0, 210]
+    shadow = get_text(state, "SHADOW")
+    shadow.position = [80, 0, 170]
+    intro_state.texts = [chars, shadow]
+
+    main_menu_state = get_game_state(state, "main_menu")
+    chars = get_text(state, "PUSH START BUTTON")
+    chars.position = [80, 0, 120]
+    main_menu_state.texts = [chars]
+
+    player_ready_state = get_game_state(state, "player_ready")
+    chars = get_text(state, "PLAYER ONE")
+    chars.position = [90, 0, 165]
+    player_ready_state.text = chars
+
+    ready_state = get_game_state(state, "ready")
+    ready_text = get_text(state, "READY!")
+    ready_text.position = [89, 0, 121]
+    ready_state.ready_text = ready_text
 
     # prepare ready
     state.game.state = get_game_state(state, state.game.init_state_name)
     print(["starter", state.game.state])
-    start_state(state)
+    state.game.state.status = "start"
+
+    game_over_state = get_game_state(state, "game_over")
+    ready_text = get_text(state, "GAME OVER")
+    ready_text.position = [89, 0, 121]
+    game_over_state.text = ready_text
+
+() dots_make(object state):
+    dot = {
+        "position": [0.0, 0.0, 0.0],
+        "children": []
+    }
+    # TODO: no dots yet
+    state.dots = []
+
+() balls_make(object state):
+    state.balls = []

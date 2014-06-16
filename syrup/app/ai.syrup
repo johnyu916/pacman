@@ -18,7 +18,7 @@ from wafflecore.animation import animate
     animate(animation, shadow_legs, state.geometries, state.now)
 
 () ai_idle(object state):
-    shadow = state.shadow
+    shadow = state.game.shadow
     # try to move
     if state == "normal":
         delta = subtract_arrays(shadow.position, shadow.last_position)

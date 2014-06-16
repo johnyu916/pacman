@@ -29,7 +29,7 @@ from wafflecore.camera import camera_translate
     #record("handler released: {}".format( key))
 
 () keyboard_none(object state):
-    state.pacman.velocity = [0.0, 0.0, 0.0]
+    state.game.pacman.velocity = [0.0, 0.0, 0.0]
 
 (number next) loop_next(number index, number length):
     next = index + 1
@@ -74,7 +74,7 @@ from wafflecore.camera import camera_translate
 () move_pacman(object state):
     keys_state = state.keyboard.keys_state
 
-    pacman = state.pacman
+    pacman = state.game.pacman
 
     if is_array_zero(pacman.position_delta):
         pacman.animate_start = state.now

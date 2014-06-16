@@ -34,6 +34,15 @@
         "lives": 3,
         "states": [
             {
+                "name": "intro"
+            },
+            {
+                "name": "main_menu"
+            },
+            {
+                "name": "player_ready"
+            },
+            {
                 "name": "ready"
             },
             {
@@ -41,8 +50,11 @@
             },
             {
                 "name": "dying"
+            },
+            {
+                "name": "game_over"
             }
         ],
-        "init_state_name": "ready"
+        "init_state_name": "intro"
     }
 }
