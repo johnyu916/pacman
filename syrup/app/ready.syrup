@@ -44,6 +44,7 @@ from ai import ai_idle
 
 () player_ready_start(object state):
     game = state.game
+    game.lives = 3
     player_ready = state.game.state
     player_ready.time_start = state.now
     state.world.children = [game.info, game.materials, game.items, player_ready.text]
@@ -87,7 +88,7 @@ from ai import ai_idle
     pacman = state.game.pacman
     dying = state.game.state
     elapsed = state.now - dying.time_start
-    if elapsed > 7.0:
+    if elapsed > 1.5:
         # change state
         lives = state.game.lives
         lives -= 1

@@ -8,6 +8,7 @@ from wafflecore.camera import camera_translate
     for key in KEYS:
         keys{key} = "KEY_UP"
     keyboard = { "keys_state": keys }
+
 # if you hold the key down, glut will keep generating key_pressed events
 () keyboard_on_event(object state, string button, string key_state):
     keys_state = state.keyboard.keys_state
