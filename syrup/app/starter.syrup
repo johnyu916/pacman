@@ -2,6 +2,7 @@ from wafflecore.compute import (new_id)
 from wafflecore.thing import (thing_load, thing_blank)
 from shared import get_game_state
 from text import get_text
+from dots_balls import (get_dots, get_balls)
 
 () start(array argv, object state):
     # load pacman
@@ -52,10 +53,13 @@ from text import get_text
     game.materials = thing_blank(new_id(state), "Materials")
     game.materials.children = [game.stage, game.pacman, game.shadow]
 
-    dots_make(state)
-    balls_make(state)
     game.items = thing_blank(new_id(state), "Items")
-    #game.items.children = [game.balls, game.dots]
+    children = []
+    balls = get_balls(state)
+    extend(children, balls)
+    dots = get_dots(state)
+    extend(children, dots)
+    game.items.children = children
     # dots, balls, etc
 
     #ready = thing_load(state, "ready")
@@ -98,6 +102,3 @@ from text import get_text
     }
     # TODO: no dots yet
     state.dots = []
-
-() balls_make(object state):
-    state.balls = []

@@ -1,5 +1,179 @@
+from wafflecore.compute import (new_id)
+from wafflecore.thing import (thing_new, thing_blank)
 
-() get_dots():
-    
+(array dots) line_dots(object state, number x, number x_off, number z, number z_off, number amount, object geometry):
+    for i in range(amount):
+        position = [x, 0, z]
+        bounds = {
+            "position": [0.0, 0.0, 0.0],
+            "size": [1.0, 1.0, 1.0]
+        }
+        dot = thing_new(new_id(state), "Dot", position, [], [], geometry, bounds)
+        append(dots, dot)
+        x += x_off
+        z += z_off
 
-() get_balls():
+(array sections) get_dots(object state):
+    geometry = state.geometries.dot
+
+    # 253
+    all_dots = []
+    # horizontal NW
+    dots = line_dots(state, 11, 8, 251, 0, 12, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 11, 8, 219, 0, 13, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 11, 8, 195, 0, 6, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 75, 8, 195, 0, 4, geometry)
+    extend(all_dots, dots)
+    # vertical NW
+    dots = line_dots(state, 11, 8, 243, 0, 1, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 11, 8, 227, 0, 1, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 11, 0, 203, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 51, 0, 227, 8, 3, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 51, 0, 203, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 51, 0, 147, 8, 6, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 75, 0, 203, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 99, 0, 227, 8, 3, geometry)
+    extend(all_dots, dots)
+    bounds = {
+        "position": [11.0, 0.0, 147.0],
+        "size": [100.0, 1.0, 106.0] 
+    }
+    thing_nw = thing_new(new_id(state), "DotsNW", [0,0,0], [], [all_dots], null, bounds)
+
+    all_dots = []
+    # horizontal NE
+    dots = line_dots(state, 123, 8, 251, 0, 12, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 115, 8, 219, 0, 13, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 123, 8, 195, 0, 4, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 171, 8, 195, 0, 6, geometry)
+    extend(all_dots, dots)
+    # vertical NE
+    dots = line_dots(state, 123, 0, 227, 8, 3, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 147, 0, 203, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 171, 0, 227, 8, 3, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 171, 0, 147, 8, 6, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 211, 8, 243, 0, 1, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 211, 8, 227, 0, 1, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 211, 0, 203, 8, 2, geometry)
+    extend(all_dots, dots)
+    bounds = {
+        "position": [115.0, 0.0, 147.0],
+        "size": [98.0, 1.0, 106.0]
+    }
+    thing_ne = thing_new(new_id(state), "DotsNE", [0,0,0], [], [all_dots], null, bounds)
+
+    all_dots = []
+    # horizontal SW
+    dots = line_dots(state, 11, 8, 99, 0, 12, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 19, 8, 75, 0, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 51, 8, 75, 0, 7, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 11, 8, 51, 0, 6, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 75, 8, 51, 0, 4, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 11, 8, 219, 0, 13, geometry)
+    extend(all_dots, dots)
+    # vertical SW
+    dots = line_dots(state, 11, 0, 83, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 11, 0, 35, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 51, 0, 59, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 51, 0, 83, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 51, 0, 107, 8, 5, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 75, 0, 59, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 99, 0, 35, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 99, 0, 83, 8, 2, geometry)
+    extend(all_dots, dots)
+
+    bounds = {
+        "position": [11.0, 0.0, 27.0],
+        "size": [100.0, 1.0, 104.0]
+    }
+    thing_sw = thing_new(new_id(state), "DotsSW", [0,0,0], [], [all_dots], null, bounds)
+
+    all_dots = []
+    # horizonatl SE
+    dots = line_dots(state, 123, 8, 99, 0, 12, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 123, 8, 75, 0, 7, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 195, 8, 75, 0, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 123, 8, 51, 0, 4, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 171, 8, 51, 0, 6, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 115, 8, 219, 0, 13, geometry)
+    extend(all_dots, dots)
+    # vertical SE
+    dots = line_dots(state, 123, 0, 35, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 123, 0, 83, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 147, 0, 59, 8, 2, geometry)
+    extend(all_dots, dots)
+
+    dots = line_dots(state, 171, 0, 59, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 171, 0, 83, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 171, 0, 107, 8, 5, geometry)
+    extend(all_dots, dots)
+
+    dots = line_dots(state, 211, 0, 83, 8, 2, geometry)
+    extend(all_dots, dots)
+    dots = line_dots(state, 211, 0, 35, 8, 2, geometry)
+    extend(all_dots, dots)
+    bounds = {
+        "position": [123.0, 0.0, 27.0],
+        "size": [90.0, 1.0, 114.0]
+    }
+    thing_se = thing_new(new_id(state), "DotsSE", [0,0,0], [], [all_dots], null, bounds)
+
+    sections = [thing_nw, thing_ne, thing_sw, thing_se]
+
+
+(array balls) get_balls(object state):
+    positions = [
+    [208, 0, 72],
+    [8, 0, 72],
+    [208, 0, 232],
+    [8, 0, 232]
+    ]
+    bounds = {
+        "position": [0.0, 0.0, 0.0],
+        "size": [8.0, 1.0, 8.0]
+    }
+    geometry = state.geometries.ball
+    balls = []
+    for position in positions:
+        ball = thing_new(new_id(state), "Ball", position, [], [], geometry, bounds)
+        append(balls, ball)

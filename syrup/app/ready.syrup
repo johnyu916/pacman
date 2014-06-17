@@ -165,17 +165,16 @@ from ai import ai_idle
     #if (one.type == "Shadow" || two.type == "Shadow") && (one.type == "Pacman" || two.type == "Pacman"):
         # die pacman
 
-    for dot in state.dots:
-        if touching_one(pacman, dot):
-            game.score += 10
-            remove(dots, dot)
-            break
-
-    for ball in state.balls:
-        if touching_one(pacman, ball):
-            game.score += 50
-            remove(balls, ball)
-            break
+    for round in game.items:
+        if touching_one(pacman, round):
+            if round.type == "Ball":
+                game.score += 50
+                #remove(dots, dot)
+                break
+            if round.type == "Dot":
+                game.score += 10
+                #remove(dots, dot)
+                break
 
 
 () do_friction(object state):
