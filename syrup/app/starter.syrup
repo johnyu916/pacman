@@ -54,12 +54,9 @@ from dots_balls import (get_dots, get_balls)
     game.materials.children = [game.stage, game.pacman, game.shadow]
 
     game.items = thing_blank(new_id(state), "Items")
-    children = []
     balls = get_balls(state)
-    extend(children, balls)
     dots = get_dots(state)
-    extend(children, dots)
-    game.items.children = children
+    game.items.children = [dots, balls]
     # dots, balls, etc
 
     #ready = thing_load(state, "ready")

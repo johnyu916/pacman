@@ -1,10 +1,11 @@
-from collisions import (collisions, touching_all)
+from collisions import (collisions, touching_all, overlap_bounds_thing)
 from keyboard import keyboard_idle
 from shared import get_game_state
 from wafflecore.animation import animate
 from ai import ai_idle
+from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_identity)
 
-() remove_thing(array things, number id):
+() remove_thing_old(array things, number id):
     for thing in things:
         if thing.id == id:
             remove(things, thing)
@@ -165,17 +166,30 @@ from ai import ai_idle
     #if (one.type == "Shadow" || two.type == "Shadow") && (one.type == "Pacman" || two.type == "Pacman"):
         # die pacman
 
-    for round in game.items:
-        if touching_one(pacman, round):
-            if round.type == "Ball":
-                game.score += 50
-                #remove(dots, dot)
-                break
-            if round.type == "Dot":
-                game.score += 10
-                #remove(dots, dot)
-                break
+    matrix = matrix_placement(pacman.position, pacman.rotates)
+    bounds = pacman.bounds
+    (pacman_point, pacman_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+    round = overlap_bounds_thing(matrix_identity(), pacman_point, pacman_size, game.items)
+    if round:
+        if round.type == "Ball":
+            game.score += 50
+            remove_thing(game.items.children[1].children, round.id)
+        elif round.type == "Dot":
+            game.score += 10
+            remove_thing(game.items.children[0].children, round.id)
 
+
+(object removed_thing) remove_thing(array things, number thing_id):
+    removed_thing = null
+    for thing in things:
+        if thing.id == thing_id:
+            remove(things, thing)
+            removed_thing = thing
+            return
+        child_removed = remove_thing(thing.children, thing_id)
+        if child_removed != null:
+            removed_thing = child_removed
+            return
 
 () do_friction(object state):
     # do friction stuff later.

@@ -107,6 +107,28 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
                 }
                 append(two.touching, touch)
 
+# position and size are in world coordinates
+(object hit_thing) overlap_bounds_thing(array offset, array position, array size, object thing):
+    hit_thing = null
+    matrix = matrix_placement(thing.position, thing.rotates)
+    offset = product_matrices(offset, matrix)
+    thing_bounds = thing.bounds
+    if thing_bounds != null:
+        (thing_position, thing_size) = cuboid_transformed(offset, thing_bounds.position, thing_bounds.size)
+        overlap = is_overlap_cuboids(position, size, thing_position, thing_size)
+    if length(thing.children) > 0:
+        if thing_bounds != null:
+            if overlap == false:
+                return
+        for child in thing.children:
+            child_hit_thing = overlap_bounds_thing(offset, position, size, child)
+            if child_hit_thing != null:
+                hit_thing = child_hit_thing
+                return
+    else:
+        if overlap:
+            hit_thing = thing
+
 # are these two things touching?
 (bool yes, array normals) touching_one(array offset, object one, object two):
     matrix = matrix_placement(one.position, one.rotates)
@@ -133,9 +155,9 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     two_bounds = two.bounds
     if two_bounds != null:
         (two_position, two_size) = cuboid_transformed(offset, two_bounds.position, two_bounds.size)
+        (axis, sign) = face_overlap(one_position, one_size, two_position, two_size)
     if length(two.children) > 0:
         if two_bounds != null:
-            (axis, sign) = face_overlap(one_position, one_size, two_position, two_size)
             if axis == null:
                 return
         for child in two.children:
@@ -144,7 +166,6 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
                 yes = true
                 extend(normals, child_normals)
     else:
-        (axis, sign) = face_overlap(one_position, one_size, two_position, two_size)
         if axis != null:
             yes = true
             append(normals, vector_axis_sign(1, axis, sign))

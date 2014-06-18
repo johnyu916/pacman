@@ -13,7 +13,7 @@ from wafflecore.thing import (thing_new, thing_blank)
         x += x_off
         z += z_off
 
-(array sections) get_dots(object state):
+(object section) get_dots(object state):
     geometry = state.geometries.dot
 
     # 253
@@ -48,7 +48,7 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [11.0, 0.0, 147.0],
         "size": [100.0, 1.0, 106.0] 
     }
-    thing_nw = thing_new(new_id(state), "DotsNW", [0,0,0], [], [all_dots], null, bounds)
+    thing_nw = thing_new(new_id(state), "DotsNW", [0,0,0], [], all_dots, null, bounds)
 
     all_dots = []
     # horizontal NE
@@ -79,7 +79,7 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [115.0, 0.0, 147.0],
         "size": [98.0, 1.0, 106.0]
     }
-    thing_ne = thing_new(new_id(state), "DotsNE", [0,0,0], [], [all_dots], null, bounds)
+    thing_ne = thing_new(new_id(state), "DotsNE", [0,0,0], [], all_dots, null, bounds)
 
     all_dots = []
     # horizontal SW
@@ -117,7 +117,7 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [11.0, 0.0, 27.0],
         "size": [100.0, 1.0, 104.0]
     }
-    thing_sw = thing_new(new_id(state), "DotsSW", [0,0,0], [], [all_dots], null, bounds)
+    thing_sw = thing_new(new_id(state), "DotsSW", [0,0,0], [], all_dots, null, bounds)
 
     all_dots = []
     # horizonatl SE
@@ -156,12 +156,14 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [123.0, 0.0, 27.0],
         "size": [90.0, 1.0, 114.0]
     }
-    thing_se = thing_new(new_id(state), "DotsSE", [0,0,0], [], [all_dots], null, bounds)
+    thing_se = thing_new(new_id(state), "DotsSE", [0,0,0], [], all_dots, null, bounds)
 
-    sections = [thing_nw, thing_ne, thing_sw, thing_se]
+    children = [thing_nw, thing_ne, thing_sw, thing_se]
+    section = thing_blank(new_id(state), "Dots")
+    section.children = children
 
 
-(array balls) get_balls(object state):
+(object balls) get_balls(object state):
     positions = [
     [208, 0, 72],
     [8, 0, 72],
@@ -173,7 +175,10 @@ from wafflecore.thing import (thing_new, thing_blank)
         "size": [8.0, 1.0, 8.0]
     }
     geometry = state.geometries.ball
-    balls = []
+    children = []
     for position in positions:
         ball = thing_new(new_id(state), "Ball", position, [], [], geometry, bounds)
-        append(balls, ball)
+        append(children, ball)
+
+    balls = thing_blank(new_id(state), "Balls")
+    balls.children = children
