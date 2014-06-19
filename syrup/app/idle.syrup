@@ -6,6 +6,7 @@ from ai import ai_idle
     print_fps(state)
     state.now = now
     state.delta = delta
+    #print(["idle delta", delta])
 
     game_state = state.game.state
     game_name = game_state.name

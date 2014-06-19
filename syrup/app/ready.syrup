@@ -1,4 +1,5 @@
 from collisions import (collisions, touching_all, overlap_bounds_thing)
+from text import get_text
 from keyboard import keyboard_idle
 from shared import get_game_state
 from wafflecore.animation import animate
@@ -48,7 +49,8 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
     game.lives = 3
     player_ready = state.game.state
     player_ready.time_start = state.now
-    state.world.children = [game.info, game.materials, game.items, player_ready.text]
+    game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.live_icons]
+    state.world.children = [game.info, game.materials, game.items]
     player_ready.status = "idle"
 
 () player_ready_idle(object state):
@@ -56,7 +58,7 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
     player_ready = state.game.state
     elapsed = state.now - player_ready.time_start
     if elapsed > 1.0:
-        remove_thing(state.world.children, player_ready.text.id)
+        remove_thing(game.info.children, player_ready.text.id)
         # start playing
         game.state = get_game_state(state, "ready")
         game.state.status = "start"
@@ -64,10 +66,16 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
 () ready_start(object state):
     game = state.game
     ready = game.state
-    game.info.children = [ready.ready_text]
+    remove_thing(game.info.children, game.ready_text.id)
+    append(game.info.children, game.ready_text)
 
     ready.time_start = state.now
     ready.status = "idle"
+    game.pacman.geometry = state.geometries{"pacman_0"}
+    game.pacman.position = [106, 0, 70]
+    game.pacman.rotates = []
+    game.shadow.position = [105, 0, 165]
+    game.materials.children = [game.stage, game.pacman, game.shadow]
     #print(["ready_start", state.game])
 
 () ready_idle(object state):
@@ -75,7 +83,7 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
     ready = game.state
     elapsed = state.now - ready.time_start
     if elapsed > 1.0:
-        remove_thing(game.info.children, ready.ready_text.id)
+        remove_thing(game.info.children, game.ready_text.id)
         # start playing
         state.game.state = get_game_state(state, "playing")
         state.game.state.status = "start"
@@ -86,12 +94,13 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
     dying.status = "idle"
 
 () dying_idle(object state):
-    pacman = state.game.pacman
-    dying = state.game.state
+    game = state.game
+    pacman = game.pacman
+    dying = game.state
     elapsed = state.now - dying.time_start
     if elapsed > 1.5:
         # change state
-        lives = state.game.lives
+        lives = game.lives
         lives -= 1
 
         if lives > 0:
@@ -108,6 +117,7 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
     game_over = state.game.state
     game_over.time_start = state.now
     state.world.children = [game_over.text]
+    game_over.status = "idle"
     # different keyboard handler
 
 () game_over_idle(object state):
@@ -118,21 +128,11 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
         state.game.state.status = "start"
 
 
-() start_state_old(object state):
-    state_name = state.game.state.name
-    print(["start_state", state_name])
-    if state_name == "ready":
-        ready_start(state)
-    elif state_name == "playing":
-        playing_start(state)
-    elif state_name == "dying":
-        dying_start(state)
-
 () playing_start(object state):
 
     # dots
     state.game.score = 0
-    state.game.highscore = 0
+    state.game.high_score = 0
     state.game.state.status = "idle"
 
 () playing_idle(object state):
@@ -173,10 +173,20 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
     if round:
         if round.type == "Ball":
             game.score += 50
+            set_score_value(state)
             remove_thing(game.items.children[1].children, round.id)
         elif round.type == "Dot":
             game.score += 10
+            set_score_value(state)
             remove_thing(game.items.children[0].children, round.id)
+
+() set_score_value(object state):
+    game = state.game
+    text = integer_string(game.score)
+    score_value = get_text(state, text)
+    game.score_value.children = score_value.children
+    x = 57
+    game.score_value.position[0] = 54 - 8*length(text)
 
 
 (object removed_thing) remove_thing(array things, number thing_id):

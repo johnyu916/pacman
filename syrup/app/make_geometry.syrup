@@ -97,6 +97,15 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
     filename = join(["../geometries", "stage_cubes"], "/")
     file_write(filename, to_json(geometry))
 
+() jail():
+    geometry = []
+    column = column_geometry(56, 1, [0,0,0])
+    extend(geometry, column)
+    column = column_geometry(1, 30, [0,0,0])
+    extend(geometry, column)
+
+    return
+
 () run():
     #c_shape(42, 28, 37)
     #column(214,1)

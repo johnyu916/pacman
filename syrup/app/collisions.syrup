@@ -40,6 +40,7 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
         distance_delta = array_scaled(velocity_avg, delta)
         position_f = sum_arrays(position, distance_delta)
         #if thing.type == "Pacman":
+        #    print(["collisions", velocity_i, velocity_f, velocity_avg])
         #    print(["collisions", thing.type, position_f, position])
 
         # crash it against others. GET DIRECTION
@@ -126,8 +127,9 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
                 hit_thing = child_hit_thing
                 return
     else:
-        if overlap:
-            hit_thing = thing
+        if thing_bounds != null:
+            if overlap:
+                hit_thing = thing
 
 # are these two things touching?
 (bool yes, array normals) touching_one(array offset, object one, object two):

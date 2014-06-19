@@ -1,5 +1,5 @@
 from wafflecore.compute import (new_id)
-from wafflecore.thing import (thing_load, thing_blank)
+from wafflecore.thing import (thing_new, thing_load, thing_blank)
 from shared import get_game_state
 from text import get_text
 from dots_balls import (get_dots, get_balls)
@@ -36,7 +36,9 @@ from dots_balls import (get_dots, get_balls)
     state.geometries = geometries
     pacman = thing_load(state, "pacman")
     game = state.game
-    game.info = thing_blank(new_id(state), "Info")
+    ready_text = get_text(state, "READY!")
+    ready_text.position = [89, 0, 121]
+    game.ready_text = ready_text
 
     game.pacman = pacman
     #append(state.world.children, pacman)
@@ -51,7 +53,7 @@ from dots_balls import (get_dots, get_balls)
 
     game.stage = thing
     game.materials = thing_blank(new_id(state), "Materials")
-    game.materials.children = [game.stage, game.pacman, game.shadow]
+    game.materials.children = [game.stage]
 
     game.items = thing_blank(new_id(state), "Items")
     balls = get_balls(state)
@@ -74,13 +76,26 @@ from dots_balls import (get_dots, get_balls)
 
     player_ready_state = get_game_state(state, "player_ready")
     chars = get_text(state, "PLAYER ONE")
-    chars.position = [90, 0, 165]
+    chars.position = [78, 0, 169]
     player_ready_state.text = chars
 
+    game.score_key = get_text(state, "1UP")
+    game.score_key.position = [26, 0, 281]
+    game.score_value = get_text(state, "00")
+    game.score_value.position = [41, 0, 272]
+    game.high_score_key = get_text(state, "HIGH SCORE")
+    game.high_score_key.position = [73, 0, 281]
+    game.high_score_value = get_text(state, "00")
+    game.high_score_value.position = [121, 0, 272]
+
+    live_icon = thing_new(new_id(state), "LiveIcon", [19, 0, 3], [], [], state.geometries{"pacman_2"}, null)
+    game.live_icons = thing_blank(new_id(state), "LiveIcons")
+    game.live_icons.children = [live_icon]
+    game.info = thing_blank(new_id(state), "Info")
+
+    game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value]
+
     ready_state = get_game_state(state, "ready")
-    ready_text = get_text(state, "READY!")
-    ready_text.position = [89, 0, 121]
-    ready_state.ready_text = ready_text
 
     # prepare ready
     state.game.state = get_game_state(state, state.game.init_state_name)
