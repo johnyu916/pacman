@@ -7,11 +7,6 @@ from wafflecore.thing import (thing_new)
 from ai import ai_idle
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity)
 
-() remove_thing_old(array things, number id):
-    for thing in things:
-        if thing.id == id:
-            remove(things, thing)
-            break
 
 () intro_start(object state):
     intro = state.game.state

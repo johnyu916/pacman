@@ -43,14 +43,13 @@ from dots_balls import (get_dots, get_balls)
     game.pacman = pacman
     #append(state.world.children, pacman)
 
-    shadow = thing_load(state, "shadow")
-    shadow.last_position = [0.0, 0.0, 0.0]
-    game.shadow = shadow
+    load_enemies(state)
+
     #append(state.world.children, shadow)
 
     print(["loading thing", name])
-    thing = thing_load(state, "stage")
-    game.stage = thing
+    stage = thing_load(state, "stage")
+    game.stage = stage
 
     jail = thing_load(state, "jail")
     game.jail = jail
@@ -107,10 +106,10 @@ from dots_balls import (get_dots, get_balls)
     ready_text.position = [89, 0, 121]
     game_over_state.text = ready_text
 
-() dots_make(object state):
-    dot = {
-        "position": [0.0, 0.0, 0.0],
-        "children": []
-    }
-    # TODO: no dots yet
-    state.dots = []
+() load_enemies(object state):
+    #TODO: separate the eyes from the body in the geometry.
+    # then just loop through 4 of them.
+    # rename to enemy.
+    shadow = thing_load(state, "shadow")
+    shadow.last_position = [0.0, 0.0, 0.0]
+    game.shadow = shadow

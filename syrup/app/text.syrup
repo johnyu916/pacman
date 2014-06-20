@@ -1,7 +1,19 @@
 from wafflecore.compute import (new_id)
 from wafflecore.thing import (thing_new, thing_blank)
 
-(object thing) get_text(object state, string text):
+# color is the last 4 digits of vertex
+(array new_geometry) vertices_copy(array geometry, array byte_color):
+    new_geometry = []
+    color = []
+    for digit in byte_color:
+        append(color, digit/255.0)
+    for vertex in geometry:
+        new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], color[0], color[1], color[2], color[3]]
+        append(new_geometry, new_vertex)
+
+
+# color is 4 elements.
+(object thing) get_text(object state, string text, array byte_color):
     children = []
     x = 0.0
     for letter in text:
@@ -11,7 +23,9 @@ from wafflecore.thing import (thing_new, thing_blank)
             x += 8.0
             continue
         else:
-            geometry = state.geometries{letter}
+            vertices = vertices_copy(state.geometries{letter}.vertices, byte_color)
+            new_geometry = {"id":new_id(state), "vertices":vertices}
+            state.characters.letter.color.geometry = new_geometry
         letter_thing = thing_new(new_id(state), "Letter", [x, 0.0, 0.0], [], [], geometry, null)
         append(children, letter_thing)
         x += 8.0
