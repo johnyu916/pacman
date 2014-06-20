@@ -3,8 +3,9 @@ from text import get_text
 from keyboard import keyboard_idle
 from shared import get_game_state
 from wafflecore.animation import animate
+from wafflecore.thing import (thing_new)
 from ai import ai_idle
-from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_identity)
+from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity)
 
 () remove_thing_old(array things, number id):
     for thing in things:
@@ -47,10 +48,18 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
 () player_ready_start(object state):
     game = state.game
     game.lives = 3
+    game.score = 0
+    game.high_score = 0
+    game.life_icons.children = []
+    x = 19
+    for i in range(game.lives - 1):
+        life_icon = thing_new(new_id(state), "LiveIcon", [x, 0, 3], [], [], state.geometries{"pacman_2"}, null)
+        append(game.life_icons.children, life_icon)
+        x += 16
     player_ready = state.game.state
     player_ready.time_start = state.now
-    game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.live_icons]
-    state.world.children = [game.info, game.materials, game.items]
+    game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.life_icons]
+    state.world.children = [game.info, game.materials, game.items, game.jail]
     player_ready.status = "idle"
 
 () player_ready_idle(object state):
@@ -102,8 +111,10 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
         # change state
         lives = game.lives
         lives -= 1
+        game.lives = lives
 
         if lives > 0:
+            pop(game.life_icons.children)
             state.game.state = get_game_state(state, "ready")
             state.game.state.status = "start"
         else:
@@ -131,8 +142,6 @@ from wafflecore.compute import (matrix_placement, cuboid_transformed, matrix_ide
 () playing_start(object state):
 
     # dots
-    state.game.score = 0
-    state.game.high_score = 0
     state.game.state.status = "idle"
 
 () playing_idle(object state):

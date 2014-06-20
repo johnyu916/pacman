@@ -1,13 +1,14 @@
 from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
-
-(object geometry) column_geometry(number x_length, number z_length, array offset):
+(object geometry) column_geometry_color(number x_length, number z_length, array offset, array byte_color):
     geometry = []
-    byte_color = [38, 38, 217, 255]
     for i in range(x_length):
         for j in range(z_length):
             position = [i+offset[0], offset[1], j + offset[2]]
             vertices = vertices_cube(position, 1, byte_color, 0.05)
             extend(geometry, vertices)
+
+(object geometry) column_geometry(number x_length, number z_length, array offset):
+    geometry = column_geometry_color(x_length, z_length, offset, [38, 38, 217, 255])
 
 () column(number x_length, number z_length):
     geometry = column_geometry(x_length, z_length, [0.0, 0.0, 0.0])
@@ -101,14 +102,38 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
     geometry = []
     column = column_geometry(56, 1, [0,0,0])
     extend(geometry, column)
-    column = column_geometry(1, 30, [0,0,0])
+    column = column_geometry(1, 30, [0,0,1])
+    extend(geometry, column)
+    column = column_geometry(20, 1, [0,0,31])
+    extend(geometry, column)
+    column = column_geometry(1, 2, [19,0,29])
+    extend(geometry, column)
+    column = column_geometry(17, 1, [3,0,28])
+    extend(geometry, column)
+    column = column_geometry(1, 24, [3,0,4])
+    extend(geometry, column)
+    column = column_geometry(50, 1, [3,0,3])
+    extend(geometry, column)
+    column = column_geometry(1, 24, [52,0,4])
+    extend(geometry, column)
+    column = column_geometry(17, 1, [36,0,28])
+    extend(geometry, column)
+    column = column_geometry(1, 2, [36,0,29])
+    extend(geometry, column)
+    column = column_geometry(20, 1, [36,0,31])
+    extend(geometry, column)
+    column = column_geometry(1, 30, [55,0,1])
     extend(geometry, column)
 
-    return
+    gateway = column_geometry_color(16,2, [20, 0, 29], [236, 183, 210, 255])
+    extend(geometry, gateway)
+    filename = join(["../geometries", "jail"], "/")
+    file_write(filename, to_json(geometry))
 
 () run():
     #c_shape(42, 28, 37)
     #column(214,1)
     #rectangle(8,32)
-    t_very_long()
+    #t_very_long()
+    jail()
     #cubes()

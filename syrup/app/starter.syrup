@@ -50,8 +50,10 @@ from dots_balls import (get_dots, get_balls)
 
     print(["loading thing", name])
     thing = thing_load(state, "stage")
-
     game.stage = thing
+
+    jail = thing_load(state, "jail")
+    game.jail = jail
     game.materials = thing_blank(new_id(state), "Materials")
     game.materials.children = [game.stage]
 
@@ -88,9 +90,7 @@ from dots_balls import (get_dots, get_balls)
     game.high_score_value = get_text(state, "00")
     game.high_score_value.position = [121, 0, 272]
 
-    live_icon = thing_new(new_id(state), "LiveIcon", [19, 0, 3], [], [], state.geometries{"pacman_2"}, null)
-    game.live_icons = thing_blank(new_id(state), "LiveIcons")
-    game.live_icons.children = [live_icon]
+    game.life_icons = thing_blank(new_id(state), "LiveIcons")
     game.info = thing_blank(new_id(state), "Info")
 
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value]

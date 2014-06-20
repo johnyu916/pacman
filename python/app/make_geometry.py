@@ -6,15 +6,19 @@ from time import time
 
 from wafflecore.compute import new_id, vertices_cube, cuboid_new
 
-def column_geometry(x_length, z_length, offset):
+def column_geometry_color(x_length, z_length, offset, byte_color):
     geometry = {}
     geometry = []
-    byte_color = [38.0, 38.0, 217.0, 255.0]
     for i in range(int(x_length)):
             for j in range(int(z_length)):
                         position = [(i + offset[0]), offset[1], (j + offset[2])]
                         vertices = vertices_cube(position, 1.0, byte_color, 0.05)
                         geometry.extend(vertices)
+    return geometry
+
+def column_geometry(x_length, z_length, offset):
+    geometry = {}
+    geometry = column_geometry_color(x_length, z_length, offset, [38.0, 38.0, 217.0, 255.0])
     return geometry
 
 def column(x_length, z_length):
@@ -104,10 +108,39 @@ def cubes():
     return 
 
 def jail():
-    return 
+    geometry = []
+    column = column_geometry(56.0, 1.0, [0.0, 0.0, 0.0])
+    geometry.extend(column)
+    column = column_geometry(1.0, 30.0, [0.0, 0.0, 1.0])
+    geometry.extend(column)
+    column = column_geometry(20.0, 1.0, [0.0, 0.0, 31.0])
+    geometry.extend(column)
+    column = column_geometry(1.0, 2.0, [19.0, 0.0, 29.0])
+    geometry.extend(column)
+    column = column_geometry(17.0, 1.0, [3.0, 0.0, 28.0])
+    geometry.extend(column)
+    column = column_geometry(1.0, 24.0, [3.0, 0.0, 4.0])
+    geometry.extend(column)
+    column = column_geometry(50.0, 1.0, [3.0, 0.0, 3.0])
+    geometry.extend(column)
+    column = column_geometry(1.0, 24.0, [52.0, 0.0, 4.0])
+    geometry.extend(column)
+    column = column_geometry(17.0, 1.0, [36.0, 0.0, 28.0])
+    geometry.extend(column)
+    column = column_geometry(1.0, 2.0, [36.0, 0.0, 29.0])
+    geometry.extend(column)
+    column = column_geometry(20.0, 1.0, [36.0, 0.0, 31.0])
+    geometry.extend(column)
+    column = column_geometry(1.0, 30.0, [55.0, 0.0, 1.0])
+    geometry.extend(column)
+    gateway = column_geometry_color(16.0, 2.0, [20.0, 0.0, 29.0], [236.0, 183.0, 210.0, 255.0])
+    geometry.extend(gateway)
+    filename = "/".join(["../geometries", "jail"])
+    with open(filename, "w") as f:
+        f.write(json.dumps(geometry))
     return 
 
 def run():
-    t_very_long()
+    jail()
     return 
 
