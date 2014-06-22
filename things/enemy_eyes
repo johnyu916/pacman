@@ -1,0 +1,12 @@
+{
+    "position": [0.0, 0.0, 5.0],
+    "rotates": [],
+    "geometry_names": ["head_eyes_down", "head_eyes_up", "head_eyes_left", "head_eyes_right"],
+    "geometry_index": 0,
+    "bounds": {
+        "position": [0.0, 0.0, 0.0],
+        "size": [14.0, 1.0, 9.0]
+    },
+    "mass": 1,
+    "type": "EnemyEyes"
+}

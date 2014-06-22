@@ -8,5 +8,11 @@
     "geometry_names": ["jail"],
     "geometry_index": 0,
     "mass": 1,
-    "type": "Jail"
+    "type": "Jail",
+    "position":
+    "bounds": {
+        "position": [0.0, 0.0, 0.0],
+        "size":
+    }
 }
+

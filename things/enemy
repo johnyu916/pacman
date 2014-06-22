@@ -1,0 +1,14 @@
+{
+    "position": [120.0, 0.0, 135.0],
+    "rotates": [],
+    "children_names": ["enemy_legs", "enemy_eyes"],
+    "bounds": {
+        "position": [0.0, 0.0, 0.0],
+        "size": [14.0, 1.0, 14.0]
+    },
+    "type": "Shadow",
+    "input_velocity": 60.0,
+    "state": "normal",
+    "states": ["normal", "blue", "eyes"],
+    "last_position": [0.0, 0.0, 0.0]
+}

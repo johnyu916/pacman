@@ -2,30 +2,52 @@ from wafflecore.compute import (new_id)
 from wafflecore.thing import (thing_new, thing_blank)
 
 # color is the last 4 digits of vertex
-(array new_geometry) vertices_copy(array geometry, array byte_color):
+(array new_geometry) vertices_copy(array vertices, array byte_color):
     new_geometry = []
     color = []
     for digit in byte_color:
         append(color, digit/255.0)
-    for vertex in geometry:
+    for vertex in vertices:
         new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], color[0], color[1], color[2], color[3]]
         append(new_geometry, new_vertex)
 
+(string color) string_color(array byte_color):
+    color_list = []
+    for i in range(4):
+        append(color_list, integer_string(byte_color[i]))
+    color = join(color_list, "_")
+
+(bool yes) in_array(array things, string element):
+    for thing in things:
+        if thing == element:
+            yes = true
+            return
 
 # color is 4 elements.
 (object thing) get_text(object state, string text, array byte_color):
     children = []
+    characters = state.characters
     x = 0.0
     for letter in text:
         if letter == "!":
-            geometry = state.geometries.exclamation
+            key = "exclamation"
         elif letter == " ":
             x += 8.0
             continue
         else:
-            vertices = vertices_copy(state.geometries{letter}.vertices, byte_color)
+            key = letter
+
+        if in_array(keys(characters), key) == false:
+            characters{key} = {}
+
+        character = characters{key}
+        text_color = string_color(byte_color)
+        if in_array(keys(characters), text_color) == false:
+            geometry = state.geometries{key}
+            vertices = vertices_copy(geometry.vertices, byte_color)
             new_geometry = {"id":new_id(state), "vertices":vertices}
-            state.characters.letter.color.geometry = new_geometry
+            character{text_color} = new_geometry
+        geometry = character{text_color}
         letter_thing = thing_new(new_id(state), "Letter", [x, 0.0, 0.0], [], [], geometry, null)
         append(children, letter_thing)
         x += 8.0

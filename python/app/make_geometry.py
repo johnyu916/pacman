@@ -140,7 +140,52 @@ def jail():
         f.write(json.dumps(geometry))
     return 
 
+def keep_color(r, g, b):
+    yes = False
+    if ((((r > 0.86) and (r < 0.87)) and ((g > 0.86) and (g < 0.87))) and ((b > 0.86) and (b < 0.87))):
+            yes = True
+            return yes
+    if ((((r > 0.14) and (r < 0.15)) and ((g > 0.14) and (g < 0.15))) and ((b > 0.85) and (b < 0.86))):
+            yes = True
+            return yes
+    return yes
+
+def shadow_copy(vertices, byte_color):
+    new_vertices = []
+    new_vertices = []
+    color = []
+    for digit in byte_color:
+            color.append((digit / 255.0))
+    for vertex in vertices:
+            if keep_color(vertex[6], vertex[7], vertex[8]):
+                        new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], vertex[6], vertex[7], vertex[8], vertex[9]]
+            else:
+                        new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], color[0], color[1], color[2], color[3]]
+            new_vertices.append(new_vertex)
+    return new_vertices
+
+def enemy_copy():
+    names = ["head_eyes_down", "head_eyes_left", "head_eyes_right", "head_eyes_up", "legs_0", "legs_1"]
+    colors = [[[217.0, 29.0, 5.0, 255.0], "shadow"], [[147.0, 254.0, 222.0, 255.0], "bashful"], [[236.0, 183.0, 219.0, 255.0], "speedy"], [[236.0, 182.0, 81.0, 255.0], "pokey"]]
+    dir = "../geometries"
+    for name in names:
+            filepath = "/".join([dir, name])
+            if os.path.isfile(filepath):
+                        text = None
+                        with open(filepath) as f:
+                            text = f.read()
+                        vertices = json.loads(text)
+                        for color in colors:
+                                        byte_color = color[0]
+                                        character = color[1]
+                                        new_vertices = shadow_copy(vertices, byte_color)
+                                        new_name = "_".join([character, name])
+                                        filename = "/".join(["../geometries", new_name])
+                                        with open(filename, "w") as f:
+                                            f.write(json.dumps(new_vertices))
+    return 
+
 def run():
-    jail()
+    enemy_copy()
     return 
 

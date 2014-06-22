@@ -14,7 +14,8 @@ from keyboard import new_keyboard
         "game": {
         },
         "frames": 0,
-        "frame_start_time": 0
+        "frame_start_time": 0,
+        "characters": {}
     }
     update(state, settings)
     state.world = new_world(state)

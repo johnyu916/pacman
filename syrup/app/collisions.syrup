@@ -7,8 +7,6 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     # 2. attempt to apply the change in position,
     #    but do not go through anything.
     materials = state.game.materials
-    for thing in materials.children:
-        thing.collisions = []
 
     delta = state.delta
     for thing in materials.children:
@@ -16,66 +14,70 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
         bounds = thing.bounds
         if bounds == null:
             continue
+        move_thing(thing, materials.children, delta)
 
-        force = thing.force
-        accel = array_scaled(force, 1.0/thing.mass)
+() move_thing(object thing, array others, number delta):
+    thing.collisions = []
+    force = thing.force
+    accel = array_scaled(force, 1.0/thing.mass)
 
-        matrix = matrix_placement(thing.position, thing.rotates)
-        (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
-        #print(["idle 0.6", thing.type, position])
-        #print([thing.type, thing.force])
-        accel = array_scaled(thing.force, 1.0/thing.mass)
-        velocity_i = thing.velocity
-        velocity_f = sum_arrays(array_scaled(accel, delta), velocity_i)
-        velocity_avg = array_scaled(sum_arrays(velocity_f, velocity_i) , 1/2.0)
-        # new velocity
-        thing.velocity = velocity_f
-        #if thing.type == "Pacman":
-        #    print(["collisions", velocity_i, velocity_f, velocity_avg])
+    matrix = matrix_placement(thing.position, thing.rotates)
+    bounds = thing.bounds
+    (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+    #print(["idle 0.6", thing.type, position])
+    #print([thing.type, thing.force])
+    accel = array_scaled(thing.force, 1.0/thing.mass)
+    velocity_i = thing.velocity
+    velocity_f = sum_arrays(array_scaled(accel, delta), velocity_i)
+    velocity_avg = array_scaled(sum_arrays(velocity_f, velocity_i) , 1/2.0)
+    # new velocity
+    thing.velocity = velocity_f
+    #if thing.type == "Pacman":
+    #    print(["collisions", velocity_i, velocity_f, velocity_avg])
 
-        if (velocity_avg[0] == 0.0 && velocity_avg[1] == 0.0 && velocity_avg[2] == 0.0):
-            thing.position_delta = [0.0, 0.0, 0.0]
-            continue
+    if (velocity_avg[0] == 0.0 && velocity_avg[1] == 0.0 && velocity_avg[2] == 0.0):
+        thing.position_delta = [0.0, 0.0, 0.0]
+        return
 
-        distance_delta = array_scaled(velocity_avg, delta)
-        position_f = sum_arrays(position, distance_delta)
-        #if thing.type == "Pacman":
-        #    print(["collisions", velocity_i, velocity_f, velocity_avg])
-        #    print(["collisions", thing.type, position_f, position])
+    distance_delta = array_scaled(velocity_avg, delta)
+    position_f = sum_arrays(position, distance_delta)
+    #if thing.type == "Pacman":
+    #    print(["collisions", velocity_i, velocity_f, velocity_avg])
+    #    print(["collisions", thing.type, position_f, position])
 
-        # crash it against others. GET DIRECTION
-        (crash_position, hit_thing, hit_normal) = crash_things(thing.id, position, position_f, size, materials.children)
-        #if hit_thing != null:
-        #    print(["thing", thing.type, "hit", hit_thing.type])
+    # crash it against others. GET DIRECTION
+    (crash_position, hit_thing, hit_normal) = crash_things(thing.id, position, position_f, size, others)
+    #if hit_thing != null:
+    #    print(["thing", thing.type, "hit", hit_thing.type])
 
-        # if crash position is same as initial position, there was no movement.
-        # no movement, no crash.
-        crash_delta = subtract_arrays(crash_position, position)
-        if crash_delta[0] == 0.0 && crash_delta[1] == 0.0 && crash_delta[2] == 0.0:
-            continue
+    # if crash position is same as initial position, there was no movement.
+    # no movement, no crash.
+    crash_delta = subtract_arrays(crash_position, position)
+    if crash_delta[0] == 0.0 && crash_delta[1] == 0.0 && crash_delta[2] == 0.0:
+        return
 
-        if hit_thing != null:
-            #print(["idle hit_thing", hit_thing.type])
-            collision = {
-                "thing": hit_thing,
-                "normal": hit_normal
-            }
-            append(thing.collisions, collision)
-            collision = {
-                "thing": thing,
-                "normal": array_scaled(hit_normal, -1)
-            }
-            append(hit_thing.collisions, collision)
-            #handle_collision(thing, hit_thing)
-            thing.velocity = [0.0, 0.0, 0.0]
+    if hit_thing != null:
+    #    #print(["idle hit_thing", hit_thing.type])
+    #    collision = {
+    #        "thing": hit_thing,
+    #        "normal": hit_normal
+    #    }
+    #    append(thing.collisions, collision)
+    #    collision = {
+    #        "thing": thing,
+    #        "normal": array_scaled(hit_normal, -1)
+    #    }
+    #    append(hit_thing.collisions, collision)
+    #    #handle_collision(thing, hit_thing)
+        thing.velocity = [0.0, 0.0, 0.0]
 
-        thing.force = [0.0, 0.0, 0.0]
+    thing.force = [0.0, 0.0, 0.0]
 
-        #print(["idle delta", crash_delta])
-        last = sum_arrays(thing.position, crash_delta)
-        thing.position = [last[0], last[1], last[2]]
-        thing.position_delta = crash_delta
-        #print(["idle 2", thing.type, crash_position, thing.position])
+    #print(["idle delta", crash_delta])
+    last = sum_arrays(thing.position, crash_delta)
+    thing.position = [last[0], last[1], last[2]]
+    thing.position_delta = crash_delta
+    #print(["idle 2", thing.type, crash_position, thing.position])
 
 () touching_all(object state):
     # who is touching each other?
