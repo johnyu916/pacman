@@ -93,9 +93,55 @@ from wafflecore.animation import animate
     elif my_state == "eyes":
         move_eyes()
 
-() move_eyes():
-    # move toward jail
-    return
+() move_eyes(object state, array delta, object enemy):
+    plus = enemy.input_velocity/2.0
+    minus = -1*plus
+    directions = [
+        [-1, 0, 0],
+        [1, 0, 0],
+        [0, 0, -1],
+        [0, 0, 1],
+    ]
+
+    allowed = []
+    # direction we want to go
+    vector = subtract_arrays(enemy.jail_position, enemy.position)
+    vectors = vectors_component(vector)
+    for direction in directions:
+        blocked = false
+        for touch in enemy.touching:
+            for normal in touch.normals:
+                for i in range(3):
+                    if (direction[i] > 0 && normal[i] > 0) || (direction[i] < 0 && normal[i] < 0):
+                        blocked = true
+                        break
+        if blocked == false:
+            append(allowed, direction)
+
+    next_direction = null
+    bad_directions = []
+    for direction in allowed:
+        for vector in vectors:
+            if (direction[i] > 0 && vector[i] > 0) || (direction[i] < 0 && vector[i] < 0):
+                next_direction = direction
+                break
+        if next_direction == null:
+            append(bad_directions, direction)
+        else:
+            break
+    if next_direction == null:
+        next_direction = bad_directions[0]
+
+    velocity = array_scaled(next_direction, enemy.input_velocity)
+    if velocity[0] < 0.0:
+        enemy.children[0].geometry = geometries.eyes_left
+    elif velocity[0] > 0.0:
+        enemy.children[0].geometry = geometries.eyes_right
+    elif velocity [1] > 0.0:
+        enem.children[0].geometry = geometries.eyes_down
+    elif velocity[1] < 0.0:
+        enemy.children[0].geometry = geometries.eyes_up
+    enemy.velocity = velocity
 
 () move_blue(object state, array delta, object enemy):
     plus = enemy.input_velocity/2.0

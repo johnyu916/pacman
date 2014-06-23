@@ -19,7 +19,7 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
         matrix = matrix_placement(enemy.position, enemy.rotates)
         (enemy_point, enemy_size) = cuboid_transformed(matrix, enemy_bounds.position, enemy_bounds.size)
 
-        if is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size):
+        if is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size) || enemy.state == "eyes":
             move_thing(enemy, others_enemy, state.delta)
         else:
             move_thing(enemy, others, state.delta)
@@ -80,12 +80,12 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
         return
 
     if hit_thing != null:
-    #    #print(["idle hit_thing", hit_thing.type])
-    #    collision = {
-    #        "thing": hit_thing,
-    #        "normal": hit_normal
-    #    }
-    #    append(thing.collisions, collision)
+        #print(["idle hit_thing", hit_thing.type])
+        collision = {
+            "thing": hit_thing,
+            "normal": hit_normal
+        }
+        append(thing.collisions, collision)
     #    collision = {
     #        "thing": thing,
     #        "normal": array_scaled(hit_normal, -1)

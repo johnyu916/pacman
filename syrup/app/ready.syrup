@@ -79,13 +79,17 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     game.pacman.position = [106, 0, 70]
     game.pacman.rotates = []
     game.shadow.position = [105, 0, 165]
+    game.shadow.jail_position = [105, 0, 141]
     game.shadow.state = "normal"
+    game.speedy.jail_position = [105, 0, 141]
     game.speedy.position = [105, 0, 141]
     game.speedy.state = "jail_exit"
     game.bashful.position = [89, 0, 141]
+    game.bashful.jail_position = [89, 0, 141]
     game.bashful.state = "up_down"
     game.bashful.up_down_time = 4
     game.pokey.position = [121, 0, 141]
+    game.pokey.jail_position = [121, 0, 141]
     game.pokey.state = "up_down"
     game.pokey.up_down_time = 10
     game.materials.children = [game.stage, game.pacman]
@@ -181,7 +185,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
             elif thing.state == "blue" || thing.state == "blink":
                 game.score += 100
                 thing.state = "eyes"
-                thing.children = game.eyes
+                thing.children = [game.eyes]
 
     #if (one.type == "Shadow" || two.type == "Shadow") && (one.type == "Pacman" || two.type == "Pacman"):
         # die pacman
