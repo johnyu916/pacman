@@ -1,11 +1,11 @@
-from collisions import (collisions, touching_all, overlap_bounds_thing)
+from collisions import (collide_characters, move_thing, collisions, touching_all, overlap_bounds_thing)
 from text import get_text
 from keyboard import keyboard_idle
 from shared import get_game_state
 from wafflecore.animation import animate
 from wafflecore.thing import (thing_new)
 from ai import ai_idle
-from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity)
+from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids)
 
 
 () intro_start(object state):
@@ -79,9 +79,15 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     game.pacman.position = [106, 0, 70]
     game.pacman.rotates = []
     game.shadow.position = [105, 0, 165]
-    game.bashful.position = [89, 0, 141]
+    game.shadow.state = "normal"
     game.speedy.position = [105, 0, 141]
+    game.speedy.state = "jail_exit"
+    game.bashful.position = [89, 0, 141]
+    game.bashful.state = "up_down"
+    game.bashful.up_down_time = 4
     game.pokey.position = [121, 0, 141]
+    game.pokey.state = "up_down"
+    game.pokey.up_down_time = 10
     game.materials.children = [game.stage, game.pacman]
     extend(game.materials.children, game.enemies)
     #print(["ready_start", state.game])
@@ -91,6 +97,8 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     ready = game.state
     elapsed = state.now - ready.time_start
     if elapsed > 1.0:
+        game.bashful.up_down_start = state.now
+        game.pokey.up_down_start = state.now
         remove_thing(game.info.children, game.ready_text.id)
         # start playing
         state.game.state = get_game_state(state, "playing")
@@ -146,15 +154,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 () playing_idle(object state):
     #collisions(state)
     # game specific touching
-    game = state.game
-    jail_bounds = jail.bounds
-    jail_position = jail_bounds.position
-    jail_size = jail_bounds.size
-    for enemy in game.enemies:
-        if is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size):
-            move_thing(enemy, others, state.delta)
-        else:
-
+    collide_characters(state)
     touching_all(state)
 
     stop = game_logic(state)
@@ -172,15 +172,16 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     game = state.game
     for touch in pacman.touching:
         thing = touch.thing
-        if thing.type == "Shadow":
+        if thing.type == "Enemy":
             if thing.state == "normal":
-                state.game.state = get_game_state(state, "dying")
-                state.game.state.status = "start"
+                game.state = get_game_state(state, "dying")
+                game.state.status = "start"
                 stop = true
                 return
-            elif thing.state == "blue":
-                state.game.score += 100
-                change_state(thing, "eyes")
+            elif thing.state == "blue" || thing.state == "blink":
+                game.score += 100
+                thing.state = "eyes"
+                thing.children = game.eyes
 
     #if (one.type == "Shadow" || two.type == "Shadow") && (one.type == "Pacman" || two.type == "Pacman"):
         # die pacman
@@ -194,6 +195,12 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
             game.score += 50
             set_score_value(state)
             remove_thing(game.items.children[1].children, round.id)
+            # turn enemy status to blue
+            for enemy in game.enemies:
+                enemy.normal_children = enemy.children
+                enemy.children = game.ghost_children
+                enemy.state = "blue"
+            game.ghost_time_start = state.now
         elif round.type == "Dot":
             game.score += 10
             set_score_value(state)

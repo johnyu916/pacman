@@ -185,7 +185,38 @@ def enemy_copy():
                                             f.write(json.dumps(new_vertices))
     return 
 
+def ghost_geometry_copy(vertices):
+    new_vertices = []
+    white = [1.0, 1.0, 1.0, 1.0]
+    red = [(217.0 / 255.0), (29.0 / 255.0), (5.0 / 255.0), 1.0]
+    new_vertices = []
+    blue = (200.0 / 255.0)
+    for vertex in vertices:
+            if (vertex[8] > blue):
+                        new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], white[0], white[1], white[2], white[3]]
+            else:
+                        new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], red[0], red[1], red[2], red[3]]
+            new_vertices.append(new_vertex)
+    return new_vertices
+
+def ghost_copy():
+    dir = "../geometries"
+    names = ["ghost_head", "ghost_legs_0", "ghost_legs_1"]
+    for name in names:
+            filepath = "/".join([dir, name])
+            if os.path.isfile(filepath):
+                        text = None
+                        with open(filepath) as f:
+                            text = f.read()
+                        vertices = json.loads(text)
+                        new_vertices = ghost_geometry_copy(vertices)
+                        new_name = "_".join(["white", name])
+                        filename = "/".join(["../geometries", new_name])
+                        with open(filename, "w") as f:
+                            f.write(json.dumps(new_vertices))
+    return 
+
 def run():
-    enemy_copy()
+    ghost_copy()
     return 
 

@@ -1,5 +1,28 @@
 from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_point_plane, is_overlap_cuboids, matrix_identity, product_matrices, axis_signs_visible, vector_axis_sign, vectors_component, vectors_component_unit, face_overlap)
 
+() collide_characters(object state):
+    game = state.game
+    jail = game.jail
+    jail_bounds = jail.bounds
+    matrix = matrix_placement(jail.position, jail.rotates)
+    (jail_position, jail_size) = cuboid_transformed(matrix, jail_bounds.position, jail_bounds.size)
+
+    others = [jail]
+    extend(others, game.materials.children)
+    others_enemy = [game.enemy_jail]
+    extend(others_enemy, game.materials.children)
+    # pacman
+    move_thing(game.pacman, others, state.delta)
+
+    for enemy in game.enemies:
+        enemy_bounds = enemy.bounds
+        matrix = matrix_placement(enemy.position, enemy.rotates)
+        (enemy_point, enemy_size) = cuboid_transformed(matrix, enemy_bounds.position, enemy_bounds.size)
+
+        if is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size):
+            move_thing(enemy, others_enemy, state.delta)
+        else:
+            move_thing(enemy, others, state.delta)
 
 # move objects according to mechanics, handle collisions
 () collisions(object state):

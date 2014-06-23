@@ -1,62 +1,160 @@
 from wafflecore.compute import (subtract_arrays)
 from wafflecore.animation import animate
 
-(object legs) get_shadow_legs(object shadow):
+(object legs, object head) get_ghost_children(object ghost):
+    for child in ghost.children:
+        if child.type == "GhostLegs":
+            legs = child
+        else:
+            head = child
+
+(object legs) get_enemy_legs(object shadow):
     for child in shadow.children:
-        if child.type == "ShadowLegs":
+        if child.type == "EnemyLegs":
             legs = child
 
-(object eyes) get_shadow_eyes(object shadow):
+(object eyes) get_enemy_eyes(object shadow):
     for child in shadow.children:
-        if child.type == "ShadowEyes":
+        if child.type == "EnemyEyes":
             eyes = child
 
-() animate_shadow(object state, object shadow):
-    animation = state.animations.shadow_legs
-    shadow_legs = get_shadow_legs(shadow)
+() animate_blink(object state, object ghost):
+    (legs, head) = get_ghost_children(ghost)
+    animate(state.animations.ghost_blink_legs, legs, state.geometries, state.now)
+    animate(state.animations.ghost_blink_head, head, state.geometries, state.now)
+
+() animate_ghost_legs(object state, object ghost):
+    animation = state.animations.ghost_legs
+    (legs, head) = get_ghost_children(ghost)
+    #print(["animate_shadow", shadow_legs.type, state.now])
+    animate(animation, legs, state.geometries, state.now)
+
+() animate_shadow(object state, object enemy):
+    name = join([enemy.name, "legs"], "_")
+    animation = state.animations{name}
+    shadow_legs = get_enemy_legs(enemy)
     #print(["animate_shadow", shadow_legs.type, state.now])
     animate(animation, shadow_legs, state.geometries, state.now)
 
 () ai_idle(object state):
-    shadow = state.game.shadow
+    for enemy in state.game.enemies:
+        enemy_idle(state, enemy)
+
+() enemy_idle(object state, object shadow):
+    #print(["ai_idle", shadow.state, shadow.position, shadow.last_position])
     # try to move
-    if state == "normal":
-        delta = subtract_arrays(shadow.position, shadow.last_position)
-        shadow.last_position = shadow.position
+    enemy = shadow
+    delta = subtract_arrays(shadow.position, shadow.last_position)
+    shadow.last_position = shadow.position
+    my_state = shadow.state
+    game = state.game
+    if my_state  == "up_down":
+        if state.now - enemy.up_down_start > enemy.up_down_time:
+            enemy.state = "jail_center"
+            return
         if delta == [0.0, 0.0, 0.0]:
             plus = shadow.input_velocity
-            #plus = shadow.input_force
             minus = -1*plus
-            velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
-            forces = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
-
-            shadow_eyes = get_shadow_eyes(shadow)
-            geometries = state.geometries
-            value = random()
-            if value < 0.25:
-                shadow.velocity = velocities[0]
-                shadow_eyes.geometry = geometries{"shadow_eyes_left"}
-            elif value < 0.50:
-                shadow.velocity = velocities[1]
-                shadow_eyes.geometry = geometries{"shadow_eyes_right"}
-            elif value < 0.75:
-                shadow.velocity = velocities[2]
-                shadow_eyes.geometry = geometries{"shadow_eyes_down"}
+            if enemy.position[2] == 136.0:
+                move_velocity(state, enemy, [0, 0, plus])
             else:
-                shadow.velocity = velocities[3]
-                shadow_eyes.geometry = geometries{"shadow_eyes_up"}
+                move_velocity(state, enemy, [0, 0, minus])
+    elif my_state == "jail_center":
+        plus = shadow.input_velocity
+        minus = -1*plus
+        if enemy.position[0] < 104:
+            # move right
+            move_velocity(state, enemy, [plus, 0, 0])
+        elif enemy.position[0] > 106:
+            move_velocity(state, enemy, [minus, 0, 0])
+        else:
+            enemy.velocity = [0,0,0]
+            enemy.position[0] = 105
+            enemy.state = "jail_exit"
+    elif my_state == "jail_exit":
+        plus = shadow.input_velocity
+        if enemy.position[2] < 165:
+            move_velocity(state, enemy, [0, 0, plus])
+        else:
+            enemy.state = "normal"
+    elif my_state == "blue":
+        move_blue(state, delta, enemy)
+        if (state.now - game.ghost_time_start) > game.ghost_blink:
+            enemy.state = "blink"
+    elif my_state == "blink":
+        move_blue(state, delta, enemy)
+        if (state.now - game.ghost_time_start) > game.ghost_duration:
+            enemy.children = enemy.normal_children
+            enemy.state = "normal"
+        else:
+            animate_blink(state, enemy)
+    elif my_state == "normal":
+        move_normal(state, delta, enemy)
+    elif my_state == "eyes":
+        move_eyes()
 
-        animate_shadow(state, shadow)
+() move_eyes():
+    # move toward jail
+    return
 
-() change_state(object enemy, string enemy_state):
+() move_blue(object state, array delta, object enemy):
+    plus = enemy.input_velocity/2.0
+    minus = -1*plus
+    if delta == [0.0, 0.0, 0.0]:
+        velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+        value = random()
+        if value < 0.25:
+            enemy.velocity = velocities[0]
+        elif value < 0.50:
+            enemy.velocity = velocities[1]
+        elif value < 0.75:
+            enemy.velocity = velocities[2]
+        else:
+            enemy.velocity = velocities[3]
+    animate_ghost_legs(state, enemy)
+
+
+# assume speed is > 0 in some direction
+() move_velocity(object state, object enemy, array velocity):
+    geometries = state.geometries
+    enemy_eyes = get_enemy_eyes(enemy)
+    enemy.velocity = velocity
+    if velocity[0] < 0.0:
+        geometry_name = join([enemy.name, "head_eyes_left"], "_")
+        enemy_eyes.geometry = geometries{geometry_name}
+    elif velocity[0] > 0.0:
+        geometry_name = join([enemy.name, "head_eyes_right"], "_")
+        enemy_eyes.geometry = geometries{geometry_name}
+    elif velocity [1] > 0.0:
+        geometry_name = join([enemy.name, "head_eyes_down"], "_")
+        enemy_eyes.geometry = geometries{geometry_name}
+    elif velocity[1] < 0.0:
+        geometry_name = join([enemy.name, "head_eyes_up"], "_")
+        enemy_eyes.geometry = geometries{geometry_name}
+    animate_shadow(state, enemy)
+
+
+() move_normal(object state, array delta, object enemy):
+    if delta == [0.0, 0.0, 0.0]:
+        plus = enemy.input_velocity
+        minus = -1*plus
+        velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+        value = random()
+        if value < 0.25:
+            move_velocity(state, enemy, velocities[0])
+        elif value < 0.50:
+            move_velocity(state, enemy, velocities[1])
+        elif value < 0.75:
+            move_velocity(state, enemy, velocities[2])
+        else:
+            move_velocity(state, enemy, velocities[3])
+
+
+() change_state(object state, object enemy, string enemy_state):
     if enemy_state == "blue":
-        enemy.blue_time = now
+        enemy.blue_time = state.now
         enemy.state = "blue"
     elif enemy_state == "eyes":
         enemy.state = "eyes"
         # change geometry
         #enemy.geometry
-
-() blue_enemies(array enemies):
-    for enemy in enemies:
-        change_state(enemy, "blue")

@@ -99,21 +99,6 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
     filename = join(["../geometries", "stage_cubes"], "/")
     file_write(filename, to_json(geometry))
 
-() jail_things():
-    locations = [
-    [[0, 0, 0], [56, 1, 1]],
-    [[0, 0, 1], [1, 1, 30]],
-    [[0, 0, 31], [20, 1, 1]],
-    [[19, 0, 29], [1, 1, 2]],
-    [[3, 0, 28], [17, 1, 1]],
-    [[3, 0, 4], [1, 1, 24]],
-    [[3, 0, 3], [50, 1, 1]],
-    [[52, 0, 4], [1, 1, 24]],
-    [[36, 0, 28], [17, 1, 1]],
-    [[36, 0, 29], [1, 1, 2]],
-    [[36, 0, 31], [20, 1, 1]],
-    [[55, 0, 1], [1, 1, 30]]
-    ]
 
 () jail():
     geometry = []
@@ -187,6 +172,31 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
                 filename = join(["../geometries", new_name], "/")
                 file_write(filename, to_json(new_vertices))
 
+(array new_vertices) ghost_geometry_copy(array vertices):
+    white = [1.0, 1.0, 1.0, 1.0]
+    red= [217/255.0, 29/255.0, 5/255.0, 1.0]
+    new_vertices = []
+    blue = 200/255.0
+    for vertex in vertices:
+        if vertex[8] > blue:
+            new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], white[0], white[1], white[2], white[3]]
+        else:
+            new_vertex = [vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5], red[0], red[1], red[2], red[3]]
+        append(new_vertices, new_vertex)
+
+() ghost_copy():
+    dir = "../geometries"
+    names = ["ghost_head", "ghost_legs_0", "ghost_legs_1"]
+    for name in names:
+        filepath = join([dir, name], "/")
+        if file_is_file(filepath):
+            text = null
+            file_read(filepath, text)
+            vertices = from_json(text)
+            new_vertices = ghost_geometry_copy(vertices)
+            new_name = join(["white", name], "_")
+            filename = join(["../geometries", new_name], "/")
+            file_write(filename, to_json(new_vertices))
 
 () run():
     #c_shape(42, 28, 37)
@@ -194,5 +204,6 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
     #rectangle(8,32)
     #t_very_long()
     #jail()
-    enemy_copy()
+    #enemy_copy()
+    ghost_copy()
     #cubes()

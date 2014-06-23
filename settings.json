@@ -38,6 +38,17 @@
                 "pokey"
         ],
         "enemies": [],
+        "ghost_duration": 7,
+        "ghost_blink": 5,
+        "ghost_children_names": [
+            "ghost_head", "ghost_legs"
+        ],
+        "eyes_children_names": [
+            "eyes"
+        ],
+        "white_ghost_children_names": [
+            "white_ghost_head", "white_ghost_legs"
+        ],
         "lives": 3,
         "states": [
             {
