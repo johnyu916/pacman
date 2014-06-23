@@ -59,8 +59,8 @@ from dots_balls import (get_dots, get_balls)
     enemy_jail = jail_enemy_new(state)
     enemy_jail.position = jail.position
     game.enemy_jail = enemy_jail
-    game.materials = thing_blank(new_id(state), "Materials")
-    game.materials.children = [stage]
+    #game.materials = thing_blank(new_id(state), "Materials")
+    #game.materials.children = [stage]
 
     game.items = thing_blank(new_id(state), "Items")
     balls = get_balls(state)

@@ -1,4 +1,4 @@
-from ready import (intro_start, intro_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle)
+from game_state import (intro_start, intro_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle)
 from ai import ai_idle
 () idle(object state):
     now = time()

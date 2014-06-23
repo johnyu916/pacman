@@ -1,5 +1,30 @@
 from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, array_scaled, sum_arrays, subtract_arrays, point_farthest, time_point_plane, is_overlap_cuboids, matrix_identity, product_matrices, axis_signs_visible, vector_axis_sign, vectors_component, vectors_component_unit, face_overlap)
 
+(array obstacles) get_obstacles(object game, object character):
+    if character.type == "Pacman":
+        obstacles = [jail, game.stage, game.pacman]
+        extend(obstacles, game.enemies)
+    elif character.type == "Enemy":
+        enemy = character
+        if enemy.state == "eyes":
+            obstacles = [game.enemy_jail, game.stage]
+            extend(obstacles, game.enemies)
+        else:
+            jail = game.jail
+            jail_bounds = jail.bounds
+            matrix = matrix_placement(jail.position, jail.rotates)
+            (jail_position, jail_size) = cuboid_transformed(matrix, jail_bounds.position, jail_bounds.size)
+
+            enemy_bounds = enemy.bounds
+            matrix = matrix_placement(enemy.position, enemy.rotates)
+            (enemy_point, enemy_size) = cuboid_transformed(matrix, enemy_bounds.position, enemy_bounds.size)
+            if is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size):
+                obstacles = [game.enemy_jail, game.stage, game.pacman]
+                extend(obstacles, game.enemies)
+            else:
+                obstacles = [jail, game.stage, game.pacman]
+                extend(obstacles, game.enemies)
+
 () collide_characters(object state):
     game = state.game
     jail = game.jail
@@ -7,22 +32,29 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     matrix = matrix_placement(jail.position, jail.rotates)
     (jail_position, jail_size) = cuboid_transformed(matrix, jail_bounds.position, jail_bounds.size)
 
-    others = [jail]
-    extend(others, game.materials.children)
-    others_enemy = [game.enemy_jail]
-    extend(others_enemy, game.materials.children)
+    others = [jail, game.stage, game.pacman]
+    extend(others, game.enemies)
     # pacman
     move_thing(game.pacman, others, state.delta)
+    touch_thing(game.pacman, others)
 
+    others_enemy = [game.enemy_jail, game.stage, game.pacman]
+    extend(others_enemy, game.enemies)
+    others_eyes = [game.enemy_jail, game.stage]
+    extend(others_eyes, game.enemies)
     for enemy in game.enemies:
         enemy_bounds = enemy.bounds
         matrix = matrix_placement(enemy.position, enemy.rotates)
         (enemy_point, enemy_size) = cuboid_transformed(matrix, enemy_bounds.position, enemy_bounds.size)
-
-        if is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size) || enemy.state == "eyes":
+        if enemy.state == "eyes":
+            move_thing(enemy, others_eyes, state.delta)
+            touch_thing(enemy, others_eyes)
+        elif is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size):
             move_thing(enemy, others_enemy, state.delta)
+            touch_thing(enemy, others_enemy)
         else:
             move_thing(enemy, others, state.delta)
+            touch_thing(enemy, others)
 
 # move objects according to mechanics, handle collisions
 () collisions(object state):
@@ -104,34 +136,39 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
 
 () touching_all(object state):
     # who is touching each other?
-    materials = state.game.materials
-    for thing in materials.children:
+    game = state.game
+    moving = [game.pacman]
+    extend(moving, game.enemies)
+    for thing in moving:
         thing.touching = []
 
     #print(["touching_all 1"])
-    moving = [state.game.pacman]
     #for i in range(length(things)):
     for one in moving:
+        touch_thing(one, [])
         #one = things[i]
-        for two in materials.children:
-            (yes, normals) = touching_one(matrix_identity(), one, two)
-            if yes:
-                #print(["pacman touched something", normals])
-                touch = {
-                    "thing": two,
-                    "normals": normals
-                }
-                append(one.touching, touch)
 
-                inv_normals = []
-                for normal in normals:
-                    inv_normal = array_scaled(normal, -1)
-                    append(inv_normals, inv_normal)
-                touch = {
-                    "thing": one,
-                    "normals": inv_normals
-                }
-                append(two.touching, touch)
+() touch_thing(object thing, array others):
+    thing.touching = []
+    for two in others:
+        (yes, normals) = touching_one(matrix_identity(), thing, two)
+        if yes:
+            #print(["pacman touched something", normals])
+            touch = {
+                "thing": two,
+                "normals": normals
+            }
+            append(thing.touching, touch)
+
+            #inv_normals = []
+            #for normal in normals:
+            #    inv_normal = array_scaled(normal, -1)
+            #    append(inv_normals, inv_normal)
+            #touch = {
+            #    "thing": one,
+            #    "normals": inv_normals
+            #}
+            #append(two.touching, touch)
 
 # position and size are in world coordinates
 (object hit_thing) overlap_bounds_thing(array offset, array position, array size, object thing):

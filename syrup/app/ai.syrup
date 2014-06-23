@@ -48,6 +48,8 @@ from wafflecore.animation import animate
     shadow.last_position = shadow.position
     my_state = shadow.state
     game = state.game
+
+    # move up and down
     if my_state  == "up_down":
         if state.now - enemy.up_down_start > enemy.up_down_time:
             enemy.state = "jail_center"
@@ -59,6 +61,7 @@ from wafflecore.animation import animate
                 move_velocity(state, enemy, [0, 0, plus])
             else:
                 move_velocity(state, enemy, [0, 0, minus])
+    # move toward jail center
     elif my_state == "jail_center":
         plus = shadow.input_velocity
         minus = -1*plus
@@ -71,16 +74,19 @@ from wafflecore.animation import animate
             enemy.velocity = [0,0,0]
             enemy.position[0] = 105
             enemy.state = "jail_exit"
+    # exit the jail
     elif my_state == "jail_exit":
         plus = shadow.input_velocity
         if enemy.position[2] < 165:
             move_velocity(state, enemy, [0, 0, plus])
         else:
             enemy.state = "normal"
+    # move slowly
     elif my_state == "blue":
         move_blue(state, delta, enemy)
         if (state.now - game.ghost_time_start) > game.ghost_blink:
             enemy.state = "blink"
+    # blink between blue and white
     elif my_state == "blink":
         move_blue(state, delta, enemy)
         if (state.now - game.ghost_time_start) > game.ghost_duration:
@@ -88,41 +94,54 @@ from wafflecore.animation import animate
             enemy.state = "normal"
         else:
             animate_blink(state, enemy)
+    # move around
     elif my_state == "normal":
         move_normal(state, delta, enemy)
+    # move eyes toward jail
     elif my_state == "eyes":
+        if is_close_vector_3(enemy.position, enemy.jail_position):
+            enemy.children = enemy.normal_children
+            enemy.state = "jail_center"
         move_eyes()
 
 () move_eyes(object state, array delta, object enemy):
     plus = enemy.input_velocity/2.0
     minus = -1*plus
+
+    # possible directions
     directions = [
         [-1, 0, 0],
         [1, 0, 0],
         [0, 0, -1],
-        [0, 0, 1],
+        [0, 0, 1]
     ]
 
     allowed = []
     # direction we want to go
     vector = subtract_arrays(enemy.jail_position, enemy.position)
     vectors = vectors_component(vector)
+
     for direction in directions:
+        (direction_a, direction_s) = axis_sign_vector(direction)
         blocked = false
         for touch in enemy.touching:
             for normal in touch.normals:
-                for i in range(3):
-                    if (direction[i] > 0 && normal[i] > 0) || (direction[i] < 0 && normal[i] < 0):
-                        blocked = true
-                        break
+                (normal_a, normal_s) = axis_sign_vector(normal)
+                if normal_a == direction_a && normal_s == direction_s:
+                    blocked = true
+                    break
+            if blocked:
+                break
         if blocked == false:
             append(allowed, direction)
 
     next_direction = null
     bad_directions = []
     for direction in allowed:
+        (direction_a, direction_s) = axis_sign_vector(direction)
         for vector in vectors:
-            if (direction[i] > 0 && vector[i] > 0) || (direction[i] < 0 && vector[i] < 0):
+            (axis, sign) = axis_sign_vector(vector)
+            if axis == direction_a && sign == direction_s:
                 next_direction = direction
                 break
         if next_direction == null:
