@@ -35,7 +35,7 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     others = [jail, game.stage, game.pacman]
     extend(others, game.enemies)
     # pacman
-    move_thing(game.pacman, others, state.delta)
+    bump_thing(game.pacman, others, state.delta)
     touch_thing(game.pacman, others)
 
     others_enemy = [game.enemy_jail, game.stage, game.pacman]
@@ -47,13 +47,13 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
         matrix = matrix_placement(enemy.position, enemy.rotates)
         (enemy_point, enemy_size) = cuboid_transformed(matrix, enemy_bounds.position, enemy_bounds.size)
         if enemy.state == "eyes":
-            move_thing(enemy, others_eyes, state.delta)
+            bump_thing(enemy, others_eyes, state.delta)
             touch_thing(enemy, others_eyes)
         elif is_overlap_cuboids(jail_position, jail_size, enemy_point, enemy_size):
-            move_thing(enemy, others_enemy, state.delta)
+            bump_thing(enemy, others_enemy, state.delta)
             touch_thing(enemy, others_enemy)
         else:
-            move_thing(enemy, others, state.delta)
+            bump_thing(enemy, others, state.delta)
             touch_thing(enemy, others)
 
 # move objects according to mechanics, handle collisions
@@ -69,16 +69,12 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
         bounds = thing.bounds
         if bounds == null:
             continue
-        move_thing(thing, materials.children, delta)
+        bump_thing(thing, materials.children, delta)
 
-() move_thing(object thing, array others, number delta):
-    thing.collisions = []
+(array distance_delta) position_delta(object thing, number delta):
     force = thing.force
     accel = array_scaled(force, 1.0/thing.mass)
 
-    matrix = matrix_placement(thing.position, thing.rotates)
-    bounds = thing.bounds
-    (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
     #print(["idle 0.6", thing.type, position])
     #print([thing.type, thing.force])
     accel = array_scaled(thing.force, 1.0/thing.mass)
@@ -90,11 +86,20 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     #if thing.type == "Pacman":
     #    print(["collisions", velocity_i, velocity_f, velocity_avg])
 
-    if (velocity_avg[0] == 0.0 && velocity_avg[1] == 0.0 && velocity_avg[2] == 0.0):
+    distance_delta = array_scaled(velocity_avg, delta)
+
+() bump_thing(object thing, array others, number delta):
+    thing.collisions = []
+    distance_delta = position_delta(thing, delta)
+
+    matrix = matrix_placement(thing.position, thing.rotates)
+    bounds = thing.bounds
+    (position, size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+
+    if distance_delta[0] == 0 && distance_delta[1] == 0 && distance_delta[2] == 0:
         thing.position_delta = [0.0, 0.0, 0.0]
         return
 
-    distance_delta = array_scaled(velocity_avg, delta)
     position_f = sum_arrays(position, distance_delta)
     #if thing.type == "Pacman":
     #    print(["collisions", velocity_i, velocity_f, velocity_avg])

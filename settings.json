@@ -55,6 +55,9 @@
                 "name": "intro"
             },
             {
+                "name": "intro_run"
+            },
+            {
                 "name": "main_menu"
             },
             {

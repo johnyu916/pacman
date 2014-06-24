@@ -1,11 +1,11 @@
-from collisions import (collide_characters, move_thing, collisions, touching_all, overlap_bounds_thing)
+from collisions import (collide_characters, collisions, touching_all, overlap_bounds_thing, position_delta)
 from text import get_text
 from keyboard import keyboard_idle
 from shared import get_game_state
 from wafflecore.animation import animate
 from wafflecore.thing import (thing_new)
 from ai import ai_idle
-from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids)
+from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
 
 
 () intro_start(object state):
@@ -18,10 +18,52 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     intro = state.game.state
     elapsed = state.now - intro.time_start
     if elapsed > 2.0:
-        state.game.state = get_game_state(state, "main_menu")
+        print(["set game state to intro_run"])
+        state.game.state = get_game_state(state, "intro_run")
+        # animate
         state.game.state.status = "start"
     elif elapsed > 1.0:
         state.world.children = [intro.texts[0], intro.texts[1]]
+
+() intro_run_start(object state):
+    game = state.game
+    game.ball = thing_new(new_id(state), "Ball", [0,0,0], [], [], state.geometries.ball, null)
+    state.world.children = [game.pacman, game.ball]
+    z = 117
+    v_x = -100
+    game.ball.position = [33.0, 0.0, 120]
+    game.pacman.position = [224.0, 0.0, z]
+    game.pacman.velocity = [v_x, 0, 0]
+    x = 250
+    for enemy in game.enemies:
+        enemy.position = [x, 0.0, z]
+        enemy.velocity = [v_x, 0, 0]
+        x+=16
+    extend(state.world.children, game.enemies)
+    state.game.state.status = "idle"
+
+() intro_run_idle(object state):
+    game = state.game
+    pacman = game.pacman
+
+    delta = state.delta
+    distance_delta = position_delta(pacman, delta)
+    print(["distance delta", distance_delta])
+    pacman.position = sum_arrays(pacman.position, distance_delta)
+    for enemy in game.enemies:
+        enemy.position = sum_arrays(enemy.position, distance_delta)
+
+    v_x = 100
+    if pacman.position[0] < 41:
+        pacman.velocity = [v_x, 0, 0]
+        enemy.children = game.ghost_children
+        for enemy in game.enemies:
+            enemy.velocity = [v_x, 0, 0]
+    if pacman.position[0] > 224:
+        # done.
+        state.game.state = get_game_state(state, "main_menu")
+        state.game.state.status = "start"
+
 
 () main_menu_start(object state):
     main_menu = state.game.state
