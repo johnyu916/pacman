@@ -192,7 +192,6 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 
 
 () playing_start(object state):
-
     # dots
     state.game.state.status = "idle"
 
@@ -209,6 +208,16 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     ai_idle(state)
     #print(["pacman velocity", state.pacman.velocity])
 
+() won_start(object state):
+
+() won_idle(object state):
+    
+
+(bool yes) is_win(array items):
+    for item in items:
+        if length(item.children) > 0:
+            yes = true
+            retun
 
 # two objects collided. specifically, one ran into two. what to do?
 #() handle_collision(object one, object two):
@@ -240,6 +249,10 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
             game.score += 50
             set_score_value(state)
             remove_thing(game.items.children[1].children, round.id)
+
+            if is_win(game.items.children):
+                game.state = get_game_state(state, "won")
+                game.state.status = "start"
             # turn enemy status to blue
             for enemy in game.enemies:
                 enemy.normal_children = enemy.children
@@ -250,6 +263,9 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
             game.score += 10
             set_score_value(state)
             remove_thing(game.items.children[0].children, round.id)
+            if is_win(game.items.children):
+                game.state = get_game_state(state, "won")
+                game.state.status = "start"
 
 () set_score_value(object state):
     game = state.game

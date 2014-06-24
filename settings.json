@@ -74,6 +74,12 @@
             },
             {
                 "name": "game_over"
+            },
+            {
+                "name": "won"
+            },
+            {
+                "name": "victory_dance"
             }
         ],
         "init_state_name": "intro"
