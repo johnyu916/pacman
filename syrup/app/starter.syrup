@@ -1,5 +1,6 @@
 from wafflecore.compute import (new_id, is_extension)
-from wafflecore.thing import (thing_new, thing_blank)
+from wafflecore.thing import (thing_new, thing_blank, thing_read)
+from wafflecore.standard import copy_object
 from shared import get_game_state
 from enemy_jail import jail_enemy_new
 from text import get_text
@@ -32,6 +33,7 @@ from dots_balls import (get_dots, get_balls)
             animations{name} = animation
     state.animations = animations
 
+    # load geometries
     names = file_list_dir(state.geometries_dir)
     print(["starter geometry names", names])
     geometries = {}
@@ -55,17 +57,13 @@ from dots_balls import (get_dots, get_balls)
     game.ready_text = ready_text
 
     game.pacman = pacman
-    #append(state.world.children, pacman)
 
     load_enemies(state)
 
-    #append(state.world.children, shadow)
-
-    print(["loading thing", name])
-    stage = thing.stage
+    stage = things.stage
     game.stage = stage
 
-    jail = thing.jail
+    jail = things.jail
     game.jail = jail
     enemy_jail = jail_enemy_new(state)
     enemy_jail.position = jail.position
@@ -111,17 +109,15 @@ from dots_balls import (get_dots, get_balls)
 
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value]
 
-    ready_state = get_game_state(state, "ready")
-
+    game_over_state = get_game_state(state, "game_over")
+    ready_text = get_text(state, "GAME OVER", [217, 29, 5, 255])
+    ready_text.position = [89, 0, 121]
+    game_over_state.text = ready_text
     # prepare ready
     state.game.state = get_game_state(state, state.game.init_state_name)
     #print(["starter", state.game.state])
     state.game.state.status = "start"
 
-    game_over_state = get_game_state(state, "game_over")
-    ready_text = get_text(state, "GAME OVER", [217, 29, 5, 255])
-    ready_text.position = [89, 0, 121]
-    game_over_state.text = ready_text
 
 () load_enemies(object state):
     #TODO: separate the eyes from the body in the geometry.
@@ -129,7 +125,8 @@ from dots_balls import (get_dots, get_balls)
     # rename to enemy.
     game = state.game
     for enemy_name in game.enemy_names:
-        thing = things.enemy_name
+        thing = copy_object(things.enemy)
+        thing.id = new_id(state)
         thing.name = enemy_name
         for child in thing.children:
             new_geometry_names = []
@@ -156,12 +153,8 @@ from dots_balls import (get_dots, get_balls)
     # animations
     animations = state.animations
     enemy_legs = animations.enemy_legs
-    filepath = join([state.animations_dir, "enemy_legs"], "/")
     for enemy_name in game.enemy_names:
-        file_read(filepath, text)
-        print(["reading_json", filepath])
-        animation = from_json(text)
-        for action in animation.actions:
+        for action in enemy_legs.actions:
             geometry_name = action.geometry_name
             new_geometry_name = join([enemy_name, geometry_name], "_")
             action.geometry_name = new_geometry_name

@@ -1,4 +1,5 @@
 from wafflecore.compute import (new_id, vertices_cube, cuboid_new, is_extension)
+
 (object geometry) column_geometry_color(number x_length, number z_length, array offset, array byte_color):
     geometry = []
     for i in range(x_length):
@@ -239,6 +240,15 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new, is_extension)
     text = to_json(thing)
     file_write(filepath, text)
 
+() set_thing_geometry_name():
+    dir = "../things"
+    filepath = join([dir, name], "/")
+    text = file_read(filepath)
+    thing = from_json(text)
+    if in_array_string(keys(thing), "geometry_names"):
+        thing.geometry_name = thing.geometry_names[0]
+    text = to_json(thing)
+    file_write(filepath, text)
 
 () run():
     #c_shape(42, 28, 37)

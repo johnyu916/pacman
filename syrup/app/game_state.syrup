@@ -100,6 +100,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     extend(state.world.children, game.enemies)
     player_ready.status = "idle"
 
+
 () player_ready_idle(object state):
     game = state.game
     player_ready = state.game.state

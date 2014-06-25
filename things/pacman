@@ -1,5 +1,6 @@
 {
     "position": [85.0, 0.0, 135.0],
+    "name": "Pacman",
     "rotates": [],
     "geometry_names": ["pacman_0", "pacman_1", "pacman_2", "pacman_1"],
     "geometry_index": 0,
