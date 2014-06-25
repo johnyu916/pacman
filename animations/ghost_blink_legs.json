@@ -1,0 +1,29 @@
+{
+    "name": "ghost_blink_legs",
+    "thing__name": "legs",
+    "loop": true,
+    "duration": 0.5,
+    "actions":
+    [
+        {
+            "time": 0,
+            "type": "vertices",
+            "geometry_name": "ghost_legs_0"
+        },
+        {
+            "time": 0.125,
+            "type": "vertices",
+            "geometry_name": "ghost_legs_1"
+        },
+        {
+            "time": 0.25,
+            "type": "vertices",
+            "geometry_name": "white_ghost_legs_0"
+        },
+        {
+            "time": 0.375,
+            "type": "vertices",
+            "geometry_name": "white_ghost_legs_1"
+        }
+    ]
+}

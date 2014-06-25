@@ -1,0 +1,14 @@
+{
+    "position": [85.0, 0.0, 135.0],
+    "rotates": [],
+    "geometry_names": ["pacman_0", "pacman_1", "pacman_2", "pacman_1"],
+    "geometry_index": 0,
+    "bounds": {
+        "position": [0.0, 0.0, 0.0],
+        "size": [13.0, 1.0, 13.0]
+    },
+    "mass": 1,
+    "max_speed": 80.0,
+    "input_force": 300,
+    "type": "Pacman"
+}

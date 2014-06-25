@@ -1,19 +1,30 @@
-from wafflecore.compute import (new_id)
-from wafflecore.thing import (thing_new, thing_load, thing_blank)
+from wafflecore.compute import (new_id, is_extension)
+from wafflecore.thing import (thing_new, thing_blank)
 from shared import get_game_state
 from enemy_jail import jail_enemy_new
 from text import get_text
 from dots_balls import (get_dots, get_balls)
 
 () start(array argv, object state):
-    # load pacman
+    # load things
+    things = {}
+    names = file_list_dir(state.things_dir)
+    for name in names:
+        filepath = join([state.things_dir, name], "/")
+        if file_is_file(filepath) && is_extension(name, "json"):
+            things{name} = thing_read(state, name)
+
+    for thing in things:
+        thing_set_children(thing, things)
+    state.thigs = things
+
     # load animations
     names = file_list_dir(state.animations_dir)
     print(["start", names])
     animations = {}
     for name in names:
         filepath = join([state.animations_dir, name], "/")
-        if file_is_file(filepath):
+        if file_is_file(filepath) && is_extension(name, "json"):
             text = null
             file_read(filepath, text)
             print(["reading_json 1", filepath])
@@ -26,7 +37,7 @@ from dots_balls import (get_dots, get_balls)
     geometries = {}
     for name in names:
         filepath = join([state.geometries_dir, name], "/")
-        if file_is_file(filepath):
+        if file_is_file(filepath) && is_extension(name, "json"):
             text = null
             file_read(filepath, text)
             geometry = {
@@ -37,7 +48,7 @@ from dots_balls import (get_dots, get_balls)
 
     state.geometries = geometries
 
-    pacman = thing_load(state, "pacman")
+    pacman = things.pacman
     game = state.game
     ready_text = get_text(state, "READY!", [254, 253, 60, 255])
     ready_text.position = [89, 0, 121]
@@ -51,10 +62,10 @@ from dots_balls import (get_dots, get_balls)
     #append(state.world.children, shadow)
 
     print(["loading thing", name])
-    stage = thing_load(state, "stage")
+    stage = thing.stage
     game.stage = stage
 
-    jail = thing_load(state, "jail")
+    jail = thing.jail
     game.jail = jail
     enemy_jail = jail_enemy_new(state)
     enemy_jail.position = jail.position
@@ -118,7 +129,7 @@ from dots_balls import (get_dots, get_balls)
     # rename to enemy.
     game = state.game
     for enemy_name in game.enemy_names:
-        thing = thing_load(state, "enemy")
+        thing = things.enemy_name
         thing.name = enemy_name
         for child in thing.children:
             new_geometry_names = []
@@ -132,15 +143,15 @@ from dots_balls import (get_dots, get_balls)
 
     children = []
     for name in game.ghost_children_names:
-        thing = thing_load(state, name)
+        thing = things{name}
         append(children, thing)
     game.ghost_children = children
     children = []
     for name in game.white_ghost_children_names:
-        thing = thing_load(state, name)
+        thing = things{name}
         append(children, thing)
     game.white_ghost_children = children
-    game.eyes = thing_load(state, "eyes")
+    game.eyes = things.eyes
 
     # animations
     animations = state.animations

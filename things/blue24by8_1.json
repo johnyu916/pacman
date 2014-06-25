@@ -1,0 +1,12 @@
+{
+    "position": [180.0, 0.0, 204.0],
+    "rotates": [],
+    "geometry_names": ["blue24by8"],
+    "geometry_index": 0,
+    "bounds": {
+        "position": [0.0, 0.0, 0.0],
+        "size": [24.0, 1.0, 8.0]
+    },
+    "mass": 1,
+    "type": "Wall"
+}

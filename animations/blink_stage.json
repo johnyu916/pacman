@@ -1,0 +1,19 @@
+{
+    "name": "blink_stage",
+    "thing__name": "stage",
+    "loop": true,
+    "duration": 0.250,
+    "actions":
+    [
+        {
+            "time": 0,
+            "type": "vertices",
+            "geometry_name": "stage"
+        },
+        {
+            "time": 0.125,
+            "type": "vertices",
+            "geometry_name": "stage_white"
+        }
+    ]
+}

@@ -4,7 +4,7 @@ import os.path
 from random import random
 from time import time
 
-from wafflecore.compute import new_id, vertices_cube, cuboid_new
+from wafflecore.compute import new_id, vertices_cube, cuboid_new, is_extension
 
 def column_geometry_color(x_length, z_length, offset, byte_color):
     geometry = {}
@@ -216,7 +216,23 @@ def ghost_copy():
                             f.write(json.dumps(new_vertices))
     return 
 
+def change_filename():
+    dirs = ["../things", "../animations", "../geometries"]
+    for dir in dirs:
+            names = os.listdir(dir)
+            for name in names:
+                        filepath = "/".join([dir, name])
+                        if (os.path.isfile(filepath) and (is_extension(name, "json") == False)):
+                                        text = None
+                                        with open(filepath) as f:
+                                            text = f.read()
+                                        new_name = ".".join([name, "json"])
+                                        filename = "/".join([dir, new_name])
+                                        with open(filename, "w") as f:
+                                            f.write(text)
+    return 
+
 def run():
-    ghost_copy()
+    change_filename()
     return 
 

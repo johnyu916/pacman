@@ -1,0 +1,6 @@
+{
+    "position": [180.0, 0.0, 60.0],
+    "rotates": [],
+    "children_names": ["l_long", "l_short"],
+    "type": "Wall"
+}

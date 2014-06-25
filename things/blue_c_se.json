@@ -1,0 +1,12 @@
+{
+    "position": [180.0, 0.0, 108.0],
+    "rotates": [],
+    "geometry_names": ["blue_c_se"],
+    "geometry_index": 0,
+    "bounds": {
+        "position": [0.0, 0.0, 0.0],
+        "size": [44.0, 1.0, 32.0]
+    },
+    "mass": 1,
+    "type": "Wall"
+}

@@ -1,0 +1,19 @@
+{
+    "name": "ghost_legs",
+    "thing__name": "legs",
+    "loop": true,
+    "duration": 0.250,
+    "actions":
+    [
+        {
+            "time": 0,
+            "type": "vertices",
+            "geometry_name": "ghost_legs_0"
+        },
+        {
+            "time": 0.125,
+            "type": "vertices",
+            "geometry_name": "ghost_legs_1"
+        }
+    ]
+}

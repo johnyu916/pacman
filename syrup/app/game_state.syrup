@@ -48,7 +48,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 
     delta = state.delta
     distance_delta = position_delta(pacman, delta)
-    print(["distance delta", distance_delta])
+    #print(["distance delta", distance_delta])
     pacman.position = sum_arrays(pacman.position, distance_delta)
     for enemy in game.enemies:
         enemy.position = sum_arrays(enemy.position, distance_delta)
@@ -209,9 +209,43 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     #print(["pacman velocity", state.pacman.velocity])
 
 () won_start(object state):
+    won = state.game.state
+    won.status = "idle"
+    won.time_start = state.now
 
 () won_idle(object state):
+    if (state.now - won.time_start) > 2:
+        state.game.state = get_game_state(state, "victory_dance")
+        state.game.state.status = "start"
+        return
+    animate(state.animations.blink_stage, state.things, state.geometries, elapsed)
+
+() victory_dance_start(object state):
+    game = state.game
+    state.world.children = [game.pacman, game.shadow]
     
+    z = 117
+    v_x = -100
+    shadow.position = [250, 0, z]
+    shadow.velocity = [v_x, 0, 0]
+    pacman.position = [224.0, 0.0, z]
+    pacman.velocity = [v_x, 0, 0]
+    state.game.state.status = "idle"
+
+() victory_dance_idle(object state):
+    pacman = game.pacman
+    distance_delta = position_delta(pacman, delta)
+    pacman.position = sum_arrays(pacman.position, distance_delta)
+
+
+    v_x = 100
+    if pacman.position[0] < -30:
+        pacman.velocity = [v_x, 0, 0]
+        shadow.velocity = [v_x, 0, 0]
+    if pacman.position[0] > 224:
+        # done.
+        state.game.state = get_game_state(state, "main_menu")
+        state.game.state.status = "start"
 
 (bool yes) is_win(array items):
     for item in items:
