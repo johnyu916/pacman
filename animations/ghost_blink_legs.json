@@ -1,6 +1,6 @@
 {
     "name": "ghost_blink_legs",
-    "thing__name": "legs",
+    "thing_name": "legs",
     "loop": true,
     "duration": 0.5,
     "actions":

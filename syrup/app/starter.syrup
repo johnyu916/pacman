@@ -1,5 +1,5 @@
-from wafflecore.compute import (new_id, is_extension)
-from wafflecore.thing import (thing_new, thing_blank, thing_read)
+from wafflecore.compute import (new_id, filename_type)
+from wafflecore.thing import (thing_new, thing_blank, thing_read, thing_set_children)
 from wafflecore.standard import copy_object
 from shared import get_game_state
 from enemy_jail import jail_enemy_new
@@ -7,39 +7,14 @@ from text import get_text
 from dots_balls import (get_dots, get_balls)
 
 () start(array argv, object state):
-    # load things
-    things = {}
-    names = file_list_dir(state.things_dir)
-    for name in names:
-        filepath = join([state.things_dir, name], "/")
-        if file_is_file(filepath) && is_extension(name, "json"):
-            things{name} = thing_read(state, name)
-
-    for thing in things:
-        thing_set_children(thing, things)
-    state.thigs = things
-
-    # load animations
-    names = file_list_dir(state.animations_dir)
-    print(["start", names])
-    animations = {}
-    for name in names:
-        filepath = join([state.animations_dir, name], "/")
-        if file_is_file(filepath) && is_extension(name, "json"):
-            text = null
-            file_read(filepath, text)
-            print(["reading_json 1", filepath])
-            animation = from_json(text)
-            animations{name} = animation
-    state.animations = animations
-
     # load geometries
     names = file_list_dir(state.geometries_dir)
     print(["starter geometry names", names])
     geometries = {}
-    for name in names:
-        filepath = join([state.geometries_dir, name], "/")
-        if file_is_file(filepath) && is_extension(name, "json"):
+    for filename in names:
+        filepath = join([state.geometries_dir, filename], "/")
+        (name, type) = filename_type(filename)
+        if file_is_file(filepath) && type == "json":
             text = null
             file_read(filepath, text)
             geometry = {
@@ -49,6 +24,35 @@ from dots_balls import (get_dots, get_balls)
             geometries{name} = geometry
 
     state.geometries = geometries
+    # load things
+    things = {}
+    filenames = file_list_dir(state.things_dir)
+    for filename in filenames:
+        filepath = join([state.things_dir, filename], "/")
+        (name, type) = filename_type(filename)
+        if file_is_file(filepath) && type == "json":
+            things{name} = thing_read(state, filename)
+
+    for key in keys(things):
+        thing = things{key}
+        thing_set_children(thing, things)
+    state.things = things
+
+    # load animations
+    names = file_list_dir(state.animations_dir)
+    print(["start", names])
+    animations = {}
+    for filename in names:
+        filepath = join([state.animations_dir, filename], "/")
+        (name, type) = filename_type(filename)
+        if file_is_file(filepath) && type == "json":
+            text = null
+            file_read(filepath, text)
+            print(["reading_json 1", filepath])
+            animation = from_json(text)
+            animations{name} = animation
+    state.animations = animations
+
 
     pacman = things.pacman
     game = state.game
@@ -123,18 +127,17 @@ from dots_balls import (get_dots, get_balls)
     #TODO: separate the eyes from the body in the geometry.
     # then just loop through 4 of them.
     # rename to enemy.
+    things = state.things
     game = state.game
     for enemy_name in game.enemy_names:
         thing = copy_object(things.enemy)
         thing.id = new_id(state)
         thing.name = enemy_name
         for child in thing.children:
-            new_geometry_names = []
-            for geometry_name in child.geometry_names:
-                new_name = join([enemy_name, geometry_name], "_")
-                append(new_geometry_names, new_name)
-            child.geometry_names = new_geometry_names
-            child.geometry = state.geometries{child.geometry_names[0]}
+            print(["load_enemies", child.type])
+            new_name = join([enemy_name, child.geometry_name], "_")
+            child.geometry_name = new_name
+            child.geometry = state.geometries{child.geometry_name}
         game{enemy_name} = thing
         append(game.enemies, thing)
 
@@ -154,7 +157,8 @@ from dots_balls import (get_dots, get_balls)
     animations = state.animations
     enemy_legs = animations.enemy_legs
     for enemy_name in game.enemy_names:
-        for action in enemy_legs.actions:
+        animation = copy_object(enemy_legs)
+        for action in animation.actions:
             geometry_name = action.geometry_name
             new_geometry_name = join([enemy_name, geometry_name], "_")
             action.geometry_name = new_geometry_name

@@ -1,12 +1,1 @@
-{
-    "position": [0.0, 0.0, 24.0],
-    "rotates": [],
-    "geometry_names": ["t_long"],
-    "geometry_index": 0,
-    "bounds": {
-        "position": [0.0, 0.0, 0.0],
-        "size": [56.0, 1.0, 8.0]
-    },
-    "mass": 1,
-    "type": "TLong"
-}
+{"geometry_names": ["t_long"], "geometry_name": "t_long", "bounds": {"position": [0.0, 0.0, 0.0], "size": [56.0, 1.0, 8.0]}, "geometry_index": 0, "mass": 1, "position": [0.0, 0.0, 24.0], "rotates": [], "type": "TLong"}

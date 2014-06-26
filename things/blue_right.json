@@ -1,12 +1,1 @@
-{
-    "position": [57.0, 0.0, 2.0],
-    "rotates": [],
-    "geometry_names": ["blue1by46"],
-    "geometry_index": 0,
-    "bounds": {
-        "position": [-1.0, 0.0, 0.0],
-        "size": [2.0, 1.0, 46.0]
-    },
-    "mass": 1,
-    "type": "Wall"
-}
+{"geometry_names": ["blue1by46"], "geometry_name": "blue1by46", "bounds": {"position": [-1.0, 0.0, 0.0], "size": [2.0, 1.0, 46.0]}, "geometry_index": 0, "mass": 1, "position": [57.0, 0.0, 2.0], "rotates": [], "type": "Wall"}

@@ -1,4 +1,4 @@
-from wafflecore.compute import (subtract_arrays)
+from wafflecore.compute import (subtract_arrays, is_close_vector_3)
 from wafflecore.animation import animate
 
 (object legs, object head) get_ghost_children(object ghost):
@@ -19,22 +19,22 @@ from wafflecore.animation import animate
             eyes = child
 
 () animate_blink(object state, object ghost):
-    (legs, head) = get_ghost_children(ghost)
-    animate(state.animations.ghost_blink_legs, legs, state.geometries, state.now)
-    animate(state.animations.ghost_blink_head, head, state.geometries, state.now)
+    #(legs, head) = get_ghost_children(ghost)
+    animate(state.animations.ghost_blink_legs, state.things, state.geometries, state.now)
+    animate(state.animations.ghost_blink_head, state.things, state.geometries, state.now)
 
 () animate_ghost_legs(object state, object ghost):
     animation = state.animations.ghost_legs
-    (legs, head) = get_ghost_children(ghost)
+    #(legs, head) = get_ghost_children(ghost)
     #print(["animate_shadow", shadow_legs.type, state.now])
-    animate(animation, legs, state.geometries, state.now)
+    animate(animation, state.things, state.geometries, state.now)
 
 () animate_shadow(object state, object enemy):
     name = join([enemy.name, "legs"], "_")
     animation = state.animations{name}
-    shadow_legs = get_enemy_legs(enemy)
+    #shadow_legs = get_enemy_legs(enemy)
     #print(["animate_shadow", shadow_legs.type, state.now])
-    animate(animation, shadow_legs, state.geometries, state.now)
+    animate(animation, state.things, state.geometries, state.now)
 
 () ai_idle(object state):
     for enemy in state.game.enemies:

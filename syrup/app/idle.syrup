@@ -1,4 +1,4 @@
-from game_state import (intro_start, intro_idle, intro_run_start, intro_run_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle)
+from game_state import (intro_start, intro_idle, intro_run_start, intro_run_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle, won_start, won_idle, victory_dance_start, victory_dance_idle)
 from ai import ai_idle
 () idle(object state):
     now = time()
@@ -51,6 +51,16 @@ from ai import ai_idle
             game_over_start(state)
         else:
             game_over_idle(state)
+    elif game_name == "won":
+        if game_state.status == "start":
+            won_start(state)
+        else:
+            won_idle(state)
+    elif game_name == "victory_dance":
+        if game_state.status == "start":
+            victory_dance_start(state)
+        else:
+            victory_dance_idle(state)
 
 () print_fps(object state):
     frame_time = state.now - state.frame_start_time

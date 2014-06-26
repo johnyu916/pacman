@@ -39,7 +39,7 @@ from wafflecore.camera import camera_translate
 
 () animate_pacman(object state, object pacman, object elapsed_time):
     animation = state.animations.pacman
-    animate(animation, pacman, state.geometries, elapsed_time)
+    animate(animation, state.things, state.geometries, elapsed_time)
 
 # assumes that by default:
 #  1. pacman is facing right.

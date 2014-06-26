@@ -1,5 +1,6 @@
 {
     "name": "pacman_die",
+    "thing_name": "pacman",
     "loop": false,
     "duration": 1.4,
     "actions":

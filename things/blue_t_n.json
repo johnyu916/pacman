@@ -1,6 +1,1 @@
-{
-    "position": [84.0, 0.0, 84.0],
-    "rotates": [],
-    "children_names": ["t_long", "t_bottom"],
-    "type": "Wall"
-}
+{"position": [84.0, 0.0, 84.0], "rotates": [], "type": "Wall", "children_names": ["t_long", "t_bottom"]}

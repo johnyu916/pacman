@@ -1,6 +1,6 @@
 {
     "name": "ghost_legs",
-    "thing__name": "legs",
+    "thing_name": "ghost_legs",
     "loop": true,
     "duration": 0.250,
     "actions":

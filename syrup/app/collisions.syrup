@@ -237,7 +237,7 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     else:
         if axis != null:
             yes = true
-            append(normals, vector_axis_sign(1, axis, sign))
+            append(normals, vector_axis_sign(axis, sign))
 
 # thing is currently in position_i. It wants to go to position_f.
 # how far can I actually go? and what did i hit?
