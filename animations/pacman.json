@@ -1,6 +1,6 @@
 {
     "name": "pacman",
-    "thing__name": "pacman",
+    "thing_name": "pacman",
     "loop": true,
     "duration": 0.25,
     "actions":

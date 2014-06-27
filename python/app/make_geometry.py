@@ -5,6 +5,7 @@ from random import random
 from time import time
 
 from wafflecore.compute import new_id, vertices_cube, cuboid_new, is_extension
+from wafflecore.standard import in_array_string
 
 def column_geometry_color(x_length, z_length, offset, byte_color):
     geometry = {}
@@ -232,7 +233,57 @@ def change_filename():
                                             f.write(text)
     return 
 
+def make_white_stage(name):
+    dir = "../things"
+    filepath = "/".join([dir, name])
+    with open(filepath) as f:
+        text = f.read()
+    thing = json.loads(text)
+    if in_array_string(thing.keys(), "children_names"):
+            new_children_names = []
+            for name in thing["children_names"]:
+                        make_white_stage(name)
+                        new_name = "_".join(["white", name])
+                        new_children_names.append(new_name)
+            thing["children_names"] = new_children_names
+    if in_array_string(thing.keys(), "geometry_name"):
+            geometry_name = thing["geometry_name"]
+            filepath = "/".join(["../geometries", geometry_name])
+            with open(filepath) as f:
+                text = f.read()
+            geometry = json.loads(text)
+            new_geometry = vertices_copy(geometry, [255.0, 255.0, 255.0, 255.0])
+            new_text = json.dumps(new_geometry)
+            new_name = "_".join(["white", geometry_name])
+            filepath = "/".join(["../geometries", new_name])
+            with open(filepath, "w") as f:
+                f.write(new_text)
+    new_name = "".join(["White", thing["name"]])
+    thing["name"] = new_name
+    filepath = "/".join([dir, new_name])
+    text = json.dumps(thing)
+    with open(filepath, "w") as f:
+        f.write(text)
+    return 
+
+def set_thing_geometry_name():
+    dir = "../things"
+    names = os.listdir(dir)
+    for name in names:
+            filepath = "/".join([dir, name])
+            if (os.path.isfile(filepath) and is_extension(name, "json")):
+                        with open(filepath) as f:
+                            text = f.read()
+                        print json.dumps(["reading file", name])
+                        thing = json.loads(text)
+                        if in_array_string(thing.keys(), "geometry_names"):
+                                        thing["geometry_name"] = thing["geometry_names"][0]
+                        text = json.dumps(thing)
+                        with open(filepath, "w") as f:
+                            f.write(text)
+    return 
+
 def run():
-    change_filename()
+    set_thing_geometry_name()
     return 
 

@@ -119,9 +119,11 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 
     ready.time_start = state.now
     ready.status = "idle"
-    game.pacman.geometry = state.geometries{"pacman_0"}
-    game.pacman.position = [106, 0, 70]
-    game.pacman.rotates = []
+    pacman = game.pacman
+    pacman.geometry = state.geometries{"pacman_0"}
+    pacman.position = [106, 0, 70]
+    pacman.velocity = [0, 0, 0]
+    pacman.rotates = []
     game.shadow.position = [105, 0, 165]
     game.shadow.jail_position = [105, 0, 141]
     game.shadow.state = "normal"
@@ -175,7 +177,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
             state.game.state.status = "start"
     else:
         #print(["dying_idle animating"])
-        animate(state.animations.pacman_die, pacman, state.geometries, elapsed)
+        animate(state.animations.pacman_die, state.things, state.geometries, elapsed)
 
 () game_over_start(object state):
     game_over = state.game.state
@@ -197,6 +199,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     state.game.state.status = "idle"
 
 () playing_idle(object state):
+    #print("playing_idlestart")
     #collisions(state)
     # game specific touching
     collide_characters(state)
@@ -207,6 +210,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
         return
     keyboard_idle(state)
     ai_idle(state)
+    #print("playing_idleend")
     #print(["pacman velocity", state.pacman.velocity])
 
 () won_start(object state):
@@ -224,7 +228,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 () victory_dance_start(object state):
     game = state.game
     state.world.children = [game.pacman, game.shadow]
-    
+
     z = 117
     v_x = -100
     shadow.position = [250, 0, z]
@@ -251,12 +255,13 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 (bool yes) is_win(array items):
     for item in items:
         if length(item.children) > 0:
-            yes = true
-            retun
+            yes = false
+            return
 
 # two objects collided. specifically, one ran into two. what to do?
 #() handle_collision(object one, object two):
 (bool stop) game_logic(object state):
+    #print(["game_logic start"])
     pacman = state.game.pacman
     game = state.game
     for touch in pacman.touching:
@@ -272,13 +277,12 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
                 thing.state = "eyes"
                 thing.children = [game.eyes]
 
-    #if (one.type == "Shadow" || two.type == "Shadow") && (one.type == "Pacman" || two.type == "Pacman"):
-        # die pacman
-
     matrix = matrix_placement(pacman.position, pacman.rotates)
     bounds = pacman.bounds
     (pacman_point, pacman_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+    #print(["game_logic checking overlapping start"])
     round = overlap_bounds_thing(matrix_identity(), pacman_point, pacman_size, game.items)
+    #print(["game_logic checking overlapping end"])
     if round:
         if round.type == "Ball":
             game.score += 50
@@ -296,6 +300,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
                 enemy.state = "blue"
             game.ghost_time_start = state.now
         elif round.type == "Dot":
+            #print(["hit dot start"])
             game.score += 10
             set_score_value(state)
             # TODO: don't have to go through each and every one. go through tree.
@@ -303,6 +308,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
             if is_win(game.items.children):
                 game.state = get_game_state(state, "won")
                 game.state.status = "start"
+            #print(["hit dot end"])
 
 () set_score_value(object state):
     game = state.game

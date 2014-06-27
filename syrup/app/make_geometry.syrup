@@ -1,4 +1,5 @@
 from wafflecore.compute import (new_id, vertices_cube, cuboid_new, is_extension)
+from wafflecore.standard import in_array_string
 
 (object geometry) column_geometry_color(number x_length, number z_length, array offset, array byte_color):
     geometry = []
@@ -215,26 +216,26 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new, is_extension)
 () make_white_stage(string name):
     dir = "../things"
     filepath = join([dir, name], "/")
-    text = file_read(filepath)
+    file_read(filepath, text)
     thing = from_json(text)
     if in_array_string(keys(thing), "children_names"):
         new_children_names = []
         for name in thing.children_names:
             make_white_stage(name)
-            new_name = join(["white", name, "_"])
+            new_name = join(["white", name], "_")
             append(new_children_names, new_name)
         thing.children_names = new_children_names
     if in_array_string(keys(thing), "geometry_name"):
         geometry_name = thing.geometry_name
-        filepath = join(["../geometries", geometry_name])
-        text = file_read(filepath)
+        filepath = join(["../geometries", geometry_name], "/")
+        file_read(filepath, text)
         geometry = from_json(text)
         new_geometry = vertices_copy(geometry, [255,255,255,255])
         new_text = to_json(new_geometry)
-        new_name = join(["white", geometry_name, "_"])
-        filepath = join(["../geometries", new_name])
+        new_name = join(["white", geometry_name], "_")
+        filepath = join(["../geometries", new_name], "/")
         file_write(filepath, new_text)
-    new_name = join(["White", thing.name, ""])
+    new_name = join(["White", thing.name], "")
     thing.name = new_name
     filepath = join([dir, new_name], "/")
     text = to_json(thing)
@@ -242,13 +243,17 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new, is_extension)
 
 () set_thing_geometry_name():
     dir = "../things"
-    filepath = join([dir, name], "/")
-    text = file_read(filepath)
-    thing = from_json(text)
-    if in_array_string(keys(thing), "geometry_names"):
-        thing.geometry_name = thing.geometry_names[0]
-    text = to_json(thing)
-    file_write(filepath, text)
+    names = file_list_dir(dir)
+    for name in names:
+        filepath = join([dir, name], "/")
+        if file_is_file(filepath) && is_extension(name, "json"):
+            file_read(filepath, text)
+            print(["reading file", name])
+            thing = from_json(text)
+            if in_array_string(keys(thing), "geometry_names"):
+                thing.geometry_name = thing.geometry_names[0]
+            text = to_json(thing)
+            file_write(filepath, text)
 
 () run():
     #c_shape(42, 28, 37)
@@ -259,5 +264,6 @@ from wafflecore.compute import (new_id, vertices_cube, cuboid_new, is_extension)
     #enemy_copy()
     #ghost_copy()
     #change_filename()
-    make_white_stage("stage")
+    #make_white_stage("stage")
+    set_thing_geometry_name()
     #cubes()

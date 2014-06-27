@@ -1,12 +1,1 @@
-{
-    "position": [23.0, 0.0, 0.0],
-    "rotates": [],
-    "geometry_names": ["t_bottom"],
-    "geometry_index": 0,
-    "bounds": {
-        "position": [1.0, 0.0, 0.0],
-        "size": [8.0, 1.0, 24.0]
-    },
-    "mass": 1,
-    "type": "TBottom"
-}
+{"geometry_names": ["t_bottom"], "geometry_name": "t_bottom", "bounds": {"position": [1.0, 0.0, 0.0], "size": [8.0, 1.0, 24.0]}, "geometry_index": 0, "mass": 1, "position": [23.0, 0.0, 0.0], "rotates": [], "type": "TBottom"}

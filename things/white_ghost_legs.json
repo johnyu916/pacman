@@ -1,12 +1,1 @@
-{
-    "position": [0.0, 0.0, 0.0],
-    "rotates": [],
-    "geometry_names": ["white_ghost_legs_0", "white_ghost_legs_1"],
-    "geometry_index": 0,
-    "bounds": {
-        "position": [0.0, 0.0, 0.0],
-        "size": [14.0, 1.0, 3.0]
-    },
-    "mass": 1,
-    "type": "WhiteGhostLegs"
-}
+{"geometry_names": ["white_ghost_legs_0", "white_ghost_legs_1"], "geometry_name": "white_ghost_legs_0", "bounds": {"position": [0.0, 0.0, 0.0], "size": [14.0, 1.0, 3.0]}, "geometry_index": 0, "mass": 1, "position": [0.0, 0.0, 0.0], "rotates": [], "type": "WhiteGhostLegs"}

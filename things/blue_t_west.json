@@ -1,15 +1,1 @@
-{
-    "position": [92.0, 0.0, 156.0],
-    "rotates": [
-        {
-            "angle": 270,
-            "axis": 1
-        },
-        {
-            "angle": 0,
-            "axis": 0
-        }
-    ],
-    "children_names": ["t_long", "t_bottom"],
-    "type": "Wall"
-}
+{"position": [92.0, 0.0, 156.0], "rotates": [{"angle": 270, "axis": 1}, {"angle": 0, "axis": 0}], "type": "Wall", "children_names": ["t_long", "t_bottom"]}

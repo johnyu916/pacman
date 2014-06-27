@@ -1,12 +1,1 @@
-{
-    "position": [0.0, 0.0, 3.0],
-    "rotates": [],
-    "geometry_names": ["ghost_head"],
-    "geometry_index": 0,
-    "bounds": {
-        "position": [0.0, 0.0, 0.0],
-        "size": [14.0, 1.0, 11.0]
-    },
-    "mass": 1,
-    "type": "GhostHead"
-}
+{"geometry_names": ["ghost_head"], "geometry_name": "ghost_head", "bounds": {"position": [0.0, 0.0, 0.0], "size": [14.0, 1.0, 11.0]}, "geometry_index": 0, "mass": 1, "position": [0.0, 0.0, 3.0], "rotates": [], "type": "GhostHead"}
