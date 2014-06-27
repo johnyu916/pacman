@@ -283,6 +283,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
         if round.type == "Ball":
             game.score += 50
             set_score_value(state)
+            # TODO: don't have to go through each and every one. go through tree.
             remove_thing(game.items.children[1].children, round.id)
 
             if is_win(game.items.children):
@@ -297,6 +298,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
         elif round.type == "Dot":
             game.score += 10
             set_score_value(state)
+            # TODO: don't have to go through each and every one. go through tree.
             remove_thing(game.items.children[0].children, round.id)
             if is_win(game.items.children):
                 game.state = get_game_state(state, "won")

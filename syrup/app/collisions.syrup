@@ -36,6 +36,7 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
     extend(others, game.enemies)
     # pacman
     bump_thing(game.pacman, others, state.delta)
+    #TODO: either get rid of touch or limit comparisons to pacman and enemies
     touch_thing(game.pacman, others)
 
     others_enemy = [game.enemy_jail, game.stage, game.pacman]
@@ -303,11 +304,16 @@ from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_tran
 # to another thing B defined by bounds.
 # we only care if it crashes before going delta.
 # hit_normal is the direction hit from A.
+# peak is farthest point in delta direction of A.
+# the logic is, given that bounds are boxes in cartesian plane, if
+# the the boxes intersect, then they must intersect in all 3 axes.
+# so break the delta into x,y,z components
 (bool is_hit, number crash_time, array hit_normal) crash_bounds(array position_i, array size, array peak, array delta, array offset, object bounds):
     (dest_point, dest_size) = cuboid_transformed(offset, bounds.position, bounds.size)
     #if thing.type == "TLong":
     #    print(["crash_thing tlong 2", dest_point, dest_size])
 
+    # TODO: can pre-calculate delta.
     vectors = vectors_component(delta)
     unit_vectors = vectors_component_unit(delta)
     for i in range(length(vectors)):
