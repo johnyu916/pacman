@@ -1,1 +1,1 @@
-{"position": [0.0, 0.0, 0.0], "rotates": [], "type": "Wall", "children_names": ["blue24by16_0", "blue24by8_0", "blue32by16_0", "blue_t_west", "blue_t_north", "blue_t_east", "blue32by16_1", "blue24by16_1", "blue24by8_1"]}
+{"position": [0.0, 0.0, 0.0], "rotates": [], "type": "BlocksNorth", "children_names": ["blue24by16_0", "blue24by8_0", "blue32by16_0", "blue_t_west", "blue_t_north", "blue_t_east", "blue32by16_1", "blue24by16_1", "blue24by8_1"],    "bounds": {        "position":[0.0, 0.0, 148.0],        "size": [224, 1, 116]    }}

@@ -45,10 +45,10 @@ from wafflecore.camera import camera_translate
 #  1. pacman is facing right.
 #  2. pacman's bounds position is [0.0, 0.0, 0.0].
 () place_pacman(object pacman, number axis, number sign):
-    matrix = matrix_placement(pacman.position, pacman.rotates)
     #print(["place_pacman matrix", matrix])
-    bounds = pacman.bounds
-    (new_point, new_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+    bounds = pacman.world_bounds
+    new_point = bounds.position
+    new_size = bounds.size
     #point = point_transformed(matrix, pacman.bounds.position)
     #print(["place_pacman position rotates, point", pacman.position, pacman.rotates, new_point])
     bound_size = bounds.size

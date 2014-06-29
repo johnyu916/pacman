@@ -1,1 +1,1 @@
-{"position": [180.0, 0.0, 60.0], "rotates": [], "type": "Wall", "children_names": ["l_long", "l_short"]}
+{"position": [180.0, 0.0, 60.0], "rotates": [], "type": "Wall", "children_names": ["l_long", "l_short"],    "bounds": {        "position":[0.0, 0.0, 0.0],        "size": [24, 1, 32]    }}

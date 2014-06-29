@@ -1,6 +1,0 @@
-{
-    "position": [0.0, 0.0, 0.0],
-    "rotates": [],
-    "children_names": ["wall_north", "wall_south", "blocks_north", "blocks_south"],
-    "type": "Stage"
-}

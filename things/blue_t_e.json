@@ -1,1 +1,1 @@
-{"children_names_old": ["t_68", "t_bottom_1"], "position": [132.0, 0.0, 36.0], "rotates": [], "type": "Wall", "children_names": ["t_68", "t_bottom_1"]}
+{"children_names_old": ["t_68", "t_bottom_1"], "position": [132.0, 0.0, 36.0], "rotates": [], "type": "Wall", "children_names": ["t_68", "t_bottom_1"],    "bounds": {        "position":[0.0, 0.0, 0.0],        "size": [72, 1, 32]    }}

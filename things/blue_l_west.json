@@ -1,1 +1,1 @@
-{"position": [44.0, 1.0, 60.0], "rotates": [{"angle": 180, "axis": 2}, {"angle": 0, "axis": 0}], "type": "Wall", "children_names": ["l_long", "l_short"]}
+{"position": [44.0, 1.0, 60.0], "rotates": [{"angle": 180, "axis": 2}, {"angle": 0, "axis": 0}], "type": "Wall", "children_names": ["l_long", "l_short"],    "bounds": {        "position":[0.0, 0.0, 0.0],        "size": [24, 1, 32]    }}

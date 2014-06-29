@@ -1,1 +1,1 @@
-{"children_names_proper": ["wall_north", "wall_south", "blocks_north", "blocks_south", "stage_cubes"], "position": [0.0, 0.0, 0.0], "rotates": [], "type": "Stage", "children_names": ["wall_north", "wall_south", "blocks_north", "blocks_south"]}
+{    "position": [0.0, 0.0, 0.0], "rotates": [], "type": "Stage", "children_names": ["wall_north", "wall_south", "blocks_north", "blocks_south"],    "bounds": {        "position":[0.0, 0.0, 16.0],        "size": [224, 1, 248]    }}

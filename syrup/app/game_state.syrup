@@ -3,7 +3,7 @@ from text import get_text
 from keyboard import keyboard_idle
 from shared import get_game_state
 from wafflecore.animation import animate
-from wafflecore.thing import (thing_new)
+from wafflecore.thing import (thing_new, thing_set_world_bounds)
 from ai import ai_idle
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
 
@@ -138,6 +138,16 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     game.pokey.jail_position = [121, 0, 141]
     game.pokey.state = "up_down"
     game.pokey.up_down_time = 10
+
+    # cache the world bounds
+    things = [game.jail, game.enemy_jail, game.stage, game.pacman, game.items]
+    extend(things, game.enemies)
+    cache_world_bounds(state, things)
+
+() cache_world_bounds(object state, array things):
+    identity = matrix_identity()
+    for thing in things:
+        thing_set_world_bounds(thing, identity)
     #print(["ready_start", state.game])
 
 () ready_idle(object state):
@@ -202,16 +212,21 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     #print("playing_idlestart")
     #collisions(state)
     # game specific touching
+    #one = time()
     collide_characters(state)
     #touching_all(state)
+    #two = time()
 
     stop = game_logic(state)
+    #three = time()
     if stop:
         return
     keyboard_idle(state)
     ai_idle(state)
+    #four = time()
     #print("playing_idleend")
     #print(["pacman velocity", state.pacman.velocity])
+    #print(["playing_idle", one, two, three, four])
 
 () won_start(object state):
     won = state.game.state
@@ -277,11 +292,9 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
                 thing.state = "eyes"
                 thing.children = [game.eyes]
 
-    matrix = matrix_placement(pacman.position, pacman.rotates)
-    bounds = pacman.bounds
-    (pacman_point, pacman_size) = cuboid_transformed(matrix, bounds.position, bounds.size)
+    pacman_bounds = pacman.world_bounds
     #print(["game_logic checking overlapping start"])
-    round = overlap_bounds_thing(matrix_identity(), pacman_point, pacman_size, game.items)
+    round = overlap_bounds_thing(pacman_bounds.position, pacman_bounds.size, pacman_bounds.points[6], game.items)
     #print(["game_logic checking overlapping end"])
     if round:
         if round.type == "Ball":

@@ -31,6 +31,7 @@ from dots_balls import (get_dots, get_balls)
         filepath = join([state.things_dir, filename], "/")
         (name, type) = filename_type(filename)
         if file_is_file(filepath) && type == "json":
+            print(["reading thing from filename: ", filename])
             things{name} = thing_read(state, filename)
 
     for key in keys(things):
@@ -75,10 +76,13 @@ from dots_balls import (get_dots, get_balls)
     #game.materials = thing_blank(new_id(state), "Materials")
     #game.materials.children = [stage]
 
-    game.items = thing_blank(new_id(state), "Items")
     balls = get_balls(state)
     dots = get_dots(state)
-    game.items.children = [dots, balls]
+    bounds = {
+        "position": [0,0,16],
+        "size": [224, 1, 248]
+    }
+    game.items = thing_new(new_id(state), "Items", [0,0,0], [], [dots, balls], null, bounds)
     # dots, balls, etc
 
     #ready = thing_load(state, "ready")

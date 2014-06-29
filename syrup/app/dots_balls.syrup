@@ -13,6 +13,16 @@ from wafflecore.thing import (thing_new, thing_blank)
         x += x_off
         z += z_off
 
+(array dots) line_dots(array stage, number x, number x_off, number z, number z_off, number amount):
+    # (11, 251) -> (0, 28)
+    # (251 - 27) / 8
+    # (11 - 11) / 8 = 0
+    for i in range(amount):
+        position = [x, 0, z]
+        x_idx = (x - 11) / 8
+        y_idx = (z - 27) / 8
+        stage[x_idx][y_idx] = 1
+
 (object section) get_dots(object state):
     geometry = state.geometries.dot
 
@@ -165,8 +175,26 @@ from wafflecore.thing import (thing_new, thing_blank)
     thing_se = thing_new(new_id(state), "DotsSE", [0,0,0], [], all_dots, null, bounds)
 
     children = [thing_nw, thing_ne, thing_sw, thing_se]
-    section = thing_blank(new_id(state), "Dots")
-    section.children = children
+    bounds = {
+        "position": [0, 0, 16],
+        "size": [224, 1, 248]
+    }
+    section = thing_new(new_id(state), "Dots", [0,0,0], [], children, null, bounds)
+# 0 is blocked.
+# 1 is dots
+# 2 is balls
+(array stage) get_stage():
+    stage = []
+    for i in range(26):
+        a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        b = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        c = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        extend(a, b)
+        extend(a, c)
+        append(stage, a)
+
+    # fill it in
+
 
 
 (object balls) get_balls(object state):
@@ -186,5 +214,8 @@ from wafflecore.thing import (thing_new, thing_blank)
         ball = thing_new(new_id(state), "Ball", position, [], [], geometry, bounds)
         append(children, ball)
 
-    balls = thing_blank(new_id(state), "Balls")
-    balls.children = children
+    bounds = {
+        "position": [0, 0, 16],
+        "size": [224, 1, 248]
+    }
+    balls = thing_new(new_id(state), "Balls", [0,0,0], [], children, null, bounds)

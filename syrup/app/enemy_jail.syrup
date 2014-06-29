@@ -21,6 +21,10 @@ from wafflecore.thing import (thing_new, thing_blank)
         bounds = cuboid_new([0.0,0.0,0.0], location[1])
         child = thing_new(new_id(state), "EnemyJailWall", position, [], [], null, bounds)
         append(children, child)
+    bounds = {"position": [0.0, 0.0, 0.0], "size": [56, 1, 32]}
+    position = [84.0, 0.0, 132.0]
     thing = thing_blank(new_id(state), "EnemyJail")
+    thing.bounds = bounds
+    thing.position = position
     thing.children = children
 
