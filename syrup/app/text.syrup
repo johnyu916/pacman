@@ -50,7 +50,11 @@ from wafflecore.thing import (thing_new, thing_blank)
         if in_array(keys(characters), text_color) == false:
             geometry = state.geometries{key}
             vertices = vertices_copy(geometry.vertices, byte_color)
-            new_geometry = {"id":new_id(state), "vertices":array_float(vertices)}
+            new_geometry = {
+                "id": new_id(state),
+                "vertices": array_float(vertices),
+                "static": true
+            }
             character{text_color} = new_geometry
         geometry = character{text_color}
         letter_thing = thing_new(new_id(state), "Letter", [x, 0.0, 0.0], [], [], geometry, null)
