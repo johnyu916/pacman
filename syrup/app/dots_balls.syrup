@@ -1,4 +1,4 @@
-from wafflecore.compute import (new_id)
+from wafflecore.compute import (new_id, copy_vertices_offset)
 from wafflecore.thing import (thing_new, thing_blank)
 
 (array dots) line_dots(object state, number x, number x_off, number z, number z_off, number amount, object geometry):
@@ -328,7 +328,7 @@ from wafflecore.thing import (thing_new, thing_blank)
     new_geometry = []
     for position in positions:
         #ball = thing_new(new_id(state), "Ball", position, [], [], geometry, bounds)
-        new_vertices = vertices_copy_offset(geometry.vertices, position)
+        new_vertices = copy_vertices_offset(geometry.vertices, position)
         extend(new_geometry, new_vertices)
         #append(balls, ball)
 
