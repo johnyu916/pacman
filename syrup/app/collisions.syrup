@@ -2,7 +2,6 @@ from wafflecore.compute import (array_scaled, sum_arrays, sum_arrays_3, subtract
 from wafflecore.thing import thing_set_world_bounds
 
 
-
 () collide_characters(object state):
     game = state.game
     pacman = game.pacman

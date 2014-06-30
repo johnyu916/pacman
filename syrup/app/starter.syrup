@@ -19,7 +19,8 @@ from dots_balls import (get_dots, get_balls, get_grid)
             file_read(filepath, text)
             geometry = {
                 "vertices": array_float(from_json(text)),
-                "id": new_id(state)
+                "id": new_id(state),
+                "static": true
             }
             geometries{name} = geometry
 
