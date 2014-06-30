@@ -2,6 +2,7 @@ from wafflecore.compute import (new_id)
 from wafflecore.thing import (thing_new, thing_blank)
 
 (array dots) line_dots(object state, number x, number x_off, number z, number z_off, number amount, object geometry):
+    grid = state.game.stage.grid
     for i in range(amount):
         position = [x, 0, z]
         bounds = {
@@ -10,10 +11,36 @@ from wafflecore.thing import (thing_new, thing_blank)
         }
         dot = thing_new(new_id(state), "Dot", position, [], [], geometry, bounds)
         append(dots, dot)
+
+        position = [x, 0, z]
+        x_idx = (x - 11) / 8
+        y_idx = (z - 27) / 8
+        grid[x_idx][y_idx] = dot
+
         x += x_off
         z += z_off
 
-(array dots) line_dots(array stage, number x, number x_off, number z, number z_off, number amount):
+(array dots) line_dots(object state, number x, number x_off, number z, number z_off, number amount, object geometry):
+    grid = state.game.stage.grid
+    for i in range(amount):
+        position = [x, 0, z]
+        bounds = {
+            "position": [0.0, 0.0, 0.0],
+            "size": [1.0, 1.0, 1.0]
+        }
+        dot = thing_new(new_id(state), "Dot", position, [], [], geometry, bounds)
+        append(dots, dot)
+
+        position = [x, 0, z]
+        x_idx = (x - 11) / 8
+        y_idx = (z - 27) / 8
+        grid[x_idx][y_idx] = dot
+
+        x += x_off
+        z += z_off
+
+
+(array dots) fill_line_dots(array stage, number x, number x_off, number z, number z_off, number amount):
     # (11, 251) -> (0, 28)
     # (251 - 27) / 8
     # (11 - 11) / 8 = 0
@@ -23,7 +50,79 @@ from wafflecore.thing import (thing_new, thing_blank)
         y_idx = (z - 27) / 8
         stage[x_idx][y_idx] = 1
 
-(object section) get_dots(object state):
+(object section) fill_dots(object stage):
+
+    # 253
+    all_dots = []
+    # horizontal NW
+    dots = fill_line_dots(stage, 11, 8, 251, 0, 12)
+    dots = fill_line_dots(stage, 11, 8, 219, 0, 13)
+    dots = fill_line_dots(stage, 11, 8, 195, 0, 6)
+    dots = fill_line_dots(stage, 75, 8, 195, 0, 4)
+    # vertical NW
+    dots = fill_line_dots(stage, 11, 8, 243, 0, 1)
+    dots = fill_line_dots(stage, 11, 8, 227, 0, 1)
+    dots = fill_line_dots(stage, 11, 0, 203, 8, 2)
+    dots = fill_line_dots(stage, 51, 0, 227, 8, 3)
+    dots = fill_line_dots(stage, 51, 0, 203, 8, 2)
+    dots = fill_line_dots(stage, 51, 0, 147, 8, 6)
+    dots = fill_line_dots(stage, 75, 0, 203, 8, 2)
+    dots = fill_line_dots(stage, 99, 0, 227, 8, 3)
+
+    # horizontal NE
+    dots = fill_line_dots(stage, 123, 8, 251, 0, 12)
+    dots = fill_line_dots(stage, 115, 8, 219, 0, 13)
+    dots = fill_line_dots(stage, 123, 8, 195, 0, 4)
+    dots = fill_line_dots(stage, 171, 8, 195, 0, 6)
+    # vertical NE
+    dots = fill_line_dots(stage, 123, 0, 227, 8, 3)
+    dots = fill_line_dots(stage, 147, 0, 203, 8, 2)
+    dots = fill_line_dots(stage, 171, 0, 227, 8, 3)
+    dots = fill_line_dots(stage, 171, 0, 203, 8, 2)
+    dots = fill_line_dots(stage, 171, 0, 147, 8, 6)
+    dots = fill_line_dots(stage, 211, 8, 243, 0, 1)
+    dots = fill_line_dots(stage, 211, 8, 227, 0, 1)
+    dots = fill_line_dots(stage, 211, 0, 203, 8, 2)
+    # horizontal SW
+    dots = fill_line_dots(stage, 11, 8, 99, 0, 12)
+    dots = fill_line_dots(stage, 19, 8, 75, 0, 2)
+    dots = fill_line_dots(stage, 51, 8, 75, 0, 7)
+    dots = fill_line_dots(stage, 11, 8, 51, 0, 6)
+    dots = fill_line_dots(stage, 75, 8, 51, 0, 4)
+    dots = fill_line_dots(stage, 11, 8, 27, 0, 13)
+    # vertical SW
+    dots = fill_line_dots(stage, 11, 0, 83, 8, 2)
+    dots = fill_line_dots(stage, 11, 0, 35, 8, 2)
+    dots = fill_line_dots(stage, 27, 0, 59, 8, 2)
+    dots = fill_line_dots(stage, 51, 0, 59, 8, 2)
+    dots = fill_line_dots(stage, 51, 0, 83, 8, 2)
+    dots = fill_line_dots(stage, 51, 0, 107, 8, 5)
+    dots = fill_line_dots(stage, 75, 0, 59, 8, 2)
+    dots = fill_line_dots(stage, 99, 0, 35, 8, 2)
+    dots = fill_line_dots(stage, 99, 0, 83, 8, 2)
+
+    # horizonatl SE
+    dots = fill_line_dots(stage, 123, 8, 99, 0, 12)
+    dots = fill_line_dots(stage, 123, 8, 75, 0, 7)
+    dots = fill_line_dots(stage, 195, 8, 75, 0, 2)
+    dots = fill_line_dots(stage, 123, 8, 51, 0, 4)
+    dots = fill_line_dots(stage, 171, 8, 51, 0, 6)
+    dots = fill_line_dots(stage, 115, 8, 27, 0, 13)
+    # vertical SE
+    dots = fill_line_dots(stage, 123, 0, 35, 8, 2)
+    dots = fill_line_dots(stage, 123, 0, 83, 8, 2)
+    dots = fill_line_dots(stage, 147, 0, 59, 8, 2)
+
+    dots = fill_line_dots(stage, 171, 0, 59, 8, 2)
+    dots = fill_line_dots(stage, 171, 0, 83, 8, 2)
+    dots = fill_line_dots(stage, 171, 0, 107, 8, 5)
+    dots = fill_line_dots(stage, 195, 0, 59, 8, 2)
+
+    dots = fill_line_dots(stage, 211, 0, 83, 8, 2)
+    dots = fill_line_dots(stage, 211, 0, 35, 8, 2)
+
+
+(array all_dots) get_dots(object state):
     geometry = state.geometries.dot
 
     # 253
@@ -58,9 +157,9 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [11.0, 0.0, 147.0],
         "size": [100.0, 1.0, 106.0] 
     }
-    thing_nw = thing_new(new_id(state), "DotsNW", [0,0,0], [], all_dots, null, bounds)
+    #thing_nw = thing_new(new_id(state), "DotsNW", [0,0,0], [], all_dots, null, bounds)
 
-    all_dots = []
+    #all_dots = []
     # horizontal NE
     dots = line_dots(state, 123, 8, 251, 0, 12, geometry)
     extend(all_dots, dots)
@@ -91,9 +190,9 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [115.0, 0.0, 147.0],
         "size": [98.0, 1.0, 106.0]
     }
-    thing_ne = thing_new(new_id(state), "DotsNE", [0,0,0], [], all_dots, null, bounds)
+    #thing_ne = thing_new(new_id(state), "DotsNE", [0,0,0], [], all_dots, null, bounds)
 
-    all_dots = []
+    #all_dots = []
     # horizontal SW
     dots = line_dots(state, 11, 8, 99, 0, 12, geometry)
     extend(all_dots, dots)
@@ -131,9 +230,9 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [11.0, 0.0, 27.0],
         "size": [100.0, 1.0, 104.0]
     }
-    thing_sw = thing_new(new_id(state), "DotsSW", [0,0,0], [], all_dots, null, bounds)
+    #thing_sw = thing_new(new_id(state), "DotsSW", [0,0,0], [], all_dots, null, bounds)
 
-    all_dots = []
+    #all_dots = []
     # horizonatl SE
     dots = line_dots(state, 123, 8, 99, 0, 12, geometry)
     extend(all_dots, dots)
@@ -172,29 +271,44 @@ from wafflecore.thing import (thing_new, thing_blank)
         "position": [123.0, 0.0, 27.0],
         "size": [90.0, 1.0, 114.0]
     }
-    thing_se = thing_new(new_id(state), "DotsSE", [0,0,0], [], all_dots, null, bounds)
+    #thing_se = thing_new(new_id(state), "DotsSE", [0,0,0], [], all_dots, null, bounds)
 
-    children = [thing_nw, thing_ne, thing_sw, thing_se]
+    #children = [thing_nw, thing_ne, thing_sw, thing_se]
     bounds = {
         "position": [0, 0, 16],
         "size": [224, 1, 248]
     }
-    section = thing_new(new_id(state), "Dots", [0,0,0], [], children, null, bounds)
+    #section = thing_new(new_id(state), "Dots", [0,0,0], [], children, null, bounds)
+    all_dots
 # 0 is blocked.
 # 1 is dots
 # 2 is balls
-(array stage) get_stage():
+(array stage) get_grid():
     stage = []
     for i in range(26):
-        a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        b = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        c = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        extend(a, b)
-        extend(a, c)
+        a = []
+        for j in range(29):
+            append(a, null)
         append(stage, a)
 
     # fill it in
+    #fill_dots(stage)
 
+    #fill_balls(stage)
+
+() fill_balls(object stage):
+    positions = [
+    [208, 0, 72],
+    [8, 0, 72],
+    [208, 0, 232],
+    [8, 0, 232]
+    ]
+    for position in positions:
+        x = position[0]
+        z = position[2]
+        x_idx = (x - 11) / 8
+        y_idx = (z - 27) / 8
+        stage[x_idx][y_idx] = 1
 
 
 (object balls) get_balls(object state):
@@ -209,10 +323,20 @@ from wafflecore.thing import (thing_new, thing_blank)
         "size": [8.0, 1.0, 8.0]
     }
     geometry = state.geometries.ball
-    children = []
+    grid = state.game.stage.grid
+    balls = []
+    new_geometry = []
     for position in positions:
-        ball = thing_new(new_id(state), "Ball", position, [], [], geometry, bounds)
-        append(children, ball)
+        #ball = thing_new(new_id(state), "Ball", position, [], [], geometry, bounds)
+        new_vertices = vertices_copy_offset(geometry.vertices, position)
+        extend(new_geometry, new_vertices)
+        #append(balls, ball)
+
+        x = position[0]
+        z = position[2]
+        x_idx = (x - 11) / 8
+        y_idx = (z - 27) / 8
+        grid[x_idx][y_idx] = ball
 
     bounds = {
         "position": [0, 0, 16],

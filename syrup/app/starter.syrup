@@ -4,7 +4,7 @@ from wafflecore.standard import copy_object
 from shared import get_game_state
 from enemy_jail import jail_enemy_new
 from text import get_text
-from dots_balls import (get_dots, get_balls)
+from dots_balls import (get_dots, get_balls, get_grid)
 
 () start(array argv, object state):
     # load geometries
@@ -18,7 +18,7 @@ from dots_balls import (get_dots, get_balls)
             text = null
             file_read(filepath, text)
             geometry = {
-                "vertices": from_json(text),
+                "vertices": array_float(from_json(text)),
                 "id": new_id(state)
             }
             geometries{name} = geometry
@@ -66,6 +66,7 @@ from dots_balls import (get_dots, get_balls)
     load_enemies(state)
 
     stage = things.stage
+    stage.grid = get_grid()
     game.stage = stage
 
     jail = things.jail
@@ -76,14 +77,9 @@ from dots_balls import (get_dots, get_balls)
     #game.materials = thing_blank(new_id(state), "Materials")
     #game.materials.children = [stage]
 
-    balls = get_balls(state)
-    dots = get_dots(state)
-    bounds = {
-        "position": [0,0,16],
-        "size": [224, 1, 248]
-    }
-    game.items = thing_new(new_id(state), "Items", [0,0,0], [], [dots, balls], null, bounds)
     # dots, balls, etc
+    game.balls = get_balls(state)
+    game.dots = get_dots(state)
 
     #ready = thing_load(state, "ready")
     intro_state = get_game_state(state, "intro")
@@ -157,7 +153,7 @@ from dots_balls import (get_dots, get_balls)
     game.white_ghost_children = children
     game.eyes = things.eyes
 
-    # animations
+    # animations.
     animations = state.animations
     enemy_legs = animations.enemy_legs
     for enemy_name in game.enemy_names:

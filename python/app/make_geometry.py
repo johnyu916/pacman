@@ -4,7 +4,7 @@ import os.path
 from random import random
 from time import time
 
-from wafflecore.compute import new_id, vertices_cube, cuboid_new, is_extension
+from wafflecore.compute import new_id, vertices_cube, cuboid_new
 from wafflecore.standard import in_array_string
 
 def column_geometry_color(x_length, z_length, offset, byte_color):
@@ -283,7 +283,15 @@ def set_thing_geometry_name():
                             f.write(text)
     return 
 
+def dot_geometry():
+    byte_color = [236.0, 183.0, 152.0, 255.0]
+    vertices = column_geometry_color(1.0, 1.0, [0.0, 0.0, 0.0], byte_color)
+    filename = "/".join(["../geometries", "dot.json"])
+    with open(filename, "w") as f:
+        f.write(json.dumps(vertices))
+    return 
+
 def run():
-    set_thing_geometry_name()
+    dot_geometry()
     return 
 
