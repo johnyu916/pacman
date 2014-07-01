@@ -47,26 +47,25 @@ from wafflecore.camera import camera_translate
 () place_pacman(object pacman, number axis, number sign):
     #print(["place_pacman matrix", matrix])
     bounds = pacman.world_bounds
-    new_point = bounds.position
-    new_size = bounds.size
+    position = bounds.position
     #point = point_transformed(matrix, pacman.bounds.position)
-    #print(["place_pacman position rotates, point", pacman.position, pacman.rotates, new_point])
+    #print(["place_pacman position rotates, point", pacman.position, pacman.rotates, position])
     bound_size = bounds.size
     if axis == 0:
         if sign == 0:
-            pacman.position = [new_point[0] + bound_size[0], new_point[1] + bound_size[1], new_point[2]]
+            pacman.position = [position[0] + bound_size[0], position[1] + bound_size[1], position[2]]
             pacman.rotates = rotates_ortho_new(180, 2, 0, 0)
         else:
-            pacman.position = new_point
+            pacman.position = position
             pacman.rotates = []
     elif axis == 1:
         return
     elif axis == 2:
         if sign == 0:
-            pacman.position = [new_point[0], new_point[1], new_point[2] + bound_size[2]]
+            pacman.position = [position[0], position[1], position[2] + bound_size[2]]
             pacman.rotates = rotates_ortho_new(90, 1, 0, 0)
         else:
-            pacman.position = [new_point[0] + bound_size[0], new_point[1], new_point[2]]
+            pacman.position = [position[0] + bound_size[0], position[1], position[2]]
             pacman.rotates = rotates_ortho_new(270, 1, 0, 0)
 
 (bool yes) is_array_zero(array vector):

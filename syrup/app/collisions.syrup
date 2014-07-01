@@ -15,7 +15,7 @@ from wafflecore.thing import thing_set_world_bounds
     # pacman
     bump_thing(pacman, others, state.delta)
     #TODO: either get rid of touch or limit comparisons to pacman and enemies
-    touch_thing(pacman, others)
+    #touch_thing(pacman, others)
 
     others_enemy = [game.enemy_jail, game.stage, pacman]
     extend(others_enemy, game.enemies)
@@ -25,13 +25,13 @@ from wafflecore.thing import thing_set_world_bounds
         enemy_bounds = enemy.world_bounds
         if enemy.state == "eyes":
             bump_thing(enemy, others_eyes, state.delta)
-            touch_thing(enemy, others_eyes)
+            #touch_thing(enemy, others_eyes)
         elif is_overlap_cuboids(jail_position, jail_size, jail_bounds.points[6], enemy_bounds.position, enemy_bounds.size, enemy_bounds.points[6]):
             bump_thing(enemy, others_enemy, state.delta)
-            touch_thing(enemy, others_enemy)
+            #touch_thing(enemy, others_enemy)
         else:
             bump_thing(enemy, others, state.delta)
-            touch_thing(enemy, others)
+            #touch_thing(enemy, others)
 
 () collide_characters_old(object state):
     game = state.game

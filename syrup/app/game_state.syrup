@@ -1,6 +1,6 @@
 from collisions import (collide_characters, collisions, touching_all, overlap_bounds_thing, position_delta)
 from text import get_text
-from keyboard import keyboard_idle
+from keyboard import (keyboard_idle, place_pacman)
 from shared import get_game_state
 from wafflecore.animation import animate
 from wafflecore.thing import (thing_new, thing_set_world_bounds)
@@ -46,8 +46,12 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     z = 117
     v_x = -100
     game.ball.position = [33.0, 0.0, 120]
-    game.pacman.position = [224.0, 0.0, z]
-    game.pacman.velocity = [v_x, 0, 0]
+    pacman = game.pacman
+    pacman.position = [224.0, 0.0, z]
+    thing_set_world_bounds(pacman, matrix_identity())
+    pacman.velocity = [v_x, 0, 0]
+    pacman.animate_start = state.now
+    place_pacman(pacman, 0, 0)
     x = 250
     for enemy in game.enemies:
         enemy.position = [x, 0.0, z]
@@ -64,17 +68,23 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     distance_delta = position_delta(pacman, delta)
     #print(["distance delta", distance_delta])
     pacman.position = sum_arrays(pacman.position, distance_delta)
+    thing_set_world_bounds(pacman, matrix_identity())
+    animate(state.animations.pacman, state.things, state.geometries, state.now - pacman.animate_start)
     for enemy in game.enemies:
         move_velocity(state, enemy, enemy.velocity)
-        enemy.position = sum_arrays(enemy.position, distance_delta)
+        if enemy.velocity[0] < 0:
+            enemy.position = sum_arrays(enemy.position, distance_delta)
+        else:
+            enemy.position = sum_arrays(enemy.position, [distance_delta[0]/2, 0, 0])
 
     v_x = 100
-    if pacman.position[0] < 41:
+    if pacman.position[0] < 57:
         pacman.velocity = [v_x, 0, 0]
+        place_pacman(pacman, 0, 1)
         for enemy in game.enemies:
             enemy.children = game.ghost_children
             enemy.velocity = [v_x, 0, 0]
-    if pacman.position[0] > 224:
+    if pacman.position[0] > 240:
         # done.
         state.game.state = get_game_state(state, "main_menu")
         state.game.state.status = "start"
@@ -295,7 +305,8 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     #print(["game_logic start"])
     pacman = state.game.pacman
     game = state.game
-    for touch in pacman.touching:
+    #for touch in pacman.touching:
+    for touch in pacman.collisions:
         thing = touch.thing
         if thing.type == "Enemy":
             if thing.state == "normal":
@@ -311,7 +322,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     # hit balls and dots?
     pacman_bounds = pacman.world_bounds
     indices = indices_point(pacman_bounds.position[0], pacman_bounds.position[2])
-    print(["game_logic indices", indices])
+    #print(["game_logic indices", indices])
     grid = game.stage.grid
     for index in indices:
         space = grid[index[0]][index[1]]
@@ -321,7 +332,6 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
                 game.score += 50
                 set_score_value(state)
                 for enemy in game.enemies:
-                    #enemy.normal_children = enemy.children
                     enemy.children = game.ghost_children
                     enemy.state = "blue"
                 game.ghost_time_start = state.now
@@ -330,7 +340,6 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
                 game.score += 10
                 set_score_value(state)
 
-        # turn enemy status to blue
 
         #print(["hit dot start"])
         #print(["hit dot end"])
