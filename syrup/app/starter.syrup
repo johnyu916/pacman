@@ -142,6 +142,8 @@ from dots_balls import (get_dots, get_balls, get_grid)
         game{enemy_name} = thing
         append(game.enemies, thing)
 
+        thing.normal_children = thing.children
+
     children = []
     for name in game.ghost_children_names:
         thing = things{name}

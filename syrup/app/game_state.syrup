@@ -4,22 +4,22 @@ from keyboard import keyboard_idle
 from shared import get_game_state
 from wafflecore.animation import animate
 from wafflecore.thing import (thing_new, thing_set_world_bounds)
-from ai import ai_idle
+from ai import (ai_idle, move_velocity)
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
 
 (array indices) indices_point(number x, number z):
     x_off = x - 5
     z_off = z - 21
     x_idx = x_off / 8
-    x_mod = x_idx % 8
+    x_mod = x_off % 8
     y_idx = z_off / 8
     y_mod = z_off % 8
     append(indices, [x_idx, y_idx])
 
     # also append adjacent
-    if x_mod > 2:
+    if x_mod > 1 && x_idx < 25:
         append(indices, [x_idx + 1, y_idx])
-    if y_mod > 2:
+    if y_mod > 1 && y_idx < 28:
         append(indices, [x_idx, y_idx + 1])
 
 () intro_start(object state):
@@ -65,13 +65,14 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     #print(["distance delta", distance_delta])
     pacman.position = sum_arrays(pacman.position, distance_delta)
     for enemy in game.enemies:
+        move_velocity(state, enemy, enemy.velocity)
         enemy.position = sum_arrays(enemy.position, distance_delta)
 
     v_x = 100
     if pacman.position[0] < 41:
         pacman.velocity = [v_x, 0, 0]
-        enemy.children = game.ghost_children
         for enemy in game.enemies:
+            enemy.children = game.ghost_children
             enemy.velocity = [v_x, 0, 0]
     if pacman.position[0] > 224:
         # done.
@@ -115,6 +116,8 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     extend(state.world.children, game.enemies)
     #extend(state.world.children, game.balls)
     #extend(state.world.children, game.dots)
+    for enemy in game.enemies:
+        enemy.children = enemy.normal_children
     player_ready.status = "idle"
 
 
@@ -307,7 +310,8 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 
     # hit balls and dots?
     pacman_bounds = pacman.world_bounds
-    indices = indices_point(pacman_bounds.position[0], pacman_bounds.position[1])
+    indices = indices_point(pacman_bounds.position[0], pacman_bounds.position[2])
+    print(["game_logic indices", indices])
     grid = game.stage.grid
     for index in indices:
         space = grid[index[0]][index[1]]
@@ -317,7 +321,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
                 game.score += 50
                 set_score_value(state)
                 for enemy in game.enemies:
-                    enemy.normal_children = enemy.children
+                    #enemy.normal_children = enemy.children
                     enemy.children = game.ghost_children
                     enemy.state = "blue"
                 game.ghost_time_start = state.now
@@ -337,9 +341,10 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 
 () remove_item(array grid, number x, number y, object balls):
     item = grid[x][y]
-    offset = item.index
+    offset = item.offset
     vertices = balls.geometry.vertices
-    for i in range(item.length):
+    length = item.length
+    for i in range(length):
         vertices[i + offset][2] = -100
     grid[x][y] = null
     balls.count -= 1

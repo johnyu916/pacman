@@ -3,13 +3,15 @@ from wafflecore.thing import (thing_new, thing_blank)
 
 (array new_vertices) line_dots(object state, number x, number x_off, number z, number z_off, number amount, object vertices):
     grid = state.game.stage.grid
+    all_length = length(state.all_dots)
+    one_length = length(vertices)
     for i in range(amount):
         position = [x, 0, z]
         bounds = {
             "position": [0.0, 0.0, 0.0],
             "size": [1.0, 1.0, 1.0]
         }
-        copy_vertices = vertices_copy_offset(vertices, position)
+        copy_vertices = copy_vertices_offset(vertices, position)
         extend(new_vertices, copy_vertices)
         #dot = thing_new(new_id(state), "Dot", position, [], [], geometry, bounds)
         #append(dots, dot)
@@ -17,9 +19,9 @@ from wafflecore.thing import (thing_new, thing_blank)
         x_idx = (x - 11) / 8
         y_idx = (z - 27) / 8
         grid[x_idx][y_idx] = {
-            "type": "Ball",
-            "index": i,
-            "length": length(copy_vertices)
+            "type": "Dot",
+            "offset": all_length + (i * one_length),
+            "length": one_length
         }
 
         x += x_off
@@ -132,6 +134,7 @@ from wafflecore.thing import (thing_new, thing_blank)
 
     # 253
     all_dots = []
+    state.all_dots = all_dots
     # horizontal NW
     dots = line_dots(state, 11, 8, 251, 0, 12, geometry)
     extend(all_dots, dots)
@@ -285,11 +288,12 @@ from wafflecore.thing import (thing_new, thing_blank)
     }
     new_geometry = {
         "id": new_id(state),
-        "vertices": all_dots,
+        "vertices": array_float(all_dots),
         "static": false
     }
     dots_object = thing_new(new_id(state), "Dots", [0,0,0], [], [], new_geometry, bounds)
     dots_object.count =  length(all_dots) / length(geometry)
+    state.all_dots = null
 
 # 0 is blocked.
 # 1 is dots
@@ -337,6 +341,7 @@ from wafflecore.thing import (thing_new, thing_blank)
     grid = state.game.stage.grid
     balls = []
     new_vertices = []
+    one_length = length(geometry.vertices)
     for i in range(length(positions)):
         position = positions[i]
         #ball = thing_new(new_id(state), "Ball", position, [], [], geometry, bounds)
@@ -346,12 +351,12 @@ from wafflecore.thing import (thing_new, thing_blank)
 
         x = position[0]
         z = position[2]
-        x_idx = (x - 11) / 8
-        y_idx = (z - 27) / 8
+        x_idx = (x - 8) / 8
+        y_idx = (z - 24) / 8
         grid[x_idx][y_idx] = {
             "type": "Ball",
-            "index": i,
-            "length": length(vertices)
+            "offset": i * one_length,
+            "length": one_length
         }
 
     bounds = {
@@ -360,7 +365,7 @@ from wafflecore.thing import (thing_new, thing_blank)
     }
     new_geometry = {
         "id": new_id(state),
-        "vertices": new_vertices,
+        "vertices": array_float(new_vertices),
         "static": false
     }
     balls = thing_new(new_id(state), "Balls", [0,0,0], [], [], new_geometry, bounds)
