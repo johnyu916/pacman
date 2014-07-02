@@ -7,12 +7,10 @@
     [
         {
             "time": 0,
-            "type": "vertices",
             "geometry_name": "stage"
         },
         {
             "time": 0.125,
-            "type": "vertices",
             "geometry_name": "stage_white"
         }
     ]

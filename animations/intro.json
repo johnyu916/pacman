@@ -1,13 +1,12 @@
 {
-    "name": "pacman",
-    "thing_name": "pacman",
+    "name": "intro",
     "loop": true,
     "duration": 0.25,
     "actions":
     [
         {
             "time": 0,
-            "geometry_name": "pacman_0"
+            "world.children_names": [ "intro_text"]
         },
         {
             "time": 0.0625,
