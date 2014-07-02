@@ -1,4 +1,4 @@
-from wafflecore.compute import (new_id, vertices_cube, cuboid_new)
+from wafflecore.compute import (new_id, vertices_cube, cuboid_new, copy_vertices_color)
 from wafflecore.standard import in_array_string
 
 (object geometry) column_geometry_color(number x_length, number z_length, array offset, array byte_color):
@@ -261,6 +261,14 @@ from wafflecore.standard import in_array_string
     filename = join(["../geometries", "dot.json"], "/")
     file_write(filename, to_json(vertices))
 
+() color_pink_number():
+    filepath = "../geometries/pink_100.json"
+    text = ""
+    file_read(filepath, text)
+    vertices = from_json(text)
+    new_vertices = copy_vertices_color(vertices,[236, 183, 219, 255])
+    file_write(filepath,text)
+
 () run():
     #c_shape(42, 28, 37)
     #column(214,1)
@@ -272,5 +280,6 @@ from wafflecore.standard import in_array_string
     #change_filename()
     #make_white_stage("stage")
     #set_thing_geometry_name()
-    dot_geometry()
+    #dot_geometry()
+    color_pink_number()
     #cubes()

@@ -40,6 +40,7 @@ from dots_balls import (get_dots, get_balls, get_grid)
         thing_set_children(thing, things)
     state.things = things
 
+
     # load animations
     names = file_list_dir(state.animations_dir)
     print(["start", names])
@@ -58,6 +59,15 @@ from dots_balls import (get_dots, get_balls, get_grid)
 
     pacman = things.pacman
     game = state.game
+
+    points = []
+    point_names = ["green_200", "green_400", "green_800", "green_1600"]
+    for name in point_names:
+        point = thing_new(new_id(state), "NumberBubble", [0,-100, 0], [], [], geometries{name}, null)
+        things{name} = point
+        append(points, point)
+    game.number_bubbles = points
+
     ready_text = get_text(state, "READY!", [254, 253, 60, 255])
     ready_text.position = [89, 0, 121]
     game.ready_text = ready_text
@@ -137,6 +147,7 @@ from dots_balls import (get_dots, get_balls, get_grid)
         for child in thing.children:
             print(["load_enemies", child.type])
             new_name = join([enemy_name, child.geometry_name], "_")
+            child.id = new_id(state)
             child.geometry_name = new_name
             child.geometry = state.geometries{child.geometry_name}
         game{enemy_name} = thing
@@ -144,17 +155,22 @@ from dots_balls import (get_dots, get_balls, get_grid)
 
         thing.normal_children = thing.children
 
-    children = []
-    for name in game.ghost_children_names:
-        thing = things{name}
-        append(children, thing)
-    game.ghost_children = children
-    children = []
-    for name in game.white_ghost_children_names:
-        thing = things{name}
-        append(children, thing)
-    game.white_ghost_children = children
-    game.eyes = things.eyes
+        children = []
+        for name in game.ghost_children_names:
+            child = things{name}
+            new_child = copy_object(child)
+            new_child.geometry = child.geometry
+            append(children, new_child)
+        thing.ghost_children = children
+        #game.ghost_children = children
+        children = []
+        for name in game.white_ghost_children_names:
+            child = things{name}
+            new_child = copy_object(child)
+            new_child.geometry = child.geometry
+            append(children, new_child)
+        thing.white_ghost_children = children
+        #game.eyes = things.eyes
 
     # animations.
     animations = state.animations

@@ -48,3 +48,4 @@ from wafflecore.thing import (thing_new, thing_blank)
         x += 8.0
     thing = thing_blank(new_id(state), "String")
     thing.children = children
+

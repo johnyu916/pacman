@@ -1,10 +1,12 @@
 import json
+from plugins.jsonsyrup import SyrupEncoder
 import math
 import os.path
 from random import random
 from time import time
+import numpy
 
-from wafflecore.compute import new_id, vertices_cube, cuboid_new
+from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color
 from wafflecore.standard import in_array_string
 
 def column_geometry_color(x_length, z_length, offset, byte_color):
@@ -27,7 +29,7 @@ def column(x_length, z_length):
     name = "".join(["blue", str(int(x_length)), "by", str(int(z_length))])
     filename = "/".join(["../geometries", name])
     with open(filename, "w") as f:
-        f.write(json.dumps(geometry))
+        f.write(json.dumps(geometry, cls=SyrupEncoder))
     return 
 
 def rectangle(x_length, z_length):
@@ -49,7 +51,7 @@ def rectangle(x_length, z_length):
     name = "".join(["blue", str(int(x_length)), "by", str(int(z_length))])
     filename = "/".join(["../geometries", name])
     with open(filename, "w") as f:
-        f.write(json.dumps(geometry))
+        f.write(json.dumps(geometry, cls=SyrupEncoder))
     return 
 
 def c_shape(up_length, side_length, down_length):
@@ -67,7 +69,7 @@ def c_shape(up_length, side_length, down_length):
     geometry.extend(vertices)
     filename = "/".join(["../geometries", "blue_c_se"])
     with open(filename, "w") as f:
-        f.write(json.dumps(geometry))
+        f.write(json.dumps(geometry, cls=SyrupEncoder))
     return 
 
 def t_very_long():
@@ -93,7 +95,7 @@ def t_very_long():
     geometry.extend(column)
     filename = "/".join(["../geometries", "t_68"])
     with open(filename, "w") as f:
-        f.write(json.dumps(geometry))
+        f.write(json.dumps(geometry, cls=SyrupEncoder))
     return 
 
 def cubes():
@@ -105,7 +107,7 @@ def cubes():
             geometry.extend(vertices)
     filename = "/".join(["../geometries", "stage_cubes"])
     with open(filename, "w") as f:
-        f.write(json.dumps(geometry))
+        f.write(json.dumps(geometry, cls=SyrupEncoder))
     return 
 
 def jail():
@@ -138,7 +140,7 @@ def jail():
     geometry.extend(gateway)
     filename = "/".join(["../geometries", "jail"])
     with open(filename, "w") as f:
-        f.write(json.dumps(geometry))
+        f.write(json.dumps(geometry, cls=SyrupEncoder))
     return 
 
 def keep_color(r, g, b):
@@ -183,7 +185,7 @@ def enemy_copy():
                                         new_name = "_".join([character, name])
                                         filename = "/".join(["../geometries", new_name])
                                         with open(filename, "w") as f:
-                                            f.write(json.dumps(new_vertices))
+                                            f.write(json.dumps(new_vertices, cls=SyrupEncoder))
     return 
 
 def ghost_geometry_copy(vertices):
@@ -214,7 +216,7 @@ def ghost_copy():
                         new_name = "_".join(["white", name])
                         filename = "/".join(["../geometries", new_name])
                         with open(filename, "w") as f:
-                            f.write(json.dumps(new_vertices))
+                            f.write(json.dumps(new_vertices, cls=SyrupEncoder))
     return 
 
 def change_filename():
@@ -253,7 +255,7 @@ def make_white_stage(name):
                 text = f.read()
             geometry = json.loads(text)
             new_geometry = vertices_copy(geometry, [255.0, 255.0, 255.0, 255.0])
-            new_text = json.dumps(new_geometry)
+            new_text = json.dumps(new_geometry, cls=SyrupEncoder)
             new_name = "_".join(["white", geometry_name])
             filepath = "/".join(["../geometries", new_name])
             with open(filepath, "w") as f:
@@ -261,7 +263,7 @@ def make_white_stage(name):
     new_name = "".join(["White", thing["name"]])
     thing["name"] = new_name
     filepath = "/".join([dir, new_name])
-    text = json.dumps(thing)
+    text = json.dumps(thing, cls=SyrupEncoder)
     with open(filepath, "w") as f:
         f.write(text)
     return 
@@ -274,11 +276,11 @@ def set_thing_geometry_name():
             if (os.path.isfile(filepath) and is_extension(name, "json")):
                         with open(filepath) as f:
                             text = f.read()
-                        print json.dumps(["reading file", name])
+                        print json.dumps(["reading file", name], cls=SyrupEncoder)
                         thing = json.loads(text)
                         if in_array_string(thing.keys(), "geometry_names"):
                                         thing["geometry_name"] = thing["geometry_names"][0]
-                        text = json.dumps(thing)
+                        text = json.dumps(thing, cls=SyrupEncoder)
                         with open(filepath, "w") as f:
                             f.write(text)
     return 
@@ -288,10 +290,21 @@ def dot_geometry():
     vertices = column_geometry_color(1.0, 1.0, [0.0, 0.0, 0.0], byte_color)
     filename = "/".join(["../geometries", "dot.json"])
     with open(filename, "w") as f:
-        f.write(json.dumps(vertices))
+        f.write(json.dumps(vertices, cls=SyrupEncoder))
+    return 
+
+def color_pink_number():
+    filepath = "../geometries/pink_100.json"
+    text = ""
+    with open(filepath) as f:
+        text = f.read()
+    vertices = json.loads(text)
+    new_vertices = copy_vertices_color(vertices, [236.0, 183.0, 219.0, 255.0])
+    with open(filepath, "w") as f:
+        f.write(text)
     return 
 
 def run():
-    dot_geometry()
+    color_pink_number()
     return 
 

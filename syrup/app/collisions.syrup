@@ -126,7 +126,6 @@ from wafflecore.thing import thing_set_world_bounds
         return
 
     if hit_thing != null:
-        #print(["idle hit_thing", hit_thing.type])
         collision = {
             "thing": hit_thing,
             "normal": hit_normal
@@ -258,6 +257,8 @@ from wafflecore.thing import thing_set_world_bounds
             continue
 
         (is_hit, thing_min_time, thing_hit_normal) = crash_one(delta, delta_inv, position_i, size, peak, extent, thing)
+        print(["crash_things is_hit", is_hit, position_i, position_f,  size, peak, extent, thing.world_bounds])
+
         if is_hit:
             if thing_min_time < min_time:
                 min_time = thing_min_time
@@ -291,6 +292,7 @@ from wafflecore.thing import thing_set_world_bounds
         #if thing.type == "TLong":
         #    print(["crash_thing tlong", thing.bounds])
         (is_hit, crash_time, hit_normal) = crash_bounds(position_i, size, peak, delta, bounds)
+        print(["crash_one is_hit", is_hit, position_i, size, peak, delta, bounds])
         if is_hit:
             if crash_time < min_time:
                 min_time = crash_time
