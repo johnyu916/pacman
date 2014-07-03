@@ -1,54 +1,52 @@
-() step_set(object scene, string name):
-    for step in scene.steps:
-        if step.name == name:
-            scene.step = step
-            scene.step.status = "start"
-            break
+(object views) views():
+    view = {
+        "name": "intro",
+        "views": [
+            {
+                "name": "text",
+                "views": [
+                    {
+                        "name": "start",
+                        "status": "run"
+                    },
+                    {
+                        "name": "idle",
+                        "status": "run"
+                    }
+                ]
+            },
+            {
+                "name": "run_left",
+                "status": "run",
+            },
+            {
+                "name": "run_right",
+                "status": "run"
+            }
+        ]
+    }
+
+# root process
+() root():
+    # 1. intro
 
 
-() intro_start(object state):
-    intro = state.game.scene
-    intro.time_start = state.now
-    intro.steps = [
-        {
-            "name": "texts",
-            "status": "start"
-        },
-        {
-            "name": "run",
-            "status": "start"
-        }
-    ]
-    step_set(intro, "texts")
-
-() intro_idle(object state):
-    intro = state.game.scene
-    step_name = intro.step.name
-    if step_name == "texts":
-        if scene.status == "start":
-            intro_texts_start(state)
-        else:
-            intro_texts_idle(state)
-    elif step == "run":
-        if scene.status == "start":
-            intro_run_start(state)
-        else:
-            intro_run_idle(state)
-
-() intro_texts_start(object state):
+() intro_texts_start(object state, object view):
     state.world.children = [intro.texts[0]]
-    state.game.scene.step.status = "idle"
+    view.status = "exit"
 
-() intro_texts_idle(object state):
-    intro = state.game.scene
+() intro_texts_idle(object state, object view):
+    intro = state.game.view
     elapsed = state.now - intro.time_start
     if elapsed > 2.0:
         step_set(intro, "run")
         print(["set game state to intro_run"])
-        #state.game.state = get_scene(state, "intro_run")
+        view.status = "exit"
+        #state.game.state = get_view(state, "intro_run")
         #state.game.state.status = "start"
     elif elapsed > 1.0:
         state.world.children = [intro.texts[0], intro.texts[1]]
+
 
 () intro_run_start(object state):
     game = state.game

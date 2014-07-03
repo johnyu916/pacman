@@ -1,15 +1,12 @@
 
-(object value) get_scene_old(object state, string name):
-    for scene in state.game.scenes:
-        if scene.name == name:
-            value = scene
+(object value) get_view_old(object state, string name):
+    for view in state.game.views:
+        if view.name == name:
+            value = view
             return
     value = null
 
-() scene_set(object state, string name):
-    for scene in state.game.scenes:
-        if scene.name == name:
-            state.game.scene = scene
-            state.game.scene.status = "start"
-            return
-    state.game.scene = null
+(object view) view_new(string name):
+    view = {
+        "name": name,
+    }
