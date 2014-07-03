@@ -1,4 +1,5 @@
-from game_state import (intro_start, intro_idle, intro_run_start, intro_run_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle, won_start, won_idle, victory_dance_start, victory_dance_idle)
+from game_state import (, intro_run_start, intro_run_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle, won_start, won_idle, victory_dance_start, victory_dance_idle)
+from intro import (intro_start, intro_idle)
 from ai import ai_idle
 () idle(object state):
     now = time()
@@ -8,56 +9,56 @@ from ai import ai_idle
     state.delta = delta
     #print(["idle delta", delta])
 
-    game_state = state.game.state
-    game_name = game_state.name
-    if game_name == "intro":
-        if game_state.status == "start":
+    scene = state.game.scene
+    scene_name = scene.name
+    if scene_name == "intro":
+        if scene.status == "start":
             intro_start(state)
         else:
             intro_idle(state)
-    elif game_name == "intro_run":
-        if game_state.status == "start":
+    elif scene_name == "intro_run":
+        if scene.status == "start":
             intro_run_start(state)
         else:
             intro_run_idle(state)
-    elif game_name == "main_menu":
-        if game_state.status == "start":
+    elif scene_name == "main_menu":
+        if scene.status == "start":
             main_menu_start(state)
         else:
             main_menu_idle(state)
-    elif game_name == "player_ready":
-        if game_state.status == "start":
+    elif scene_name == "player_ready":
+        if scene.status == "start":
             player_ready_start(state)
         else:
             player_ready_idle(state)
-    elif game_name == "ready":
-        if game_state.status == "start":
+    elif scene_name == "ready":
+        if scene.status == "start":
             ready_start(state)
         else:
             ready_idle(state)
         # display ready for 5 seconds then move to playing
-    elif game_name == "playing":
-        if game_state.status == "start":
+    elif scene_name == "playing":
+        if scene.status == "start":
             playing_start(state)
         else:
             playing_idle(state)
-    elif game_name == "dying":
-        if game_state.status == "start":
+    elif scene_name == "dying":
+        if scene.status == "start":
             dying_start(state)
         else:
             dying_idle(state)
-    elif game_name == "game_over":
-        if game_state.status == "start":
+    elif scene_name == "game_over":
+        if scene.status == "start":
             game_over_start(state)
         else:
             game_over_idle(state)
-    elif game_name == "won":
-        if game_state.status == "start":
+    elif scene_name == "won":
+        if scene.status == "start":
             won_start(state)
         else:
             won_idle(state)
-    elif game_name == "victory_dance":
-        if game_state.status == "start":
+    elif scene_name == "victory_dance":
+        if scene.status == "start":
             victory_dance_start(state)
         else:
             victory_dance_idle(state)

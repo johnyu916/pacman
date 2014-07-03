@@ -1,7 +1,7 @@
 from wafflecore.compute import (new_id, filename_type)
 from wafflecore.thing import (thing_new, thing_blank, thing_read, thing_set_children)
 from wafflecore.standard import copy_object
-from shared import get_game_state
+from shared import get_scene
 from enemy_jail import jail_enemy_new
 from text import get_text
 from dots_balls import (get_dots, get_balls, get_grid)
@@ -93,19 +93,19 @@ from dots_balls import (get_dots, get_balls, get_grid)
     game.dots = get_dots(state)
 
     #ready = thing_load(state, "ready")
-    intro_state = get_game_state(state, "intro")
+    intro_state = get_scene(state, "intro")
     chars = get_text(state, "CHARACTERS", [221, 221, 221, 255])
     chars.position = [80, 0, 210]
     shadow = get_text(state, "SHADOW", [217, 29, 5, 255])
     shadow.position = [80, 0, 170]
     intro_state.texts = [chars, shadow]
 
-    main_menu_state = get_game_state(state, "main_menu")
+    main_menu_state = get_scene(state, "main_menu")
     chars = get_text(state, "PUSH START BUTTON", [236, 182, 81, 255])
     chars.position = [80, 0, 120]
     main_menu_state.texts = [chars]
 
-    player_ready_state = get_game_state(state, "player_ready")
+    player_ready_state = get_scene(state, "player_ready")
     chars = get_text(state, "PLAYER ONE", [147, 254, 222, 255])
     chars.position = [78, 0, 169]
     player_ready_state.text = chars
@@ -124,14 +124,12 @@ from dots_balls import (get_dots, get_balls, get_grid)
 
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value]
 
-    game_over_state = get_game_state(state, "game_over")
+    game_over_state = get_scene(state, "game_over")
     ready_text = get_text(state, "GAME OVER", [217, 29, 5, 255])
     ready_text.position = [89, 0, 121]
     game_over_state.text = ready_text
     # prepare ready
-    state.game.state = get_game_state(state, state.game.init_state_name)
-    #print(["starter", state.game.state])
-    state.game.state.status = "start"
+    state.game.state = scene_set(state, state.game.init_state_name)
 
 
 () load_enemies(object state):

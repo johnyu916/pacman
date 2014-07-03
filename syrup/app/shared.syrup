@@ -1,7 +1,15 @@
 
-(object value) get_game_state(object state, string name):
-    for game_state in state.game.states:
-        if game_state.name == name:
-            value = game_state
+(object value) get_scene_old(object state, string name):
+    for scene in state.game.scenes:
+        if scene.name == name:
+            value = scene
             return
     value = null
+
+() scene_set(object state, string name):
+    for scene in state.game.scenes:
+        if scene.name == name:
+            state.game.scene = scene
+            state.game.scene.status = "start"
+            return
+    state.game.scene = null
