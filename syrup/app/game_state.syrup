@@ -3,7 +3,7 @@ from text import get_text
 from keyboard import (keyboard_idle, place_pacman)
 from shared import scene_set
 from wafflecore.animation import animate
-from wafflecore.thing import (thing_new, thing_set_world_bounds)
+from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_position, thing_set_position_y)
 from ai import (ai_idle, move_velocity)
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
 
@@ -21,7 +21,6 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
         append(indices, [x_idx + 1, y_idx])
     if y_mod > 1 && y_idx < 28:
         append(indices, [x_idx, y_idx + 1])
-
 
 
 () main_menu_start(object state):

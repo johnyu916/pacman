@@ -19,7 +19,7 @@
             "status": "start"
         }
     ]
-    state.world.children = [intro.texts[0]]
+    step_set(intro, "texts")
 
 () intro_idle(object state):
     intro = state.game.scene
@@ -36,6 +36,7 @@
             intro_run_idle(state)
 
 () intro_texts_start(object state):
+    state.world.children = [intro.texts[0]]
     state.game.scene.step.status = "idle"
 
 () intro_texts_idle(object state):
@@ -56,23 +57,25 @@
     extend(state.world.children, game.number_bubbles)
     z = 117
     v_x = -100
-    game.ball.position = [33.0, 0.0, 120]
+    thing_set_position(game.ball, [33.0, 0.0, 120])
     pacman = game.pacman
     thing_set_position(pacman, [224.0, 0.0, z])
+    #thing_set_world_bounds(pacman, matrix_identity())
     print(["pacman world bounds", pacman.world_bounds])
     pacman.velocity = [v_x, 0, 0]
     pacman.animate_start = state.now
     place_pacman(pacman, 0, 0)
     x = 250
     for enemy in game.enemies:
-        enemy.position = [x, 0.0, z]
+        thing_set_position(enemy, [x, 0.0, z])
         enemy.velocity = [v_x, 0, 0]
-        thing_set_world_bounds(enemy, matrix_identity())
+        #thing_set_world_bounds(enemy, matrix_identity())
         print(["enemy world bounds", enemy.world_bounds])
         x+=16
     extend(state.world.children, game.enemies)
     game.guys_paused = false
-    state.game.scene.step.status = "idle"
+    state.game.state.status = "idle"
+
 
 # framework for pausing until child is done.
 # normal: setup, run, setup, run, setup, run
@@ -84,19 +87,21 @@
 () intro_run_idle(object state):
     game = state.game
     pacman = game.pacman
-
+    v_x = 100
 
     if game.guys_paused:
         # hang tight
         #print(["paused", state.now - game.guys_paused_start])
         if (state.now - game.guys_paused_start) > 1.0:
             game.guys_paused = false
-            game.pacman.position[1] = 0.0
+            thing_set_position_y(pacman, 0.0)
+            thing_set_world_bounds(pacman, matrix_identity())
+            pacman.velocity = [v_x, 0, 0]
             game.number_bubbles[0].position[1] = -100.0
     else:
         delta = state.delta
         bump_thing(pacman, game.enemies, delta)
-        print(["pacman world bounds", pacman.world_bounds])
+        #print(["pacman world bounds", pacman.world_bounds])
         #distance_delta = position_delta(pacman, delta)
         distance_delta = pacman.position_delta
         #print(["distance delta", distance_delta])
@@ -106,27 +111,25 @@
         for enemy in game.enemies:
             move_velocity(state, enemy, enemy.velocity)
             if enemy.velocity[0] < 0:
-                enemy.position = sum_arrays(enemy.position, distance_delta)
+                thing_set_position(enemy, sum_arrays(enemy.position, distance_delta))
             else:
-                enemy.position = sum_arrays(enemy.position, [distance_delta[0]/2, 0, 0])
-            thing_set_world_bounds(enemy, matrix_identity())
-            print(["enemy world bounds", enemy.world_bounds])
+                thing_set_position(enemy, sum_arrays(enemy.position, [distance_delta[0]/2, 0, 0]))
+            #print(["enemy world bounds", enemy.world_bounds])
         for touch in pacman.collisions:
-            print(["run_idle hit something", touch.thing.type])
+            print(["run_idle hit something", touch.thing.type, touch.thing.position])
             if touch.thing.type == "Enemy":
                 # both pacman and enemy disappears.
                 # number appears.
                 # frozen for a second.
                 game.guys_paused = true
                 game.guys_paused_start = state.now
-                game.pacman.position[1] = -100
-                touch.thing.position[1] = -100
-                game.number_bubbles[0].position = [pacman.position[0], 0, pacman.position[2]]
+                thing_set_position_y(pacman, -100)
+                thing_set_position_y(touch.thing, -100)
+                thing_set_position(game.number_bubbles[0], [pacman.position[0], 0, pacman.position[2]])
                 break
 
 
     if pacman.world_bounds.position[0] < 41:
-        v_x = 100
         pacman.velocity = [v_x, 0, 0]
         place_pacman(pacman, 0, 1)
         for enemy in game.enemies:
@@ -134,7 +137,5 @@
             enemy.velocity = [v_x, 0, 0]
     if pacman.world_bounds.position[0] > 240:
         # done.
-        state.game.state = get_scene(state, "main_menu")
+        state.game.state = get_game_state(state, "main_menu")
         state.game.state.status = "start"
-
-intro_run_idle():

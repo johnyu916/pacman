@@ -128,9 +128,9 @@ from wafflecore.camera import camera_translate
 
 (array force) oppose_force(object thing, array input):
     #print(["pacman input 0", input])
-    for touch in thing.touching:
-        for normal in touch.normals:
-            input = nullify_input(normal, input)
+    for touch in thing.collisions:
+        #for normal in touch.normals:
+        input = nullify_input(touch.normal, input)
     #print(["pacman input 1", input])
     force = input
 
