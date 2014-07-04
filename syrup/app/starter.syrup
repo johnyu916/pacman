@@ -129,8 +129,8 @@ from dots_balls import (get_dots, get_balls, get_grid)
     ready_text.position = [89, 0, 121]
     game_over_state.text = ready_text
     # prepare ready
-    state.views = []
-    append(state.views, view_intro())
+    view = view_new(state, "root")
+    state.views = [view]
 
 
 () load_enemies(object state):

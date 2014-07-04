@@ -22,26 +22,30 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     if y_mod > 1 && y_idx < 28:
         append(indices, [x_idx, y_idx + 1])
 
-
-() main_menu_start(object state):
-    print("main_menu_start")
-    main_menu = state.game.state
-    state.world.children = main_menu.texts
-    main_menu.status = "idle"
-
-() main_menu_idle(object state):
-    keys_state = state.keyboard.keys_state
-    for key in keys(keys_state):
-        key_state = keys_state{key}
-        if key_state == "KEY_DOWN":
-            if key == "q":
-                exit()
-            elif key == "s":
-                state.game.state = get_scene(state, "player_ready")
-                state.game.state.status = "start"
+() main_menu(object state, object view):
+    if view.step == 0:
+        print("main_menu_start")
+        main_menu = state.game.state
+        state.world.children = main_menu.texts
+        view.step = 1
+    elif view.step == 1:
+        keys_state = state.keyboard.keys_state
+        for key in keys(keys_state):
+            key_state = keys_state{key}
+            if key_state == "KEY_DOWN":
+                if key == "q":
+                    exit()
+                elif key == "s":
+                    view_exit()
 
 
-() player_ready_start(object state):
+() player_ready(object state):
+    if view.step == 0:
+        player_ready_start(state)
+    if view.step == 1:
+        player_ready_idle(state, view)
+
+() player_ready_start(object state)
     game = state.game
     game.lives = 3
     game.score = 0
@@ -61,8 +65,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     #extend(state.world.children, game.dots)
     for enemy in game.enemies:
         enemy.children = enemy.normal_children
-    player_ready.status = "idle"
-
+    view.step = 2
 
 () player_ready_idle(object state):
     game = state.game
@@ -71,8 +74,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
     if elapsed > 1.0:
         remove_thing(game.info.children, player_ready.text.id)
         # start playing
-        game.state = get_scene(state, "ready")
-        game.state.status = "start"
+        view_exit()
 
 () ready_start(object state):
     game = state.game

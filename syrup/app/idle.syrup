@@ -2,7 +2,7 @@ from game_state import (, intro_run_start, intro_run_idle, main_menu_start, main
 from intro import (intro_start, intro_idle)
 from ai import ai_idle
 
-() view_run(object state, object view, array prefix):
+() view_run_old(object state, object view, array prefix):
     path = []
     extend(path, prefix)
     append(path, view.name)
@@ -17,7 +17,7 @@ from ai import ai_idle
     else:
         view_call(state, view, path):
 
-() view_call(object state, object view, array path):
+() view_call_old(object state, object view, array path):
     zero = path[0]
     if zero == "intro":
         one = path[1]
@@ -25,6 +25,13 @@ from ai import ai_idle
             two = path[2]
             if two == "start":
                 intro_text_start(state, view)
+
+() view_run(object state, object view):
+    name = view.name
+    if view.name = "root":
+        root()
+    elif view.name == "intro":
+        intro()
 
 
 () idle(object state):
@@ -36,21 +43,22 @@ from ai import ai_idle
     #print(["idle delta", delta])
 
     # run the intro
+    state.views_next = []
     for view in state.views:
-        view_run(state, view)
+        if view.status == "exit":
+            for parent in view.signal_on_wait:
+                parent.status = "run"
+            continue
+        if view.status == "run":
+            if view.time_start == 0:
+                view.time_start == now
+            view_run(state, view)
+        append(state.views_next, view)
+
+    view.views = view.views_next
 
     view = state.game.view
     view_name = view.name
-    if view_name == "intro":
-        if view.status == "start":
-            intro_start(state)
-        else:
-            intro_idle(state)
-    elif view_name == "intro_run":
-        if view.status == "start":
-            intro_run_start(state)
-        else:
-            intro_run_idle(state)
     elif view_name == "main_menu":
         if view.status == "start":
             main_menu_start(state)
