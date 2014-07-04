@@ -17,7 +17,7 @@
             },
             {
                 "name": "run_left",
-                "status": "run",
+                "status": "run"
             },
             {
                 "name": "run_right",
@@ -32,19 +32,47 @@
         # 1. intro
         view.step = 1
         view_new_exec_wait(state, "intro")
-    if view.step == 1:
+    elif view.step == 1:
         view.step = 2
         view_new_exec_wait(state, "main_menu")
-    if view.setp = 2:
+    elif view.setp == 2:
         view.step = 3
         view_new_exec_wait(state, "player_ready")
-    if view.step = 3:
+    elif view.step == 3:
         view_new_exec_wait(state, "ready")
+        view.step = 4
+    elif view.step == 4:
+        view.step = 5
+        view.playing = view_new_exec_wait(state, "playing")
+    elif view.step == 5:
+        result = view.playing.result
+        if result.next  == "won":
+            view.won = view_new_exec_wait(state, "won")
+            view.step = 6
+        elif result.next  == "dying":
+            view.dying = view_new_exec_wait(state, "dying")
+            view.step = 7
+    elif view.step == 6:
+        # done winning?
+        view_new_exec_wait(state, "victory_dance")
+        # go to main menu
+        view.step = 1
+    elif view.step == 7:
+        # done dying
+        result = view.dying.result
+        if result.next == "ready":
+            view_new_exec_wait(state, "ready")
+            view.step = 4
+        elif result.next == "game_over":
+            view_new_exec_wait(state, "game_over")
+            # go back to main menu
+            view.step = 1
+
+
 
 () intro(object state, object view):
     if view.step == 0:
         state.world.children = [intro.texts[0]]
-        view.status = "exit"
         intro_run_start(state)
         view.step = 1
     elif view.step == 1:
@@ -64,7 +92,13 @@
     elif view.step == 4:
         intro_run_left(state, view)
     elif view.step == 5:
-        intro_run_right(state, view)
+        pause = intro_run_right(state, view)
+        if pause == true:
+            view.step = 6
+    elif view.step == 6:
+        done = intro_pause()
+        if done == true:
+            view.step = 5
 
 () intro_run_start(object state):
     game = state.game
@@ -89,8 +123,6 @@
         print(["enemy world bounds", enemy.world_bounds])
         x+=16
     extend(state.world.children, game.enemies)
-    game.guys_paused = false
-    state.game.state.status = "idle"
 
 
 # framework for pausing until child is done.
@@ -123,7 +155,7 @@
         #print(["enemy world bounds", enemy.world_bounds])
 
 
-() intro_run_right(object state, object view):
+(bool pause) intro_run_right(object state, object view):
     game = state.game
     pacman = game.pacman
     if pacman.world_bounds.position[0] > 240:
@@ -148,10 +180,11 @@
             thing_set_position_y(pacman, -100)
             thing_set_position_y(touch.thing, -100)
             thing_set_position(game.number_bubbles[0], [pacman.position[0], 0, pacman.position[2]])
-            view_new_exec_wait(state, "intro_pause")
-            break
+            pause = true
+            return
+            #view_new_exec_wait(state, "intro_pause")
 
-() intro_pause(object state, object view):
+(bool done) intro_pause(object state, object view):
     #if game.guys_paused:
         # hang tight
         #print(["paused", state.now - game.guys_paused_start])
@@ -160,4 +193,4 @@
         thing_set_world_bounds(pacman, matrix_identity())
         pacman.velocity = [v_x, 0, 0]
         game.number_bubbles[0].position[1] = -100.0
-        view_exit()
+        done = true

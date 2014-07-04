@@ -20,7 +20,7 @@
     view = view_new(state, name)
     append(state.views_next, view)
 
-() view_new_exec_wait(object state, object view, string name):
+(object child_view) view_new_exec_wait(object state, object view, string name):
     child_view = view_new(state, name)
     append(state.views_next, child_view)
     append(child_view.signal_on_exit, view)
@@ -28,7 +28,9 @@
 
 () view_wait(object view, number child_view):
     append(child_view.signal_on_exit, view)
+    append(view.waiting_on, child_view)
     view.status = "wait"
    
-() view_exit(object view):
-   view.status = "exit"
+() view_exit(object view, object result):
+    view.status = "exit"
+    view.result = result
