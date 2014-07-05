@@ -1,4 +1,4 @@
-
+from wafflecore.compute import (new_id)
 (object value) get_view_old(object state, string name):
     for view in state.game.views:
         if view.name == name:
@@ -12,6 +12,7 @@
         "name": name,
         "status": "run",
         "signal_on_exit": [],
+        "waiting_on": [],
         "time_start": 0,
         "step": 0
     }
@@ -23,14 +24,13 @@
 (object child_view) view_new_exec_wait(object state, object view, string name):
     child_view = view_new(state, name)
     append(state.views_next, child_view)
-    append(child_view.signal_on_exit, view)
-    view.status = "wait"
+    view_wait(view, child_view)
 
 () view_wait(object view, number child_view):
     append(child_view.signal_on_exit, view)
     append(view.waiting_on, child_view)
     view.status = "wait"
-   
+
 () view_exit(object view, object result):
     view.status = "exit"
     view.result = result

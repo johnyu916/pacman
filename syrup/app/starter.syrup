@@ -1,10 +1,10 @@
 from wafflecore.compute import (new_id, filename_type)
 from wafflecore.thing import (thing_new, thing_blank, thing_read, thing_set_children)
 from wafflecore.standard import copy_object
-from shared import get_view
 from enemy_jail import jail_enemy_new
 from text import get_text
 from dots_balls import (get_dots, get_balls, get_grid)
+from view import view_new
 
 () start(array argv, object state):
     # load geometries
@@ -93,22 +93,26 @@ from dots_balls import (get_dots, get_balls, get_grid)
     game.dots = get_dots(state)
 
     #ready = thing_load(state, "ready")
-    intro_state = get_view(state, "intro")
+    intro = {}
     chars = get_text(state, "CHARACTERS", [221, 221, 221, 255])
     chars.position = [80, 0, 210]
+    intro.chars = chars
     shadow = get_text(state, "SHADOW", [217, 29, 5, 255])
     shadow.position = [80, 0, 170]
-    intro_state.texts = [chars, shadow]
+    intro.shadow = shadow
+    game.intro = intro
 
-    main_menu_state = get_view(state, "main_menu")
+    main_menu = {}
     chars = get_text(state, "PUSH START BUTTON", [236, 182, 81, 255])
     chars.position = [80, 0, 120]
-    main_menu_state.texts = [chars]
+    main_menu.text = chars
+    game.main_menu = main_menu
 
-    player_ready_state = get_view(state, "player_ready")
+    player_ready = {}
     chars = get_text(state, "PLAYER ONE", [147, 254, 222, 255])
     chars.position = [78, 0, 169]
-    player_ready_state.text = chars
+    player_ready.text = chars
+    game.player_ready = player_ready
 
     game.score_key = get_text(state, "1UP", [221, 221, 221, 255])
     game.score_key.position = [26, 0, 281]
@@ -124,10 +128,11 @@ from dots_balls import (get_dots, get_balls, get_grid)
 
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value]
 
-    game_over_state = get_view(state, "game_over")
+    game_over = {} 
     ready_text = get_text(state, "GAME OVER", [217, 29, 5, 255])
     ready_text.position = [89, 0, 121]
-    game_over_state.text = ready_text
+    game_over.text = ready_text
+    game.game_over = game_over
     # prepare ready
     view = view_new(state, "root")
     state.views = [view]

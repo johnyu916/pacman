@@ -1,37 +1,66 @@
-from game_state import (, intro_run_start, intro_run_idle, main_menu_start, main_menu_idle, player_ready_start, player_ready_idle, ready_start, ready_idle, playing_start, playing_idle, dying_start, dying_idle, game_over_start, game_over_idle, won_start, won_idle, victory_dance_start, victory_dance_idle)
-from intro import (intro_start, intro_idle)
+from intro import intro
+from game_state import (main_menu, player_ready, ready, playing, dying, game_over, won, victory_dance)
 from ai import ai_idle
+from view import view_new_exec_wait
 
-() view_run_old(object state, object view, array prefix):
-    path = []
-    extend(path, prefix)
-    append(path, view.name)
-    views = view.views
-    if length(views) > 0:
-        view.views_next = []
-        for view in views:
-            view_run(state, view, path)
-            if view.status == "run":
-                append(views_next, view)
-        view.views = views_next
-    else:
-        view_call(state, view, path)
+# root process
+() root(object state, object view):
+    if view.step == 0:
+        # 1. intro
+        view.step = 1
+        print("go to intro")
+        view_new_exec_wait(state, view, "intro")
+    elif view.step == 1:
+        view.step = 2
+        view_new_exec_wait(state, view, "main_menu")
+    elif view.step == 2:
+        view.step = 3
+        view_new_exec_wait(state, view, "player_ready")
+    elif view.step == 3:
+        view_new_exec_wait(state, view, "ready")
+        view.step = 4
+    elif view.step == 4:
+        view.step = 5
+        view.playing = view_new_exec_wait(state, view, "playing")
+    elif view.step == 5:
+        result = view.playing.result
+        if result.next  == "won":
+            view.won = view_new_exec_wait(state, view, "won")
+            view.step = 6
+        elif result.next  == "dying":
+            view.dying = view_new_exec_wait(state, view, "dying")
+            view.step = 7
+    elif view.step == 6:
+        # done winning?
+        view_new_exec_wait(state, view, "victory_dance")
+        # go to main menu
+        view.step = 1
+    elif view.step == 7:
+        # done dying
+        result = view.dying.result
+        if result.next == "ready":
+            view_new_exec_wait(state, view, "ready")
+            view.step = 4
+        elif result.next == "game_over":
+            view_new_exec_wait(state, view, "game_over")
+            # go back to main menu
+            view.step = 1
 
-() view_call_old(object state, object view, array path):
-    zero = path[0]
-    if zero == "intro":
-        one = path[1]
-        if one == "text":
-            two = path[2]
-            if two == "start":
-                intro_text_start(state, view)
 
 () view_run(object state, object view):
     name = view.name
     if view.name == "root":
-        root()
+        root(state, view)
     elif view.name == "intro":
-        intro()
+        intro(state, view)
+    elif view.name == "main_menu":
+        main_menu(state, view)
+    elif view.name == "player_ready":
+        player_ready(state, view)
+    elif view.name == "ready":
+        ready(state, view)
+    elif view.name == "playing":
+        playing(state, view)
 
 
 () idle(object state):
@@ -46,29 +75,18 @@ from ai import ai_idle
     state.views_next = []
     for view in state.views:
         if view.status == "exit":
-            for parent in view.signal_on_wait:
+            for parent in view.signal_on_exit:
                 remove(parent.waiting_on, view)
                 if length(parent.waiting_on) == 0:
                     parent.status = "run"
             continue
         if view.status == "run":
             if view.time_start == 0:
-                view.time_start == now
+                view.time_start = now
             view_run(state, view)
         append(state.views_next, view)
 
-    view.views = view.views_next
-
-    elif view_name == "game_over":
-        if view.status == "start":
-            game_over_start(state)
-        else:
-            game_over_idle(state)
-    elif view_name == "victory_dance":
-        if view.status == "start":
-            victory_dance_start(state)
-        else:
-            victory_dance_idle(state)
+    state.views = state.views_next
 
 () print_fps(object state):
     frame_time = state.now - state.frame_start_time

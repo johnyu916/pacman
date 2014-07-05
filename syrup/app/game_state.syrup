@@ -1,11 +1,11 @@
 from collisions import (collide_characters, collisions, touching_all, overlap_bounds_thing, position_delta, bump_thing)
 from text import get_text
 from keyboard import (keyboard_idle, place_pacman)
-from shared import scene_set
 from wafflecore.animation import animate
 from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_position, thing_set_position_y)
 from ai import (ai_idle, move_velocity)
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
+from view import view_exit
 
 (array indices) indices_point(number x, number z):
     x_off = x - 5
@@ -25,8 +25,8 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
 () main_menu(object state, object view):
     if view.step == 0:
         print("main_menu_start")
-        main_menu = state.game.state
-        state.world.children = main_menu.texts
+        main_menu = state.game.main_menu
+        state.world.children = [main_menu.text]
         view.step = 1
     elif view.step == 1:
         keys_state = state.keyboard.keys_state
@@ -36,10 +36,10 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
                 if key == "q":
                     exit()
                 elif key == "s":
-                    view_exit()
+                    view_exit(view, {})
 
 
-() player_ready(object state):
+() player_ready(object state, object view):
     if view.step == 0:
         player_ready_start(state)
     if view.step == 1:
@@ -56,8 +56,7 @@ from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, ma
         life_icon = thing_new(new_id(state), "LiveIcon", [x, 0, 3], [], [], state.geometries{"pacman_2"}, null)
         append(game.life_icons.children, life_icon)
         x += 16
-    player_ready = state.game.state
-    player_ready.time_start = state.now
+    player_ready = state.game.player_ready
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.life_icons]
     state.world.children = [game.info, game.stage, game.jail, game.pacman, game.balls, game.dots]
     extend(state.world.children, game.enemies)

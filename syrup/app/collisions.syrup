@@ -27,7 +27,7 @@ from wafflecore.thing import thing_set_position
         if enemy.state == "eyes":
             bump_thing(enemy, others_eyes, state.delta)
             #touch_thing(enemy, others_eyes)
-        elif is_overlap_cuboids(jail_position, jail_size, jail_bounds.points[6], enemy_bounds.position, enemy_bounds.size, enemy_bounds.points[6]):
+        elif is_overlap_cuboids(jail_position, jail_size, jail_bounds.max, enemy_bounds.position, enemy_bounds.size, enemy_bounds.max):
             bump_thing(enemy, others_enemy, state.delta)
             #touch_thing(enemy, others_enemy)
         else:
@@ -116,7 +116,7 @@ from wafflecore.thing import thing_set_position
     #    print(["collisions", thing.type, position_f, position])
 
     # crash it against others. GET DIRECTION
-    (crash_position, hit_thing, hit_normal) = crash_things(thing.id, position, position_f, bounds.size, bounds.points, others)
+    (crash_position, hit_thing, hit_normal) = crash_things(thing.id, position, position_f, bounds.size, bounds.max, others)
     #if hit_thing != null:
     #    print(["thing", thing.type, "hit", hit_thing.type])
 
@@ -171,7 +171,7 @@ from wafflecore.thing import thing_set_position
     position = thing_bounds.position
     size = thing_bounds.size
     for two in others:
-        (yes, normals) = touching_two(position, size, thing_bounds.points[6], two)
+        (yes, normals) = touching_two(position, size, thing_bounds.max, two)
         if yes:
             #print(["pacman touched something", normals])
             touch = {
@@ -194,7 +194,7 @@ from wafflecore.thing import thing_set_position
 (object hit_thing) overlap_bounds_thing(array position, array size, array max, object thing):
     hit_thing = null
     thing_bounds = thing.world_bounds
-    overlap = is_overlap_cuboids(position, size, max, thing_bounds.position, thing_bounds.size, thing_bounds.points[6])
+    overlap = is_overlap_cuboids(position, size, max, thing_bounds.position, thing_bounds.size, thing_bounds.max)
     if overlap == false:
         return
     if length(thing.children) > 0:
@@ -224,11 +224,11 @@ from wafflecore.thing import thing_set_position
 
 (bool yes, array normals) touching_two(object one_position, object one_size, object one_max, object two):
     two_bounds = two.world_bounds
-    (axis, sign) = face_overlap(one_position, one_size, one_max, two_bounds.position, two_bounds.size, two_bounds.points[6])
+    (axis, sign) = face_overlap(one_position, one_size, one_max, two_bounds.position, two_bounds.size, two_bounds.max)
     if length(two.children) > 0:
         if axis == null:
             # inside?
-            if is_overlap_cuboids(one_position, one_size, one_max, two_bounds.position, two_bounds.size, two_bounds.points[6]) == false:
+            if is_overlap_cuboids(one_position, one_size, one_max, two_bounds.position, two_bounds.size, two_bounds.max) == false:
                 return
         for child in two.children:
             (child_yes, child_normals) = touching_two(one_position, one_size, one_max, child)
@@ -243,10 +243,10 @@ from wafflecore.thing import thing_set_position
 # thing is currently in position_i. It wants to go to position_f.
 # how far can I actually go? and what did i hit?
 # hit_normal is outward direction from thing_id to other things.
-(array final, object hit_thing, array hit_normal) crash_things(number thing_id, array position_i, array position_f, array size, array points, array things):
+(array final, object hit_thing, array hit_normal) crash_things(number thing_id, array position_i, array position_f, array size, array max, array things):
     delta = subtract_arrays(position_f, position_i)
     delta_inv = array_scaled(delta, -1)
-    peak = point_farthest(points, delta)
+    peak = point_farthest(position_i, max, delta)
 
     (e_position, e_size) = bounds_cuboids([cuboid_new(position_i, size), cuboid_new(position_f, size)])
     extent = cuboid_cached_new(e_position, e_size)
@@ -277,7 +277,7 @@ from wafflecore.thing import thing_set_position
     bounds = thing.world_bounds
     if length(thing.children) > 0:
         # maybe i don't need to check it
-        if is_overlap_cuboids(extent.position, extent.size, extent.points[6], bounds.position, bounds.size, bounds.points[6]) == false:
+        if is_overlap_cuboids(extent.position, extent.size, extent.max, bounds.position, bounds.size, bounds.max) == false:
             return
 
         for child in thing.children:
@@ -322,7 +322,7 @@ from wafflecore.thing import thing_set_position
         sign = 0
         if magnitude > 0:
             sign = 1
-        begin = farthest_axis_sign(dest_point, bounds.points[6], i, 1-sign)
+        begin = farthest_axis_sign(dest_point, bounds.max, i, 1-sign)
         begin_time = (begin - peak[i])/magnitude
         if begin_time >= 0.0 && begin_time < 1.0:
             if magnitude > 0:
@@ -333,7 +333,7 @@ from wafflecore.thing import thing_set_position
             test_time = (test - peak[i]) / magnitude
             test_position = sum_arrays(position_i, array_scaled(delta, test_time))
             test_max = sum_arrays_3(test_position, size)
-            if is_overlap_cuboids(test_position, size, test_max, dest_point, dest_size, bounds.points[6]):
+            if is_overlap_cuboids(test_position, size, test_max, dest_point, dest_size, bounds.max):
                 crash_time = begin_time
                 is_hit = true
                 hit_normal = vector_axis_sign(i, sign)
@@ -347,7 +347,7 @@ from wafflecore.thing import thing_set_position
         vector = vectors[i]
         unit_vector = unit_vectors[i]
         vector_inv = array_scaled(vector, -1)
-        child_start = point_farthest(bounds.points, vector_inv)
+        child_start = point_farthest(position, max, vector_inv)
         begin_time = time_denorm_point_plane(peak, child_start, vector)
         #if thing.type == "TLong":
             #print(["crash_bounds child_start", child_start, begin_time, vector])
@@ -365,7 +365,7 @@ from wafflecore.thing import thing_set_position
                 test_time = (begin_time + end_time)/2.0
                 test_position = sum_arrays(position_i, array_scaled(delta, test_time))
                 test_max = sum_arrays_3(test_position, size)
-                if is_overlap_cuboids(test_position, size, test_max, dest_point, dest_size, bounds.points[6]):
+                if is_overlap_cuboids(test_position, size, test_max, dest_point, dest_size, bounds.max):
                     crash_time = begin_time
                     is_hit = true
                     hit_normal = unit_vector
