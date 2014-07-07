@@ -1,66 +1,79 @@
 from intro import intro
-from game_state import (main_menu, player_ready, ready, playing, dying, game_over, won, victory_dance)
-from ai import ai_idle
-from view import view_new_exec_wait
+from game_state import (main_menu, player_ready, ready, playing, playing_blink, playing_pacman, playing_pacman_pause, dying, game_over, won, victory_dance)
+from task import task_new_exec_wait
 
 # root process
-() root(object state, object view):
-    if view.step == 0:
+() root(object state, object task):
+    if task.step == 0:
         # 1. intro
-        view.step = 1
+        task.step = 1
         print("go to intro")
-        view_new_exec_wait(state, view, "intro")
-    elif view.step == 1:
-        view.step = 2
-        view_new_exec_wait(state, view, "main_menu")
-    elif view.step == 2:
-        view.step = 3
-        view_new_exec_wait(state, view, "player_ready")
-    elif view.step == 3:
-        view_new_exec_wait(state, view, "ready")
-        view.step = 4
-    elif view.step == 4:
-        view.step = 5
-        view.playing = view_new_exec_wait(state, view, "playing")
-    elif view.step == 5:
-        result = view.playing.result
+        task_new_exec_wait(state, task, "intro")
+    elif task.step == 1:
+        task.step = 2
+        task_new_exec_wait(state, task, "main_menu")
+    elif task.step == 2:
+        task.step = 3
+        task_new_exec_wait(state, task, "player_ready")
+    elif task.step == 3:
+        task_new_exec_wait(state, task, "ready")
+        task.step = 4
+    elif task.step == 4:
+        task.step = 5
+        task.playing = task_new_exec_wait(state, task, "playing")
+    elif task.step == 5:
+        result = task.playing.result
         if result.next  == "won":
-            view.won = view_new_exec_wait(state, view, "won")
-            view.step = 6
+            task.won = task_new_exec_wait(state, task, "won")
+            task.step = 6
         elif result.next  == "dying":
-            view.dying = view_new_exec_wait(state, view, "dying")
-            view.step = 7
-    elif view.step == 6:
+            task.dying = task_new_exec_wait(state, task, "dying")
+            task.step = 7
+    elif task.step == 6:
         # done winning?
-        view_new_exec_wait(state, view, "victory_dance")
+        task_new_exec_wait(state, task, "victory_dance")
         # go to main menu
-        view.step = 1
-    elif view.step == 7:
+        task.step = 1
+    elif task.step == 7:
         # done dying
-        result = view.dying.result
+        result = task.dying.result
         if result.next == "ready":
-            view_new_exec_wait(state, view, "ready")
-            view.step = 4
+            task_new_exec_wait(state, task, "ready")
+            task.step = 4
         elif result.next == "game_over":
-            view_new_exec_wait(state, view, "game_over")
+            task_new_exec_wait(state, task, "game_over")
             # go back to main menu
-            view.step = 1
+            task.step = 1
 
 
-() view_run(object state, object view):
-    name = view.name
-    if view.name == "root":
-        root(state, view)
-    elif view.name == "intro":
-        intro(state, view)
-    elif view.name == "main_menu":
-        main_menu(state, view)
-    elif view.name == "player_ready":
-        player_ready(state, view)
-    elif view.name == "ready":
-        ready(state, view)
-    elif view.name == "playing":
-        playing(state, view)
+() task_run(object state, object task):
+    name = task.name
+    if task.name == "root":
+        root(state, task)
+    elif task.name == "intro":
+        intro(state, task)
+    elif task.name == "main_menu":
+        main_menu(state, task)
+    elif task.name == "player_ready":
+        player_ready(state, task)
+    elif task.name == "ready":
+        ready(state, task)
+    elif task.name == "playing":
+        playing(state, task)
+    elif task.name == "playing_blink":
+        playing_blink(state, task)
+    elif task.name == "playing_pacman":
+        playing_pacman(state, task)
+    elif task.name == "playing_pacman_pause":
+        playing_pacman_pause(state, task)
+    elif task.name == "dying":
+        dying(state, task)
+    elif task.name == "game_over":
+        game_over(state, task)
+    elif task.name == "won":
+        won(state, task)
+    elif task.name == "victory_dance":
+        victory_dance(state, task)
 
 
 () idle(object state):
@@ -72,21 +85,21 @@ from view import view_new_exec_wait
     #print(["idle delta", delta])
 
     # run the intro
-    state.views_next = []
-    for view in state.views:
-        if view.status == "exit":
-            for parent in view.signal_on_exit:
-                remove(parent.waiting_on, view)
+    state.tasks_next = []
+    for task in state.tasks:
+        if task.status == "exit":
+            for parent in task.signal_on_exit:
+                remove(parent.waiting_on, task)
                 if length(parent.waiting_on) == 0:
                     parent.status = "run"
             continue
-        if view.status == "run":
-            if view.time_start == 0:
-                view.time_start = now
-            view_run(state, view)
-        append(state.views_next, view)
+        if task.status == "run":
+            if task.time_start == 0:
+                task.time_start = now
+            task_run(state, task)
+        append(state.tasks_next, task)
 
-    state.views = state.views_next
+    state.tasks = state.tasks_next
 
 () print_fps(object state):
     frame_time = state.now - state.frame_start_time

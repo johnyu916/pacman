@@ -22,8 +22,8 @@ from wafflecore.camera import camera_translate
 # if any key is down, move in that direction (but only one
 # direction).
 # if no key is down, don't move.
-() keyboard_idle(object state):
-    move_pacman(state)
+() keyboard_idle(object state, object task):
+    move_pacman(state, task)
 
     move_camera(state)
     #keyboard_none(state)
@@ -37,9 +37,8 @@ from wafflecore.camera import camera_translate
     if next >= length:
         next = 0
 
-() animate_pacman(object state, object pacman, object elapsed_time):
-    animation = state.animations.pacman
-    animate(animation, state.things, state.geometries, elapsed_time)
+() animate_pacman(object state, object task):
+    animate(task.animations.pacman, state.things, state.geometries, state.now)
 
 # assumes that by default:
 #  1. pacman is facing right.
@@ -71,7 +70,7 @@ from wafflecore.camera import camera_translate
 (bool yes) is_array_zero(array vector):
     yes = vector[0] == 0.0 && vector[1] == 0.0 && vector[2] == 0.0
 
-() move_pacman(object state):
+() move_pacman(object state, object task):
     keys_state = state.keyboard.keys_state
 
     pacman = state.game.pacman
@@ -114,7 +113,7 @@ from wafflecore.camera import camera_translate
     #pacman.velocity = velocity
     # cap pacman's velocity
     cap_velocity(pacman)
-    animate_pacman(state, pacman, elapsed_time)
+    animate_pacman(state, task)
 
 () cap_velocity(object pacman):
     velocity = pacman.velocity

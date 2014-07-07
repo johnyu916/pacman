@@ -1,11 +1,12 @@
 from collisions import (collide_characters, collisions, touching_all, overlap_bounds_thing, position_delta, bump_thing)
 from text import get_text
 from keyboard import (keyboard_idle, place_pacman)
-from wafflecore.animation import animate
+from wafflecore.animation import (animate, animation_task)
+from wafflecore.standard import copy_object
 from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_position, thing_set_position_y)
-from ai import (ai_idle, move_velocity)
+from ai import (ai_idle, move_velocity, get_enemy_legs, get_ghost_children)
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
-from view import view_exit
+from task import (task_exit, task_new_exec, task_new_exec_wait)
 
 (array indices) indices_point(number x, number z):
     x_off = x - 5
@@ -22,13 +23,13 @@ from view import view_exit
     if y_mod > 1 && y_idx < 28:
         append(indices, [x_idx, y_idx + 1])
 
-() main_menu(object state, object view):
-    if view.step == 0:
+() main_menu(object state, object task):
+    if task.step == 0:
         print("main_menu_start")
         main_menu = state.game.main_menu
         state.world.children = [main_menu.text]
-        view.step = 1
-    elif view.step == 1:
+        task.step = 1
+    elif task.step == 1:
         keys_state = state.keyboard.keys_state
         for key in keys(keys_state):
             key_state = keys_state{key}
@@ -36,14 +37,17 @@ from view import view_exit
                 if key == "q":
                     exit()
                 elif key == "s":
-                    view_exit(view, {})
+                    task_exit(task, {})
 
 
-() player_ready(object state, object view):
-    if view.step == 0:
+() player_ready(object state, object task):
+    if task.step == 0:
         player_ready_start(state)
-    if view.step == 1:
-        player_ready_idle(state, view)
+        task.step = 1
+    if task.step == 1:
+        done = player_ready_idle(state, task)
+        if done:
+            task_exit(task, {})
 
 () player_ready_start(object state):
     game = state.game
@@ -64,41 +68,36 @@ from view import view_exit
     #extend(state.world.children, game.dots)
     for enemy in game.enemies:
         enemy.children = enemy.normal_children
-    view.step = 2
 
 
-() player_ready_idle(object state):
+(bool done) player_ready_idle(object state, object task):
     game = state.game
-    player_ready = state.game.state
-    elapsed = state.now - player_ready.time_start
+    player_ready = state.game.player_ready
+    elapsed = state.now - task.time_start
     if elapsed > 1.0:
         remove_thing(game.info.children, player_ready.text.id)
+        done = true
         # start playing
-        view_exit()
 
-() ready(object state, object view):
-    if view.step == 0:
+() ready(object state, object task):
+    if task.step == 0:
         ready_start(state)
-        view.step = 1
-    elif view.step == 1:
+        task.step = 1
+    elif task.step == 1:
         game = state.game
-        ready = game.state
-        elapsed = state.now - ready.time_start
+        elapsed = state.now - task.time_start
         if elapsed > 1.0:
             game.bashful.up_down_start = state.now
             game.pokey.up_down_start = state.now
             remove_thing(game.info.children, game.ready_text.id)
             # start playing
-            view_exit(view)
+            task_exit(task, {})
 
 () ready_start(object state):
     game = state.game
-    ready = game.state
     remove_thing(game.info.children, game.ready_text.id)
     append(game.info.children, game.ready_text)
 
-    ready.time_start = state.now
-    ready.status = "idle"
     pacman = game.pacman
     pacman.geometry = state.geometries{"pacman_0"}
     pacman.position = [106, 0, 70]
@@ -119,6 +118,10 @@ from view import view_exit
     game.pokey.state = "up_down"
     game.pokey.up_down_time = 10
 
+    for enemy in game.enemies:
+        enemy.velocity = [0, 0, 0]
+        enemy.force = [0, 0, 0]
+
     # cache the world bounds
     things = [game.jail, game.enemy_jail, game.stage, game.pacman]
     extend(things, game.enemies)
@@ -131,98 +134,127 @@ from view import view_exit
     #print(["ready_start", state.game])
 
 
-() dying(object state, object view):
+() dying(object state, object task):
     game = state.game
     pacman = game.pacman
-    dying = game.state
-    elapsed = state.now - dying.time_start
-    if elapsed > 1.5:
-        # change state
-        lives = game.lives
-        lives -= 1
-        game.lives = lives
+    if task.step == 0:
+        animation = copy_object(state.animations.pacman_die)
+        animation.time_start = state.now
+        animation.thing = pacman
+        task.animations.pacman_die = animation
+        task.step = 1
+    else:
+        elapsed = state.now - task.time_start
+        if elapsed > 1.5:
+            # change state
+            lives = game.lives
+            lives -= 1
+            game.lives = lives
 
-        if lives > 0:
-            pop(game.life_icons.children)
-            view_exit(view, {"next":"ready"})
+            if lives > 0:
+                pop(game.life_icons.children)
+                task_exit(task, {"next":"ready"})
+            else:
+                task_exit(task, {"next":"game_over"})
         else:
-            view_exit(view, {"next":"game_over"})
-    else:
-        #print(["dying_idle animating"])
-        animate(state.animations.pacman_die, state.things, state.geometries, elapsed)
+            #print(["dying_idle animating"])
+            animate(task.animations.pacman_die, state.things, state.geometries, state.now)
 
-() game_over(object state, object view):
-    if view.step == 0:
-        game_over = state.game.state
-        game_over.time_start = state.now
+() game_over(object state, object task):
+    if task.step == 0:
+        game_over = state.game.game_over
         state.world.children = [game_over.text]
-        view.step = 1
+        task.step = 1
     else:
-        game_over = state.game.state
-        elapsed = state.now - game_over.time_start
+        elapsed = state.now - task.time_start
         if elapsed > 1.0:
-            view_exit(view, {})
+            task_exit(task, {})
 
 
-() playing(object state, object view):
-    if view.step == 1:
+() playing(object state, object task):
+    if task.step == 0:
         #print("playing_idlestart")
         #collisions(state)
         # game specific touching
         #one = time()
-        view.playing_blink = view_new_exec(state, "playing_blink")
-        view.playing_pacman = view_new_exec_wait(state, "playing_pacman")
-        view.step = 2
-    elif view.step == 2:
+        task.playing_blink = task_new_exec(state, "playing_blink")
+        task.playing_pacman = task_new_exec_wait(state, task, "playing_pacman")
+        task.step = 1
+    elif task.step == 1:
         # stop the other guy too
-        view_exit(view.playing_blink, {})
-        view_exit(view, view.playing_pacman.result)
+        task_exit(task.playing_blink, {})
+        task_exit(task, task.playing_pacman.result)
 
-() playing_blink(object state, object view):
+() playing_blink(object state, object task):
     # just blink
-    animate(state.one_up)
-    animate(state.balls)
+    #animate(state.one_up)
+    #animate(state.balls)
+    return
 
-() playing_pacman(object state, object view):
-    if view.step == 0:
+() playing_pacman(object state, object task):
+    step = task.step
+    game = state.game
+    if step == 0:
+        #setup
+        task.number_eaten = 0
+        task.animations.pacman = animation_task(state.animations.pacman, game.pacman, state.now)
+        for enemy in game.enemies:
+            animation_name = join([enemy.name, "legs"], "_")
+            legs = get_enemy_legs(enemy)
+            task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
+            legs = enemy.ghost_children[1]
+            animation_name = join([enemy.name, "ghost_legs"], "_")
+            task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
+
+            animation_name = join([enemy.name, "ghost_blink_legs"], "_")
+            task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
+
+            head = enemy.ghost_children[0]
+            animation_name = join([enemy.name, "ghost_blink_head"], "_")
+            task.animations{animation_name} = animation_task(state.animations{animation_name}, head, state.now)
+        task.step = 1
+    elif step == 1:
         collide_characters(state)
         #touching_all(state)
         #two = time()
 
-        next = game_logic(state, view)
+        next = game_logic(state, task)
         #three = time()
         if next == "stop":
             return
         elif next == "pause":
-            view.step = 1
+            game.guys_paused_start = state.now
+            task.step = 2
             return
-        keyboard_idle(state)
-        ai_idle(state)
+        keyboard_idle(state, task)
+        ai_idle(state, task)
         #four = time()
         #print("playing_idleend")
         #print(["pacman velocity", state.pacman.velocity])
         #print(["playing_idle", one, two, three, four])
-    elif view.step == 1:
-        done = playing_pacman_pause()
+    elif step == 2:
+        done = playing_pacman_pause(state)
         if done == true:
-            view.step = 0
+            on_eat_done(task, game)
+            task.step = 0
 
-(bool done) playing_pacman_pause():
+(bool done) playing_pacman_pause(object state):
+    game = state.game
     if (state.now - game.guys_paused_start) > 1.0:
+        pacman = game.pacman
         thing_set_position_y(pacman, 0.0)
         thing_set_world_bounds(pacman, matrix_identity())
-        pacman.velocity = [v_x, 0, 0]
         game.number_bubbles[0].position[1] = -100.0
         done = true
 
-() won(object state):
-    if (state.now - won.time_start) > 2:
-        view_exit(view, {})
+() won(object state, object task):
+    if (state.now - task.time_start) > 2:
+        task_exit(task, {})
         return
     animate(state.animations.blink_stage, state.things, state.geometries, elapsed)
 
-() victory_dance(object state, object view):
-    if view.step == 0:
+() victory_dance(object state, object task):
+    if task.step == 0:
         game = state.game
         state.world.children = [game.pacman, game.shadow]
 
@@ -233,7 +265,7 @@ from view import view_exit
         pacman.position = [224.0, 0.0, z]
         pacman.velocity = [v_x, 0, 0]
         state.game.state.status = "idle"
-    elif view.step == 1:
+    elif task.step == 1:
         victory_dance_idle(state)
 
 () victory_dance_idle(object state):
@@ -248,12 +280,12 @@ from view import view_exit
         shadow.velocity = [v_x, 0, 0]
     if pacman.position[0] > 224:
         # done.
-        view_exit(view, {})
+        task_exit(task, {})
 
 
 # two objects collided. specifically, one ran into two. what to do?
 #() handle_collision(object one, object two):
-(string next) game_logic(object state, object view):
+(string next) game_logic(object state, object task):
     #print(["game_logic start"])
     pacman = state.game.pacman
     game = state.game
@@ -262,13 +294,14 @@ from view import view_exit
         thing = touch.thing
         if thing.type == "Enemy":
             if thing.state == "normal":
-                view_exit(view, {"next": "dying"})
+                task_exit(task, {"next": "dying"})
                 next = "stop"
                 return
             elif thing.state == "blue" || thing.state == "blink":
-                game.score += 100
+                game.score += game.eat_scores[task.number_eaten]
                 thing.state = "eyes"
-                thing.children = [game.eyes]
+                thing.children = [thing.eyes]
+                on_eat(task, pacman, thing)
                 next = "pause"
                 return
 
@@ -298,7 +331,7 @@ from view import view_exit
         #print(["hit dot end"])
 
     if game.balls.count == 0 && game.dots.count == 0:
-        view_exit(view, {"next": "won"})
+        task_exit(task, {"next": "won"})
         next = "stop"
 
 () remove_item(array grid, number x, number y, object balls):

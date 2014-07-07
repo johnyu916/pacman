@@ -1,4 +1,4 @@
-from wafflecore.compute import (subtract_arrays, is_close_vector_3)
+from wafflecore.compute import (vectors_component, axis_sign_vector, array_scaled, subtract_arrays, is_close_vector_3)
 from wafflecore.animation import animate
 
 (object legs, object head) get_ghost_children(object ghost):
@@ -18,29 +18,32 @@ from wafflecore.animation import animate
         if child.type == "EnemyEyes":
             eyes = child
 
-() animate_blink(object state, object ghost):
+() animate_blink(object state, object task, object enemy):
     #(legs, head) = get_ghost_children(ghost)
-    animate(state.animations.ghost_blink_legs, state.things, state.geometries, state.now)
-    animate(state.animations.ghost_blink_head, state.things, state.geometries, state.now)
+    animation_name = join([enemy.name, "ghost_blink_legs"], "_")
+    animate(task.animations{animation_name}, state.things, state.geometries, state.now)
+    animation_name = join([enemy.name, "ghost_blink_head"], "_")
+    animate(task.animations{animation_name}, state.things, state.geometries, state.now)
 
-() animate_ghost_legs(object state, object ghost):
-    animation = state.animations.ghost_legs
+() animate_ghost_legs(object state, object task, object enemy):
+    animation_name = join([enemy.name, "ghost_legs"], "_")
+    animation = task.animations{animation_name}
     #(legs, head) = get_ghost_children(ghost)
     #print(["animate_shadow", shadow_legs.type, state.now])
     animate(animation, state.things, state.geometries, state.now)
 
-() animate_shadow(object state, object enemy):
+() animate_shadow(object state):
     name = join([enemy.name, "legs"], "_")
-    animation = state.animations{name}
+    animation = task.animations{name}
     #shadow_legs = get_enemy_legs(enemy)
     #print(["animate_shadow", shadow_legs.type, state.now])
     animate(animation, state.things, state.geometries, state.now)
 
-() ai_idle(object state):
+() ai_idle(object state, object task):
     for enemy in state.game.enemies:
-        enemy_idle(state, enemy)
+        enemy_idle(state, task, enemy)
 
-() enemy_idle(object state, object shadow):
+() enemy_idle(object state, object task, object shadow):
     #print(["ai_idle", shadow.state, shadow.position, shadow.last_position])
     # try to move
     enemy = shadow
@@ -51,6 +54,7 @@ from wafflecore.animation import animate
 
     # move up and down
     if my_state  == "up_down":
+        print(["up_down p v", enemy.name, enemy.position, enemy.velocity])
         if state.now - enemy.up_down_start > enemy.up_down_time:
             enemy.state = "jail_center"
             return
@@ -58,56 +62,58 @@ from wafflecore.animation import animate
             plus = shadow.input_velocity
             minus = -1*plus
             if enemy.position[2] == 136.0:
-                move_velocity(state, enemy, [0, 0, plus])
+                move_velocity(state, task, enemy, [0, 0, plus])
             else:
-                move_velocity(state, enemy, [0, 0, minus])
+                move_velocity(state, task, enemy, [0, 0, minus])
     # move toward jail center
     elif my_state == "jail_center":
         plus = shadow.input_velocity
         minus = -1*plus
         if enemy.position[0] < 104:
             # move right
-            move_velocity(state, enemy, [plus, 0, 0])
+            move_velocity(state, task, enemy, [plus, 0, 0])
         elif enemy.position[0] > 106:
-            move_velocity(state, enemy, [minus, 0, 0])
+            move_velocity(state, task, enemy, [minus, 0, 0])
         else:
             enemy.velocity = [0,0,0]
             enemy.position[0] = 105
             enemy.state = "jail_exit"
     # exit the jail
     elif my_state == "jail_exit":
-        plus = shadow.input_velocity
+        plus = shadow.input_velocity/2
         if enemy.position[2] < 165:
-            move_velocity(state, enemy, [0, 0, plus])
+            move_velocity(state, task, enemy, [0, 0, plus])
         else:
             enemy.state = "normal"
     # move slowly
     elif my_state == "blue":
-        move_blue(state, delta, enemy)
+        move_blue(state, task, delta, enemy)
         if (state.now - game.ghost_time_start) > game.ghost_blink:
             enemy.state = "blink"
     # blink between blue and white
     elif my_state == "blink":
-        move_blue(state, delta, enemy)
+        move_blue(state, task, delta, enemy)
         if (state.now - game.ghost_time_start) > game.ghost_duration:
             enemy.children = enemy.normal_children
             enemy.state = "normal"
         else:
-            animate_blink(state, enemy)
+            animate_blink(state, task, enemy)
     # move around
     elif my_state == "normal":
-        move_normal(state, delta, enemy)
+        move_normal(state, task, delta, enemy)
     # move eyes toward jail
     elif my_state == "eyes":
-        if is_close_vector_3(enemy.position, enemy.jail_position):
+        if is_close_vector_3(enemy.position, enemy.jail_position, 0.01):
             enemy.children = enemy.normal_children
             enemy.state = "jail_center"
-        move_eyes()
+        move_eyes(state, delta, enemy)
+    else:
+        print(["enemy in unknown state", enemy.name, my_state])
 
 () move_eyes(object state, array delta, object enemy):
     plus = enemy.input_velocity/2.0
     minus = -1*plus
-
+    geometries = state.geometries
     # possible directions
     directions = [
         [-1, 0, 0],
@@ -157,12 +163,13 @@ from wafflecore.animation import animate
     elif velocity[0] > 0.0:
         enemy.children[0].geometry = geometries.eyes_right
     elif velocity [1] > 0.0:
-        enem.children[0].geometry = geometries.eyes_down
+        enemy.children[0].geometry = geometries.eyes_down
     elif velocity[1] < 0.0:
         enemy.children[0].geometry = geometries.eyes_up
     enemy.velocity = velocity
+    print(["in move_eyes", enemy.velocity])
 
-() move_blue(object state, array delta, object enemy):
+() move_blue(object state, object task, array delta, object enemy):
     plus = enemy.input_velocity/2.0
     minus = -1*plus
     if delta == [0.0, 0.0, 0.0]:
@@ -176,15 +183,26 @@ from wafflecore.animation import animate
             enemy.velocity = velocities[2]
         else:
             enemy.velocity = velocities[3]
-    animate_ghost_legs(state, enemy)
+    animate_ghost_legs(state, task, enemy)
 
 
 # assume speed is > 0 in some direction
-() move_velocity(object state, object enemy, array velocity):
-    geometries = state.geometries
-    enemy_eyes = get_enemy_eyes(enemy)
+() move_velocity(object state, object task, object enemy, array velocity):
     enemy.velocity = velocity
-    if velocity[0] < 0.0:
+    animate_enemy(state, task, enemy)
+
+() animate_enemy(object state, object task, object enemy):
+    # eyes
+    geometries = state.geometries
+    animate_eyes(geometries, enemy)
+    # legs
+    name = join([enemy.name, "legs"], "_")
+    animate(task.animations{name}, state.things, geometries, state.now)
+
+() animate_eyes(object geometries, object enemy):
+    enemy_eyes = get_enemy_eyes(enemy)
+    velocity = enemy.velocity
+    if velocity[0] < 0.0: 
         geometry_name = join([enemy.name, "head_eyes_left"], "_")
         enemy_eyes.geometry = geometries{geometry_name}
     elif velocity[0] > 0.0:
@@ -196,24 +214,25 @@ from wafflecore.animation import animate
     elif velocity[1] < 0.0:
         geometry_name = join([enemy.name, "head_eyes_up"], "_")
         enemy_eyes.geometry = geometries{geometry_name}
-    animate_shadow(state, enemy)
 
 
-() move_normal(object state, array delta, object enemy):
+
+() move_normal(object state, object task, array delta, object enemy):
     if delta == [0.0, 0.0, 0.0]:
         plus = enemy.input_velocity
         minus = -1*plus
         velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
         value = random()
         if value < 0.25:
-            move_velocity(state, enemy, velocities[0])
+            enemy.velocity = velocities[0]
         elif value < 0.50:
-            move_velocity(state, enemy, velocities[1])
+            enemy.velocity = velocities[1]
         elif value < 0.75:
-            move_velocity(state, enemy, velocities[2])
+            enemy.velocity = velocities[2]
         else:
-            move_velocity(state, enemy, velocities[3])
+            enemy.velocity = velocities[3]
 
+    animate_enemy(state, task, enemy)
 
 () change_state(object state, object enemy, string enemy_state):
     if enemy_state == "blue":

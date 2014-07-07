@@ -49,39 +49,6 @@
         "white_ghost_children_names": [
             "white_ghost_head", "white_ghost_legs"
         ],
-        "lives": 3,
-        "states": [
-            {
-                "name": "intro"
-            },
-            {
-                "name": "intro_run"
-            },
-            {
-                "name": "main_menu"
-            },
-            {
-                "name": "player_ready"
-            },
-            {
-                "name": "ready"
-            },
-            {
-                "name": "playing"
-            },
-            {
-                "name": "dying"
-            },
-            {
-                "name": "game_over"
-            },
-            {
-                "name": "won"
-            },
-            {
-                "name": "victory_dance"
-            }
-        ],
-        "init_state_name": "intro"
+        "lives": 3
     }
 }

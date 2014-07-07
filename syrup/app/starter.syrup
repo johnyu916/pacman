@@ -1,10 +1,10 @@
 from wafflecore.compute import (new_id, filename_type)
-from wafflecore.thing import (thing_new, thing_blank, thing_read, thing_set_children)
+from wafflecore.thing import (thing_copy, thing_new, thing_blank, thing_read, thing_set_children)
 from wafflecore.standard import copy_object
 from enemy_jail import jail_enemy_new
 from text import get_text
 from dots_balls import (get_dots, get_balls, get_grid)
-from view import view_new
+from task import task_new
 
 () start(array argv, object state):
     # load geometries
@@ -51,7 +51,6 @@ from view import view_new
         if file_is_file(filepath) && type == "json":
             text = null
             file_read(filepath, text)
-            print(["reading_json 1", filepath])
             animation = from_json(text)
             animations{name} = animation
     state.animations = animations
@@ -97,9 +96,14 @@ from view import view_new
     chars = get_text(state, "CHARACTERS", [221, 221, 221, 255])
     chars.position = [80, 0, 210]
     intro.chars = chars
-    shadow = get_text(state, "SHADOW", [217, 29, 5, 255])
-    shadow.position = [80, 0, 170]
-    intro.shadow = shadow
+    shadow_copy = thing_copy(game.shadow, things)
+    name = join(["shadow", "head_eyes_right"], "_")
+    shadow_copy.children[1].geometry = geometries{name}
+    shadow_copy.position = [60, 0, 170]
+    shadow_chars = get_text(state, "SHADOW", [217, 29, 5, 255])
+    shadow_chars.position = [80, 0, 170]
+    intro.shadow_copy = shadow_copy
+    intro.shadow_chars = shadow_chars
     game.intro = intro
 
     main_menu = {}
@@ -114,6 +118,7 @@ from view import view_new
     player_ready.text = chars
     game.player_ready = player_ready
 
+    game.eat_scores = [200, 400, 800, 1600]
     game.score_key = get_text(state, "1UP", [221, 221, 221, 255])
     game.score_key.position = [26, 0, 281]
     game.score_value = get_text(state, "00", [221, 221, 221, 255])
@@ -134,8 +139,8 @@ from view import view_new
     game_over.text = ready_text
     game.game_over = game_over
     # prepare ready
-    view = view_new(state, "root")
-    state.views = [view]
+    task = task_new(state, "root")
+    state.tasks = [task]
 
 
 () load_enemies(object state):
@@ -151,9 +156,11 @@ from view import view_new
         for child in thing.children:
             print(["load_enemies", child.type])
             new_name = join([enemy_name, child.geometry_name], "_")
+            child.name = new_name
             child.id = new_id(state)
             child.geometry_name = new_name
             child.geometry = state.geometries{child.geometry_name}
+            things{new_name} = child
         game{enemy_name} = thing
         append(game.enemies, thing)
 
@@ -166,7 +173,6 @@ from view import view_new
             new_child.geometry = child.geometry
             append(children, new_child)
         thing.ghost_children = children
-        #game.ghost_children = children
         children = []
         for name in game.white_ghost_children_names:
             child = things{name}
@@ -174,11 +180,14 @@ from view import view_new
             new_child.geometry = child.geometry
             append(children, new_child)
         thing.white_ghost_children = children
-        #game.eyes = things.eyes
+        thing.eyes = thing_copy(things.eyes, things)
 
     # animations.
     animations = state.animations
     enemy_legs = animations.enemy_legs
+    ghost_legs = animations.ghost_legs
+    ghost_blink_legs = animations.ghost_blink_legs
+    ghost_blink_head = animations.ghost_blink_head
     for enemy_name in game.enemy_names:
         animation = copy_object(enemy_legs)
         for action in animation.actions:
@@ -186,4 +195,16 @@ from view import view_new
             new_geometry_name = join([enemy_name, geometry_name], "_")
             action.geometry_name = new_geometry_name
         animation_name = join([enemy_name, "legs"], "_")
+        animations{animation_name} = animation
+
+        animation = copy_object(ghost_legs)
+        animation_name = join([enemy_name, "ghost_legs"], "_")
+        animations{animation_name} = animation
+
+        animation = copy_object(ghost_blink_legs)
+        animation_name = join([enemy_name, "ghost_blink_legs"], "_")
+        animations{animation_name} = animation
+
+        animation = copy_object(ghost_blink_head)
+        animation_name = join([enemy_name, "ghost_blink_head"], "_")
         animations{animation_name} = animation

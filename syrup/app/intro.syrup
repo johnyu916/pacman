@@ -1,45 +1,55 @@
-from wafflecore.animation import animate
+from wafflecore.animation import (animate, animation_task)
 from wafflecore.compute import (new_id, sum_arrays)
 from wafflecore.thing import (thing_new, thing_set_position, thing_set_position_y)
-from view import view_exit
+from wafflecore.standard import copy_object
+from task import task_exit
 from collisions import (bump_thing)
-from ai import (move_velocity)
+from ai import (animate_enemy, get_enemy_legs, get_ghost_children)
 from keyboard import (place_pacman)
 
-() intro(object state, object view):
+() intro(object state, object task):
     #print("inside intro")
-    intro = state.game.intro
-    if view.step == 0:
-        state.world.children = [intro.chars]
-        view.number_eaten = 0
-        view.step = 1
-    elif view.step == 1:
-        elapsed = state.now - view.time_start
-        if elapsed > 1.0:
-            state.world.children = [intro.chars, intro.shadow]
-            view.step = 2
-    elif view.step == 2:
-        elapsed = state.now - view.time_start
-        if elapsed > 2.0:
-            view.step = 3
-            print(["set game state to intro_run"])
-    elif view.step == 3:
-        intro_run_start(state)
-        view.step = 4
-    elif view.step == 4:
-        done = intro_run_left(state, view)
-        if done:
-            view.step = 5
-    elif view.step == 5:
-        pause = intro_run_right(state, view)
-        if pause == true:
-            view.step = 6
-    elif view.step == 6:
-        done = intro_pause(state, view)
-        if done:
-            view.step = 5
+    keys_state = state.keyboard.keys_state
+    for key in keys(keys_state):
+        key_state = keys_state{key}
+        if key_state == "KEY_DOWN":
+            if key == "q":
+                exit()
+            elif key == "s":
+                task_exit(task, {})
 
-() intro_run_start(object state):
+    intro = state.game.intro
+    if task.step == 0:
+        state.world.children = [intro.chars]
+        task.number_eaten = 0
+        task.step = 1
+    elif task.step == 1:
+        elapsed = state.now - task.time_start
+        if elapsed > 1.0:
+            state.world.children = [intro.chars, intro.shadow_copy, intro.shadow_chars]
+            task.step = 2
+    elif task.step == 2:
+        elapsed = state.now - task.time_start
+        if elapsed > 2.0:
+            task.step = 3
+            print(["set game state to intro_run"])
+    elif task.step == 3:
+        intro_run_start(state, task)
+        task.step = 4
+    elif task.step == 4:
+        done = intro_run_left(state, task)
+        if done:
+            task.step = 5
+    elif task.step == 5:
+        pause = intro_run_right(state, task)
+        if pause == true:
+            task.step = 6
+    elif task.step == 6:
+        done = intro_pause(state, task)
+        if done:
+            task.step = 5
+
+() intro_run_start(object state, object task):
     game = state.game
     pacman = game.pacman
     game.ball = thing_new(new_id(state), "Ball", [0,0,0], [], [], state.geometries.ball, null)
@@ -50,16 +60,22 @@ from keyboard import (place_pacman)
     thing_set_position(game.ball, [33.0, 0.0, 120])
     thing_set_position(pacman, [224.0, 0.0, z])
     #thing_set_world_bounds(pacman, matrix_identity())
-    print(["pacman world bounds", pacman.world_bounds])
+    #print(["pacman world bounds", pacman.world_bounds])
     pacman.velocity = [v_x, 0, 0]
-    pacman.animate_start = state.now
+    task.animations.pacman = animation_task(state.animations.pacman, pacman, state.now)
     place_pacman(pacman, 0, 0)
     x = 250
     for enemy in game.enemies:
         thing_set_position(enemy, [x, 0.0, z])
         enemy.velocity = [v_x, 0, 0]
+        animation_name = join([enemy.name, "legs"], "_")
+        legs = get_enemy_legs(enemy)
+        task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
+        legs = enemy.ghost_children[1]
+        animation_name = join([enemy.name, "ghost_legs"], "_")
+        task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
         #thing_set_world_bounds(enemy, matrix_identity())
-        print(["enemy world bounds", enemy.world_bounds])
+        #print(["enemy world bounds", enemy.world_bounds])
         x+=16
     extend(state.world.children, game.enemies)
 
@@ -71,7 +87,7 @@ from keyboard import (place_pacman)
 # and children that run in parallel (though you do have to wait 
 # for them to finish when you are done)
 
-(bool done) intro_run_left(object state, object view):
+(bool done) intro_run_left(object state, object task):
     game = state.game
     pacman = game.pacman
 
@@ -91,28 +107,28 @@ from keyboard import (place_pacman)
     bump_thing(pacman, [], delta)
     distance_delta = pacman.position_delta
     #print(["distance delta", distance_delta])
-    animate(state.animations.pacman, state.things, state.geometries, state.now - pacman.animate_start)
-    #animate(state.animations.ball, state.things, state.geometries, state.now - pacman.animate_start)
+    animate(task.animations.pacman, state.things, state.geometries, state.now)
     for enemy in game.enemies:
-        move_velocity(state, enemy, enemy.velocity)
+        animate_enemy(state, task, enemy)
         thing_set_position(enemy, sum_arrays(enemy.position, distance_delta))
         #print(["enemy world bounds", enemy.world_bounds])
 
 
-(bool pause) intro_run_right(object state, object view):
+(bool pause) intro_run_right(object state, object task):
     game = state.game
     pacman = game.pacman
     if pacman.world_bounds.position[0] > 240:
         # done.
-        view_exit(view, {})
+        task_exit(task, {})
         return
 
     delta = state.delta
-    animate(state.animations.pacman, state.things, state.geometries, state.now - pacman.animate_start)
+    animate(task.animations.pacman, state.things, state.geometries, state.now)
     bump_thing(pacman, game.enemies, delta)
     distance_delta = pacman.position_delta
     for enemy in game.enemies:
-        move_velocity(state, enemy, enemy.velocity)
+        name = join([enemy.name, "ghost_legs"], "_")
+        animate(task.animations{name}, state.things, state.geometries, state.now)
         thing_set_position(enemy, sum_arrays(enemy.position, [distance_delta[0]/2, 0, 0]))
         #print(["enemy world bounds", enemy.world_bounds])
     for touch in pacman.collisions:
@@ -122,22 +138,30 @@ from keyboard import (place_pacman)
             # number appears.
             # frozen for a second.
             game.guys_paused_start = state.now
-            thing_set_position_y(pacman, -1000)
-            thing_set_position_y(touch.thing, -1000)
-            thing_set_position(game.number_bubbles[view.number_eaten], [pacman.position[0], 0, pacman.position[2]])
-            view.number_eaten += 1
+            on_eat(task, game, touch.thing)
             pause = true
             return
 
-(bool done) intro_pause(object state, object view):
+() on_eat(object task, object game, object enemy):
+    pacman = game.pacman
+    thing_set_position_y(pacman, -1000)
+    thing_set_position_y(enemy, -1000)
+    thing_set_position(game.number_bubbles[task.number_eaten], [pacman.position[0], 0, pacman.position[2]])
+    task.number_eaten += 1
+
+() on_eat_done(object task, object game):
+    pacman = game.pacman
+    thing_set_position_y(pacman, 0.0)
+    game.number_bubbles[task.number_eaten - 1].position[1] = -1000.0
+
+(bool done) intro_pause(object state, object task):
     #if game.guys_paused:
         # hang tight
         #print(["paused", state.now - game.guys_paused_start])
     game = state.game
     if (state.now - game.guys_paused_start) > 1.0:
         pacman = game.pacman
-        thing_set_position_y(pacman, 0.0)
+        on_eat_done(task, game)
         v_x = 100
         pacman.velocity = [v_x, 0, 0]
-        game.number_bubbles[view.number_eaten - 1].position[1] = -1000.0
         done = true
