@@ -1,0 +1,11 @@
+() on_eat(object task, object game, object enemy):
+    pacman = game.pacman
+    thing_set_position_y(pacman, -1000)
+    thing_set_position_y(enemy, -1000)
+    thing_set_position(game.number_bubbles[task.number_eaten], [pacman.position[0], 0, pacman.position[2]])
+    task.number_eaten += 1
+
+() on_eat_done(object task, object game):
+    pacman = game.pacman
+    thing_set_position_y(pacman, 0.0)
+    game.number_bubbles[task.number_eaten - 1].position[1] = -1000.0

@@ -7,6 +7,7 @@ from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_posit
 from ai import (ai_idle, move_velocity, get_enemy_legs, get_ghost_children)
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
 from task import (task_exit, task_new_exec, task_new_exec_wait)
+from shared import (on_eat, on_eat_done)
 
 (array indices) indices_point(number x, number z):
     x_off = x - 5

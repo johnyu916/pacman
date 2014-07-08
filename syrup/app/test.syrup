@@ -1,0 +1,14 @@
+from ai import move_eyes_velocity
+
+() test_eyes():
+    one = {
+        "normals": [[1,0,0]]
+    }
+    eyes = {
+        "jail_position": [105, 0, 141],
+        "position": [50, 0, 100],
+        "input_velocity": 100,
+        "touching": [one]
+    }
+    velocity = move_eyes_velocity(eyes)
+    print(["test_eyes", velocity])

@@ -111,9 +111,23 @@ from wafflecore.animation import animate
         print(["enemy in unknown state", enemy.name, my_state])
 
 () move_eyes(object state, array delta, object enemy):
+
+    velocity = move_eyes_velocity(enemy)
+    geometries = state.geometries
+    if velocity[0] < 0.0:
+        enemy.children[0].geometry = geometries.eyes_left
+    elif velocity[0] > 0.0:
+        enemy.children[0].geometry = geometries.eyes_right
+    elif velocity [1] > 0.0:
+        enemy.children[0].geometry = geometries.eyes_down
+    elif velocity[1] < 0.0:
+        enemy.children[0].geometry = geometries.eyes_up
+    enemy.velocity = velocity
+    print(["in move_eyes", enemy.velocity])
+
+(array velocity) move_eyes_velocity(object enemy):
     plus = enemy.input_velocity/2.0
     minus = -1*plus
-    geometries = state.geometries
     # possible directions
     directions = [
         [-1, 0, 0],
@@ -132,6 +146,7 @@ from wafflecore.animation import animate
         blocked = false
         for touch in enemy.touching:
             for normal in touch.normals:
+                print(["move_eyes normal", normal])
                 (normal_a, normal_s) = axis_sign_vector(normal)
                 if normal_a == direction_a && normal_s == direction_s:
                     blocked = true
@@ -158,16 +173,91 @@ from wafflecore.animation import animate
         next_direction = bad_directions[0]
 
     velocity = array_scaled(next_direction, enemy.input_velocity)
-    if velocity[0] < 0.0:
-        enemy.children[0].geometry = geometries.eyes_left
-    elif velocity[0] > 0.0:
-        enemy.children[0].geometry = geometries.eyes_right
-    elif velocity [1] > 0.0:
-        enemy.children[0].geometry = geometries.eyes_down
-    elif velocity[1] < 0.0:
-        enemy.children[0].geometry = geometries.eyes_up
-    enemy.velocity = velocity
-    print(["in move_eyes", enemy.velocity])
+
+() build_graph():
+    nodes = []
+    for value in range(34):
+        node = {
+            "name": string(value),
+            "edges": []
+        }
+        append(nodes, node)
+
+    # edges
+    pairs = [
+        [0, 2],
+        [0, 3],
+        [0, 5],
+
+        [1, 6],
+        [1, 8],
+        [1, 9],
+
+        [2, 3],
+        [3, 4],
+        [4, 5],
+        [5, 6],
+        [6, 7],
+        [7, 8],
+        [8, 9],
+
+        [2, 10],
+        [3, 10],
+        [4, 12],
+        [7, 13],
+        [8, 11],
+        [9, 11],
+
+        [12, 13],
+
+        [10, 14],
+        [12, 15],
+        [13, 16],
+        [4, 17],
+
+        [14, 15],
+        [16, 17],
+        [14, 17],
+
+        [14,20],
+        [15,18],
+        [16,19],
+        [17,23],
+
+        [18, 19],
+
+        [18,21],
+        [19,22],
+
+        [20, 21],
+        [22, 23],
+
+        [20, 30],
+        [20, 24],
+        [21, 26],
+        [22, 27],
+        [23, 29],
+        [23, 31],
+
+        [24, 25],
+        [25, 26],
+        [26, 27],
+        [27, 28],
+        [28, 29],
+
+        [24, 30],
+        [29, 31],
+
+        [30, 32],
+        [25, 32],
+        [28, 33],
+        [31, 33]
+    ]
+    pairs = []
+    for pair in pairs:
+        append(pairs, pair)
+
+
 
 () move_blue(object state, object task, array delta, object enemy):
     plus = enemy.input_velocity/2.0

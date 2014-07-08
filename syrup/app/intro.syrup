@@ -6,6 +6,7 @@ from task import task_exit
 from collisions import (bump_thing)
 from ai import (animate_enemy, get_enemy_legs, get_ghost_children)
 from keyboard import (place_pacman)
+from shared import (on_eat, on_eat_done)
 
 () intro(object state, object task):
     #print("inside intro")
@@ -142,17 +143,6 @@ from keyboard import (place_pacman)
             pause = true
             return
 
-() on_eat(object task, object game, object enemy):
-    pacman = game.pacman
-    thing_set_position_y(pacman, -1000)
-    thing_set_position_y(enemy, -1000)
-    thing_set_position(game.number_bubbles[task.number_eaten], [pacman.position[0], 0, pacman.position[2]])
-    task.number_eaten += 1
-
-() on_eat_done(object task, object game):
-    pacman = game.pacman
-    thing_set_position_y(pacman, 0.0)
-    game.number_bubbles[task.number_eaten - 1].position[1] = -1000.0
 
 (bool done) intro_pause(object state, object task):
     #if game.guys_paused:

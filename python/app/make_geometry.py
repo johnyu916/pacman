@@ -7,7 +7,8 @@ from time import time
 import numpy
 
 from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color
-from wafflecore.standard import in_array_string
+from wafflecore.standard import array_in_string
+from test import test_eyes
 
 def column_geometry_color(x_length, z_length, offset, byte_color):
     geometry = {}
@@ -241,14 +242,14 @@ def make_white_stage(name):
     with open(filepath) as f:
         text = f.read()
     thing = json.loads(text)
-    if in_array_string(thing.keys(), "children_names"):
+    if array_in_string(thing.keys(), "children_names"):
             new_children_names = []
             for name in thing["children_names"]:
                         make_white_stage(name)
                         new_name = "_".join(["white", name])
                         new_children_names.append(new_name)
             thing["children_names"] = new_children_names
-    if in_array_string(thing.keys(), "geometry_name"):
+    if array_in_string(thing.keys(), "geometry_name"):
             geometry_name = thing["geometry_name"]
             filepath = "/".join(["../geometries", geometry_name])
             with open(filepath) as f:
@@ -278,7 +279,7 @@ def set_thing_geometry_name():
                             text = f.read()
                         print json.dumps(["reading file", name], cls=SyrupEncoder)
                         thing = json.loads(text)
-                        if in_array_string(thing.keys(), "geometry_names"):
+                        if array_in_string(thing.keys(), "geometry_names"):
                                         thing["geometry_name"] = thing["geometry_names"][0]
                         text = json.dumps(thing, cls=SyrupEncoder)
                         with open(filepath, "w") as f:
@@ -304,7 +305,11 @@ def color_pink_number():
         f.write(text)
     return 
 
+def test():
+    test_eyes()
+    return 
+
 def run():
-    color_pink_number()
+    test_eyes()
     return 
 
