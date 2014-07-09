@@ -301,7 +301,9 @@ from shared import (on_eat, on_eat_done)
             elif thing.state == "blue" || thing.state == "blink":
                 game.score += game.eat_scores[task.number_eaten]
                 thing.state = "eyes"
+                thing.eye_state = "start"
                 thing.children = [thing.eyes]
+                thing.navigation = get_navigation()
                 on_eat(task, pacman, thing)
                 next = "pause"
                 return

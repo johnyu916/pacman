@@ -125,6 +125,73 @@ from wafflecore.animation import animate
     enemy.velocity = velocity
     print(["in move_eyes", enemy.velocity])
 
+(object path) path_eyes(object stage, object enemy):
+    nodes = stage.nodes
+    pairs = stage.pairs
+    # find closest node
+    index = 0
+    destination = 34
+
+    path = breadth_first(queue, edges, source, destination)
+
+(array the_path) breadth_first(array edges, number source, number destination):
+    # get to 34
+    queue = [[source]]
+    while true:
+        path = pop(queue, 0)
+        source = new_path(length(new_path) - 1)
+        nodes = []
+        for edge in edges:
+            if edge.used:
+                continue
+            edge.used = true
+            pair = edge.pair
+            one = pair[0]
+            two = pair[1]
+            if one == source:
+                append(nodes, two)
+            elif two == source:
+                append(nodes, one)
+
+        for node in nodes:
+            new_path = copy_object(path)
+            append(new_path, node)
+            if node == destination:
+                the_path = new_path
+                return
+            append(queue, new_path)
+
+
+() move_eyes_velocity(object state, object enemy):
+    if enemy.eye_state == "start":
+        # have we hit an open area?
+        if in_open_area(enemy.position):
+            direction = null
+            enemy_index = position_to_index(position)
+            for data in enemy.navigation:
+                index = data[0]
+                if enemy_index[0] == index[0] && enemy_index[1] == index[1]:
+                    # do some special things if in one of the
+                    # two special indices
+                    if index[1] == 171:
+                        enemy.eye_state = "close"
+                    direction = data[1]
+            enemy.navigation[index]
+            enemy.velocity = array_scaled(direction, enemy.input_velocity)
+        else:
+            # just get to some open area
+            enemy.velocity = move_eyes_velocity(enemy)
+
+    elif enemy.eye_state == "close":
+        if is_close(enemy.position[0], 105, 1):
+            enemy.velocity = [0, 0, -1*enemy.input_velocity]
+            enemy.eye_state = "down"
+    elif enemy.eye_state == "down":
+        if is_close(enemy.position[2], 141, 1):
+            thing.children = thing.normal_children
+            enemy.state = "jail_exit"
+
+
 (array velocity) move_eyes_velocity(object enemy):
     plus = enemy.input_velocity/2.0
     minus = -1*plus
@@ -174,6 +241,59 @@ from wafflecore.animation import animate
 
     velocity = array_scaled(next_direction, enemy.input_velocity)
 
+
+(array navigation) get_navigation():
+    N = [0,0,1]
+    S = [0,0,-1]
+    E = [1,0,0]
+    W = [-1,0,0]
+
+    navigation = [
+    [[51, 251], S],
+    [[171, 251], S],
+
+    [[11, 219], E],
+    [[51, 219], E],
+    [[75, 219], S],
+    [[99, 219], W],
+    [[123, 219], E],
+    [[147, 219], S],
+    [[171, 219], W],
+    [[211, 219], W],
+
+    [[51, 195], N],
+    [[171, 195], N],
+
+    [[99, 171], E],
+    [[123, 171], W],
+
+    [[51, 147], E],
+    [[75, 147], N],
+    [[147, 147], N],
+    [[171, 147], W],
+
+    [[75, 123], N],
+    [[147, 123], N],
+
+    [[51, 99], E],
+    [[75, 99], N],
+    [[147, 99], N],
+    [[171, 99], W],
+
+    [[51, 75], N],
+    [[75, 75], W],
+    [[99, 75], N],
+    [[123, 75], N],
+    [[147, 75], E],
+    [[171, 75], N],
+
+    [[27, 51], E],
+    [[195, 51], W],
+
+    [[99, 27], N],
+    [[123, 27], N]
+    ]
+
 () build_graph():
     nodes = []
     for value in range(34):
@@ -183,6 +303,7 @@ from wafflecore.animation import animate
         }
         append(nodes, node)
 
+    # skipped the center one
     # edges
     pairs = [
         [0, 2],
@@ -208,7 +329,8 @@ from wafflecore.animation import animate
         [8, 11],
         [9, 11],
 
-        [12, 13],
+        [12, 34],
+        [13, 34],
 
         [10, 14],
         [12, 15],
@@ -251,11 +373,16 @@ from wafflecore.animation import animate
         [30, 32],
         [25, 32],
         [28, 33],
-        [31, 33]
+        [31, 33],
+        
     ]
-    pairs = []
+    edges = []
     for pair in pairs:
-        append(pairs, pair)
+        edge = {
+            "used": false,
+            "pair": pair
+        }
+        append(edges, edge)
 
 
 
