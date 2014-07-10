@@ -1,4 +1,4 @@
-from wafflecore.compute import (vectors_component, axis_sign_vector, array_scaled, subtract_arrays, is_close_vector_3)
+from wafflecore.compute import (vectors_component, axis_sign_vector, array_scaled, subtract_arrays, is_close, is_close_vector_3)
 from wafflecore.animation import animate
 
 (object legs, object head) get_ghost_children(object ghost):
@@ -112,7 +112,8 @@ from wafflecore.animation import animate
 
 () move_eyes(object state, array delta, object enemy):
 
-    velocity = move_eyes_velocity(enemy)
+    move_eyes_velocity(state.game.stage.navigation, delta, enemy)
+    velocity = enemy.velocity
     geometries = state.geometries
     if velocity[0] < 0.0:
         enemy.children[0].geometry = geometries.eyes_left
@@ -123,7 +124,7 @@ from wafflecore.animation import animate
     elif velocity[1] < 0.0:
         enemy.children[0].geometry = geometries.eyes_up
     enemy.velocity = velocity
-    print(["in move_eyes", enemy.velocity])
+    #print(["in move_eyes", enemy.velocity])
 
 (object path) path_eyes(object stage, object enemy):
     nodes = stage.nodes
@@ -161,26 +162,79 @@ from wafflecore.animation import animate
                 return
             append(queue, new_path)
 
+(array indices) indices_position(array position):
+    x = position[0]
+    z = position[2]
+    x_off = x - 5
+    z_off = z - 21
+    x_idx = x_off / 8
+    x_mod = x_off % 8
+    z_idx = z_off / 8
+    z_mod = z_off % 8
+    
+    if x_mod >= 7:
+        x_idx += 1
+    elif x_mod >= 1:
+        indices = null
+        return
 
-() move_eyes_velocity(object state, object enemy):
+    if z_mod >= 7:
+        z_idx += 1
+    elif z_mod >= 1:
+        indices = null
+        return
+
+    indices = [integer(x_idx), integer(z_idx)]
+
+(array direction) get_direction(array navigation, array index):
+    for rows in navigation:
+        if rows[0][0][1] == index[1]:
+            for row in rows:
+                point = row[0]
+                if point[0] == index[0]:
+                    direction = row[1]
+                    return
+    direction = null
+
+(array direction) try_direction(array normal):
+    if normal[0] == 0:
+        directions = [
+            [1,0,0],
+            [-1,0,0]
+        ]
+    else:
+        directions = [
+            [0,0,1],
+            [0,0,-1]
+        ]
+
+    value = random()
+    if value < 0.5:
+        direction = directions[0]
+    else:
+        direction = directions[1]
+
+() move_eyes_velocity(array navigation, array delta, object enemy):
     if enemy.eye_state == "start":
         # have we hit an open area?
-        if in_open_area(enemy.position):
-            direction = null
-            enemy_index = position_to_index(position)
-            for data in enemy.navigation:
-                index = data[0]
-                if enemy_index[0] == index[0] && enemy_index[1] == index[1]:
-                    # do some special things if in one of the
-                    # two special indices
-                    if index[1] == 171:
-                        enemy.eye_state = "close"
-                    direction = data[1]
-            enemy.navigation[index]
-            enemy.velocity = array_scaled(direction, enemy.input_velocity)
+        enemy_index = indices_position(enemy.position)
+        if enemy_index != null:
+            print(["enemy_index", enemy_index, enemy.position])
+            direction = get_direction(navigation, enemy_index)
+            if direction != null:
+                print(["enemy_index corner", direction])
+                # do some special things if in one of the
+                # two special indices
+                if is_close(enemy.position[2], 165, 1):
+                    enemy.eye_state = "close"
+                enemy.velocity = array_scaled(direction, enemy.input_velocity)
         else:
-            # just get to some open area
-            enemy.velocity = move_eyes_velocity(enemy)
+            # just don't go back the way you came.
+            if length(enemy.collisions) > 0:
+                direction = try_direction(enemy.collisions[0].normal)
+                #enemy.velocity = array_scaled(direction, enemy.input_velocity)
+
+            # just keep going to some open area
 
     elif enemy.eye_state == "close":
         if is_close(enemy.position[0], 105, 1):
@@ -188,11 +242,11 @@ from wafflecore.animation import animate
             enemy.eye_state = "down"
     elif enemy.eye_state == "down":
         if is_close(enemy.position[2], 141, 1):
-            thing.children = thing.normal_children
+            enemy.children = enemy.normal_children
             enemy.state = "jail_exit"
 
 
-(array velocity) move_eyes_velocity(object enemy):
+(array velocity) move_eyes_velocity_old(object enemy):
     plus = enemy.input_velocity/2.0
     minus = -1*plus
     # possible directions
@@ -248,10 +302,19 @@ from wafflecore.animation import animate
     E = [1,0,0]
     W = [-1,0,0]
 
-    navigation = [
+    navigation = []
+    one = [
+    [[11, 251], S],
     [[51, 251], S],
+    [[99, 251], S],
+    [[123, 251], S],
     [[171, 251], S],
+    [[211, 251], S]
+    ]
 
+    append(navigation, one)
+
+    one = [
     [[11, 219], E],
     [[51, 219], E],
     [[75, 219], S],
@@ -259,40 +322,99 @@ from wafflecore.animation import animate
     [[123, 219], E],
     [[147, 219], S],
     [[171, 219], W],
-    [[211, 219], W],
+    [[211, 219], W]
+    ]
 
+    append(navigation, one)
+
+    one = [
+    [[11, 195], E],
     [[51, 195], N],
+    [[75, 195], E],
+    [[99, 195], S],
+    [[123, 195], S],
+    [[147, 195], W],
     [[171, 195], N],
+    [[211, 195], W]
+    ]
+    append(navigation, one)
 
+    one = [
+    [[75, 171], E],
     [[99, 171], E],
     [[123, 171], W],
+    [[147, 171], W]
+    ]
+    append(navigation, one)
 
+    one = [
     [[51, 147], E],
     [[75, 147], N],
     [[147, 147], N],
-    [[171, 147], W],
+    [[171, 147], W]
+    ]
+    append(navigation, one)
 
+    one =[
     [[75, 123], N],
-    [[147, 123], N],
+    [[147, 123], N]
+    ]
+    append(navigation, one)
 
+    one =[
+    [[11, 99], E],
     [[51, 99], E],
     [[75, 99], N],
+    [[99, 99], W],
+    [[123, 99], E],
     [[147, 99], N],
     [[171, 99], W],
+    [[211, 99], W]
+    ]
+    append(navigation, one)
 
+    one =[
+    [[11, 75], N],
+    [[27, 75], W],
     [[51, 75], N],
     [[75, 75], W],
     [[99, 75], N],
     [[123, 75], N],
     [[147, 75], E],
     [[171, 75], N],
-
-    [[27, 51], E],
-    [[195, 51], W],
-
-    [[99, 27], N],
-    [[123, 27], N]
+    [[195, 75], E],
+    [[211, 75], N]
     ]
+    append(navigation, one)
+
+    one =[
+    [[11, 51], E],
+    [[27, 51], E],
+    [[51, 51], N],
+    [[75, 51], N],
+    [[99, 51], W],
+    [[123, 51], E],
+    [[147, 51], N],
+    [[171, 51], N],
+    [[195, 51], W],
+    [[211, 51], W]
+    ]
+    append(navigation, one)
+
+    one =[
+    [[11, 27], N],
+    [[99, 27], N],
+    [[123, 27], N],
+    [[211, 27], N]
+    ]
+    append(navigation, one)
+
+    for guide_list in navigation:
+        for guide in guide_list:
+            point = guide[0]
+            new_x = (point[0] - 11) / 8
+            new_y = (point[1] - 27) / 8
+            guide[0] = [new_x, new_y]
 
 () build_graph():
     nodes = []
@@ -373,7 +495,7 @@ from wafflecore.animation import animate
         [30, 32],
         [25, 32],
         [28, 33],
-        [31, 33],
+        [31, 33]
         
     ]
     edges = []

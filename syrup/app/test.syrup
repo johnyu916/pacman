@@ -1,4 +1,4 @@
-from ai import move_eyes_velocity
+from ai import (move_eyes_velocity, get_navigation)
 
 () test_eyes():
     one = {
@@ -6,9 +6,40 @@ from ai import move_eyes_velocity
     }
     eyes = {
         "jail_position": [105, 0, 141],
-        "position": [50, 0, 100],
+        "position": [5, 0, 21],
         "input_velocity": 100,
-        "touching": [one]
+        "touching": [one],
+        "collisions":[
+            {
+                "normal":[-1,0,0],
+                "thing": null
+            }
+        ],
+        "eye_state": "start",
+        "normal_children": []
     }
-    velocity = move_eyes_velocity(eyes)
-    print(["test_eyes", velocity])
+
+    navigation = get_navigation()
+    delta  = [0,0,0]
+    move_eyes_velocity(navigation, delta, eyes)
+    print(["test_eyes", eyes.velocity, eyes.eye_state])
+
+    eyes.position = [165, 0, 93]
+    move_eyes_velocity(navigation, delta, eyes)
+    print(["test_eyes", eyes.velocity, eyes.eye_state])
+
+    eyes.position = [45, 0, 213]
+    move_eyes_velocity(navigation, delta, eyes)
+    print(["test_eyes", eyes.velocity, eyes.eye_state])
+
+    eyes.position = [93, 0, 165]
+    move_eyes_velocity(navigation, delta, eyes)
+    print(["test_eyes", eyes.velocity, eyes.eye_state])
+
+    eyes.position = [105, 0, 165]
+    move_eyes_velocity(navigation, delta, eyes)
+    print(["test_eyes", eyes.velocity, eyes.eye_state])
+
+    eyes.position = [105, 0, 141]
+    move_eyes_velocity(navigation, delta, eyes)
+    print(["test_eyes", eyes.velocity, eyes.eye_state])

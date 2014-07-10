@@ -237,7 +237,8 @@ from shared import (on_eat, on_eat_done)
         done = playing_pacman_pause(state)
         if done == true:
             on_eat_done(task, game)
-            task.step = 0
+            thing_set_position_y(task.eaten, 0)
+            task.step = 1
 
 (bool done) playing_pacman_pause(object state):
     game = state.game
@@ -303,8 +304,8 @@ from shared import (on_eat, on_eat_done)
                 thing.state = "eyes"
                 thing.eye_state = "start"
                 thing.children = [thing.eyes]
-                thing.navigation = get_navigation()
-                on_eat(task, pacman, thing)
+                print(["ate something", thing.position, thing,velocity])
+                on_eat(task, game, thing)
                 next = "pause"
                 return
 

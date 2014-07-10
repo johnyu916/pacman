@@ -2,6 +2,7 @@ from wafflecore.compute import (new_id, filename_type)
 from wafflecore.thing import (thing_copy, thing_new, thing_blank, thing_read, thing_set_children)
 from wafflecore.standard import copy_object
 from enemy_jail import jail_enemy_new
+from ai import get_navigation
 from text import get_text
 from dots_balls import (get_dots, get_balls, get_grid)
 from task import task_new
@@ -77,6 +78,7 @@ from task import task_new
 
     stage = things.stage
     stage.grid = get_grid()
+    stage.navigation = get_navigation()
     game.stage = stage
 
     jail = things.jail

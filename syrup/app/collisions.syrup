@@ -26,7 +26,7 @@ from wafflecore.thing import thing_set_position
         enemy_bounds = enemy.world_bounds
         if enemy.state == "eyes":
             bump_thing(enemy, others_eyes, state.delta)
-            touch_thing(enemy, others_eyes)
+            #touch_thing(enemy, others_eyes)
         elif is_overlap_cuboids(jail_position, jail_size, jail_bounds.max, enemy_bounds.position, enemy_bounds.size, enemy_bounds.max):
             bump_thing(enemy, others_enemy, state.delta)
             #touch_thing(enemy, others_enemy)
