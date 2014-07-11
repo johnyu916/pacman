@@ -59,7 +59,7 @@ from wafflecore.animation import animate
             enemy.state = "jail_center"
             return
         if delta == [0.0, 0.0, 0.0]:
-            plus = shadow.input_velocity
+            plus = game.enemy_speed
             minus = -1*plus
             if enemy.position[2] == 136.0:
                 move_velocity(state, task, enemy, [0, 0, plus])
@@ -67,7 +67,7 @@ from wafflecore.animation import animate
                 move_velocity(state, task, enemy, [0, 0, minus])
     # move toward jail center
     elif my_state == "jail_center":
-        plus = shadow.input_velocity
+        plus = game.enemy_speed
         minus = -1*plus
         if enemy.position[0] < 104:
             # move right
@@ -80,7 +80,7 @@ from wafflecore.animation import animate
             enemy.state = "jail_exit"
     # exit the jail
     elif my_state == "jail_exit":
-        plus = shadow.input_velocity/2
+        plus = enemy.ghost_speed
         if enemy.position[2] < 165:
             move_velocity(state, task, enemy, [0, 0, plus])
         else:
@@ -112,7 +112,7 @@ from wafflecore.animation import animate
 
 () move_eyes(object state, array delta, object enemy):
 
-    move_eyes_velocity(state.game.stage.navigation, delta, enemy)
+    move_eyes_velocity(state.game, delta, enemy)
     velocity = enemy.velocity
     geometries = state.geometries
     if velocity[0] < 0.0:
@@ -123,7 +123,6 @@ from wafflecore.animation import animate
         enemy.children[0].geometry = geometries.eyes_down
     elif velocity[1] < 0.0:
         enemy.children[0].geometry = geometries.eyes_up
-    enemy.velocity = velocity
     #print(["in move_eyes", enemy.velocity])
 
 (object path) path_eyes(object stage, object enemy):
@@ -214,12 +213,13 @@ from wafflecore.animation import animate
     else:
         direction = directions[1]
 
-() move_eyes_velocity(array navigation, array delta, object enemy):
+() move_eyes_velocity(object game, array delta, object enemy):
     if enemy.eye_state == "start":
         # have we hit an open area?
         enemy_index = indices_position(enemy.position)
         if enemy_index != null:
             print(["enemy_index", enemy_index, enemy.position])
+            navigation = game.stage.navigation
             direction = get_direction(navigation, enemy_index)
             if direction != null:
                 print(["enemy_index corner", direction])
@@ -227,73 +227,22 @@ from wafflecore.animation import animate
                 # two special indices
                 if is_close(enemy.position[2], 165, 1):
                     enemy.eye_state = "close"
-                enemy.velocity = array_scaled(direction, enemy.input_velocity)
+                enemy.velocity = array_scaled(direction, game.enemy_speed)
         else:
             # just don't go back the way you came.
             if length(enemy.collisions) > 0:
                 direction = try_direction(enemy.collisions[0].normal)
-                #enemy.velocity = array_scaled(direction, enemy.input_velocity)
 
             # just keep going to some open area
 
     elif enemy.eye_state == "close":
         if is_close(enemy.position[0], 105, 1):
-            enemy.velocity = [0, 0, -1*enemy.input_velocity]
+            enemy.velocity = [0, 0, -1*game.enemy_speed]
             enemy.eye_state = "down"
     elif enemy.eye_state == "down":
         if is_close(enemy.position[2], 141, 1):
             enemy.children = enemy.normal_children
             enemy.state = "jail_exit"
-
-
-(array velocity) move_eyes_velocity_old(object enemy):
-    plus = enemy.input_velocity/2.0
-    minus = -1*plus
-    # possible directions
-    directions = [
-        [-1, 0, 0],
-        [1, 0, 0],
-        [0, 0, -1],
-        [0, 0, 1]
-    ]
-
-    allowed = []
-    # direction we want to go
-    vector = subtract_arrays(enemy.jail_position, enemy.position)
-    vectors = vectors_component(vector)
-
-    for direction in directions:
-        (direction_a, direction_s) = axis_sign_vector(direction)
-        blocked = false
-        for touch in enemy.touching:
-            for normal in touch.normals:
-                print(["move_eyes normal", normal])
-                (normal_a, normal_s) = axis_sign_vector(normal)
-                if normal_a == direction_a && normal_s == direction_s:
-                    blocked = true
-                    break
-            if blocked:
-                break
-        if blocked == false:
-            append(allowed, direction)
-
-    next_direction = null
-    bad_directions = []
-    for direction in allowed:
-        (direction_a, direction_s) = axis_sign_vector(direction)
-        for vector in vectors:
-            (axis, sign) = axis_sign_vector(vector)
-            if axis == direction_a && sign == direction_s:
-                next_direction = direction
-                break
-        if next_direction == null:
-            append(bad_directions, direction)
-        else:
-            break
-    if next_direction == null:
-        next_direction = bad_directions[0]
-
-    velocity = array_scaled(next_direction, enemy.input_velocity)
 
 
 (array navigation) get_navigation():
@@ -416,102 +365,11 @@ from wafflecore.animation import animate
             new_y = (point[1] - 27) / 8
             guide[0] = [new_x, new_y]
 
-() build_graph():
-    nodes = []
-    for value in range(34):
-        node = {
-            "name": string(value),
-            "edges": []
-        }
-        append(nodes, node)
-
-    # skipped the center one
-    # edges
-    pairs = [
-        [0, 2],
-        [0, 3],
-        [0, 5],
-
-        [1, 6],
-        [1, 8],
-        [1, 9],
-
-        [2, 3],
-        [3, 4],
-        [4, 5],
-        [5, 6],
-        [6, 7],
-        [7, 8],
-        [8, 9],
-
-        [2, 10],
-        [3, 10],
-        [4, 12],
-        [7, 13],
-        [8, 11],
-        [9, 11],
-
-        [12, 34],
-        [13, 34],
-
-        [10, 14],
-        [12, 15],
-        [13, 16],
-        [4, 17],
-
-        [14, 15],
-        [16, 17],
-        [14, 17],
-
-        [14,20],
-        [15,18],
-        [16,19],
-        [17,23],
-
-        [18, 19],
-
-        [18,21],
-        [19,22],
-
-        [20, 21],
-        [22, 23],
-
-        [20, 30],
-        [20, 24],
-        [21, 26],
-        [22, 27],
-        [23, 29],
-        [23, 31],
-
-        [24, 25],
-        [25, 26],
-        [26, 27],
-        [27, 28],
-        [28, 29],
-
-        [24, 30],
-        [29, 31],
-
-        [30, 32],
-        [25, 32],
-        [28, 33],
-        [31, 33]
-        
-    ]
-    edges = []
-    for pair in pairs:
-        edge = {
-            "used": false,
-            "pair": pair
-        }
-        append(edges, edge)
-
-
 
 () move_blue(object state, object task, array delta, object enemy):
-    plus = enemy.input_velocity/2.0
-    minus = -1*plus
     if delta == [0.0, 0.0, 0.0]:
+        plus = state.game.ghost_speed
+        minus = -1*plus
         velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
         value = random()
         if value < 0.25:
@@ -522,6 +380,7 @@ from wafflecore.animation import animate
             enemy.velocity = velocities[2]
         else:
             enemy.velocity = velocities[3]
+
     animate_ghost_legs(state, task, enemy)
 
 
@@ -558,7 +417,7 @@ from wafflecore.animation import animate
 
 () move_normal(object state, object task, array delta, object enemy):
     if delta == [0.0, 0.0, 0.0]:
-        plus = enemy.input_velocity
+        plus = state.game.enemy_speed
         minus = -1*plus
         velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
         value = random()

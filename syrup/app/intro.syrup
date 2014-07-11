@@ -17,6 +17,7 @@ from shared import (on_eat, on_eat_done)
             if key == "q":
                 exit()
             elif key == "s":
+                clear_crew(state)
                 task_exit(task, {})
 
     intro = state.game.intro
@@ -50,6 +51,13 @@ from shared import (on_eat, on_eat_done)
         if done:
             task.step = 5
 
+() clear_crew(object state):
+    game = state.game
+    thing_set_position(pacman, [300.0, 0.0, 0])
+    for enemy in game.enemies:
+        thing_set_position(enemy, [300, 0.0, 0])
+
+
 () intro_run_start(object state, object task):
     game = state.game
     pacman = game.pacman
@@ -60,7 +68,6 @@ from shared import (on_eat, on_eat_done)
     v_x = -100
     thing_set_position(game.ball, [33.0, 0.0, 120])
     thing_set_position(pacman, [224.0, 0.0, z])
-    #thing_set_world_bounds(pacman, matrix_identity())
     #print(["pacman world bounds", pacman.world_bounds])
     pacman.velocity = [v_x, 0, 0]
     task.animations.pacman = animation_task(state.animations.pacman, pacman, state.now)
@@ -75,7 +82,6 @@ from shared import (on_eat, on_eat_done)
         legs = enemy.ghost_children[1]
         animation_name = join([enemy.name, "ghost_legs"], "_")
         task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
-        #thing_set_world_bounds(enemy, matrix_identity())
         #print(["enemy world bounds", enemy.world_bounds])
         x+=16
     extend(state.world.children, game.enemies)

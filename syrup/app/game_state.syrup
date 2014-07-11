@@ -92,7 +92,6 @@ from shared import (on_eat, on_eat_done)
     #extend(state.world.children, game.dots)
     for enemy in game.enemies:
         enemy.children = enemy.normal_children
-    crew_set_positions(state)
 
 
 (bool done) player_ready_idle(object state, object task):
@@ -260,33 +259,72 @@ from shared import (on_eat, on_eat_done)
 
 () victory_dance(object state, object task):
     if task.step == 0:
-        game = state.game
-        state.world.children = [game.pacman, game.shadow]
-
-        z = 117
-        v_x = -100
-        shadow.position = [250, 0, z]
-        shadow.velocity = [v_x, 0, 0]
-        pacman.position = [224.0, 0.0, z]
-        pacman.velocity = [v_x, 0, 0]
-        state.game.state.status = "idle"
+        victory_dance_start(state, task)
+        task.step = 1
     elif task.step == 1:
-        victory_dance_idle(state)
+        done = victory_dance_left(state)
+        if done:
+            task.step = 2
+    elif task.step == 2:
+        victory_dance_right(state)
 
-() victory_dance_idle(object state):
+() victory_dance_start(object state, object task):
+    game = state.game
+    state.world.children = [game.pacman, game.shadow]
+
+    state.world.children =  [pacman]
+    extend(state.world.children, game.enemies)
+    z = 117
+    v_x = -100
+    thing_set_position(pacman, [224.0, 0.0, z])
+    pacman.velocity = [v_x, 0, 0]
+    place_pacman(pacman, 0, 0)
+    x = 250
+    for enemy in game.enemies:
+        thing_set_position(enemy, [x, 0.0, z])
+        enemy.velocity = [v_x, 0, 0]
+        animation_name = join([enemy.name, "legs"], "_")
+        legs = get_enemy_legs(enemy)
+        task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
+
+() victory_dance_run_left(object state, object task):
+    game = state.game
     pacman = game.pacman
-    distance_delta = position_delta(pacman, delta)
-    pacman.position = sum_arrays(pacman.position, distance_delta)
 
-
-    v_x = 100
-    if pacman.position[0] < -30:
+    if pacman.world_bounds.position[0] < -50:
+        # TODO: grow
+        v_x = 100
         pacman.velocity = [v_x, 0, 0]
-        shadow.velocity = [v_x, 0, 0]
-    if pacman.position[0] > 224:
+        place_pacman(pacman, 0, 1)
+        for enemy in game.enemies:
+            enemy.velocity = [v_x, 0, 0]
+        done = true
+        return
+
+
+    delta = state.delta
+    bump_thing(pacman, [], delta)
+    distance_delta = pacman.position_delta
+    animate(task.animations.pacman, state.things, state.geometries, state.now)
+    for enemy in game.enemies:
+        animate_enemy(state, task, enemy)
+        thing_set_position(enemy, sum_arrays(enemy.position, distance_delta))
+
+
+() victory_dance_run_right(object state):
+    game = state.game
+    pacman = game.pacman
+    if pacman.world_bounds.position[0] > 240:
         # done.
         task_exit(task, {})
+        return
 
+    delta = state.delta
+    bump_thing(pacman, [], delta)
+    distance_delta = pacman.position_delta
+    animate(task.animations.pacman, state.things, state.geometries, state.now)
+    for enemy in game.enemies:
+        animate_enemy(state, task, enemy)
 
 # two objects collided. specifically, one ran into two. what to do?
 #() handle_collision(object one, object two):
@@ -325,8 +363,13 @@ from shared import (on_eat, on_eat_done)
                 game.score += 50
                 set_score_value(state)
                 for enemy in game.enemies:
+                    parts = enemy.ghost_children
+                    parts[0].geometry = state.geometries{"ghost_head"}
+                    parts[0].geometry = state.geometries{"ghost_legs_0"}
+
                     enemy.children = enemy.ghost_children
                     enemy.state = "blue"
+                    enemy.velocity = vector_magnitude(enemy.velocity, game.ghost_speed)
                 game.ghost_time_start = state.now
             elif space.type == "Dot":
                 remove_item(grid, index[0], index[1], game.dots)

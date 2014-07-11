@@ -37,6 +37,9 @@
                 "bashful",
                 "pokey"
         ],
+        "enemy_speed": 60.0,
+        "ghost_speed": 20.0,
+        "eyes_speed": 120.0,
         "enemies": [],
         "ghost_duration": 7,
         "ghost_blink": 5,
