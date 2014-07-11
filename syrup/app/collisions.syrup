@@ -21,7 +21,6 @@ from wafflecore.thing import thing_set_position
     others_enemy = [game.enemy_jail, game.stage, pacman]
     extend(others_enemy, game.enemies)
     others_eyes = [game.enemy_jail, game.stage]
-    extend(others_eyes, game.enemies)
     for enemy in game.enemies:
         enemy_bounds = enemy.world_bounds
         if enemy.state == "eyes":

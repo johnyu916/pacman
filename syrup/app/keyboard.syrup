@@ -1,9 +1,9 @@
 from wafflecore.compute import (matrix_placement, rotates_ortho_new, cuboid_transformed, axis_sign_vector, sum_arrays, nullify_input)
 from wafflecore.animation import animate
-from wafflecore.camera import camera_translate
+from wafflecore.camera import (camera_translate, camera_rotate)
 
 (object keyboard) new_keyboard():
-    KEYS = ["a","d","s","w", "c", "e", "j", "l", "k", "i"]
+    KEYS = ["a","d","s","w", "c", "e", "f", "g", "h", "t", "j", "l", "k", "i"]
     keys = {}
     for key in KEYS:
         keys{key} = "KEY_UP"
@@ -150,3 +150,13 @@ from wafflecore.camera import camera_translate
             if key == this_key:
                 camera_translate(scale, axes[i][0], axes[i][1], camera)
 
+    
+    axes = [ [0, 0], [0, 1], [2, 1], [2, 0]]
+    rotate_keys = [ "g", "t", "f", "h" ]
+    for key in keys(keys_state):
+        key_state = keys_state{key}
+        if key_state == "KEY_UP":
+            continue
+        for i in range(4):
+            if key == rotate_keys[i]:
+                camera_rotate(rotate_scale, axes[i][0], axes[i][1], camera)

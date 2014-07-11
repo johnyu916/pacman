@@ -40,6 +40,28 @@ from shared import (on_eat, on_eat_done)
                 elif key == "s":
                     task_exit(task, {})
 
+() crew_set_positions(object state):
+    game = state.game
+    pacman = game.pacman
+    pacman.geometry = state.geometries{"pacman_0"}
+    pacman.position = [106, 0, 70]
+    pacman.velocity = [0, 0, 0]
+    pacman.rotates = []
+    game.shadow.position = [105, 0, 165]
+    game.shadow.jail_position = [105, 0, 141]
+    game.shadow.state = "normal"
+    game.speedy.jail_position = [105, 0, 141]
+    game.speedy.position = [105, 0, 141]
+    game.speedy.state = "jail_exit"
+    game.bashful.position = [89, 0, 141]
+    game.bashful.jail_position = [89, 0, 141]
+    game.bashful.state = "up_down"
+    game.bashful.up_down_time = 4
+    game.pokey.position = [121, 0, 141]
+    game.pokey.jail_position = [121, 0, 141]
+    game.pokey.state = "up_down"
+    game.pokey.up_down_time = 10
+
 
 () player_ready(object state, object task):
     if task.step == 0:
@@ -65,10 +87,12 @@ from shared import (on_eat, on_eat_done)
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.life_icons]
     state.world.children = [game.info, game.stage, game.jail, game.pacman, game.balls, game.dots]
     extend(state.world.children, game.enemies)
+    extend(state.world.children, game.number_bubbles)
     #extend(state.world.children, game.balls)
     #extend(state.world.children, game.dots)
     for enemy in game.enemies:
         enemy.children = enemy.normal_children
+    crew_set_positions(state)
 
 
 (bool done) player_ready_idle(object state, object task):
@@ -99,26 +123,7 @@ from shared import (on_eat, on_eat_done)
     remove_thing(game.info.children, game.ready_text.id)
     append(game.info.children, game.ready_text)
 
-    pacman = game.pacman
-    pacman.geometry = state.geometries{"pacman_0"}
-    pacman.position = [106, 0, 70]
-    pacman.velocity = [0, 0, 0]
-    pacman.rotates = []
-    game.shadow.position = [105, 0, 165]
-    game.shadow.jail_position = [105, 0, 141]
-    game.shadow.state = "normal"
-    game.speedy.jail_position = [105, 0, 141]
-    game.speedy.position = [105, 0, 141]
-    game.speedy.state = "jail_exit"
-    game.bashful.position = [89, 0, 141]
-    game.bashful.jail_position = [89, 0, 141]
-    game.bashful.state = "up_down"
-    game.bashful.up_down_time = 4
-    game.pokey.position = [121, 0, 141]
-    game.pokey.jail_position = [121, 0, 141]
-    game.pokey.state = "up_down"
-    game.pokey.up_down_time = 10
-
+    crew_set_positions(state)
     for enemy in game.enemies:
         enemy.velocity = [0, 0, 0]
         enemy.force = [0, 0, 0]
@@ -245,8 +250,6 @@ from shared import (on_eat, on_eat_done)
     if (state.now - game.guys_paused_start) > 1.0:
         pacman = game.pacman
         thing_set_position_y(pacman, 0.0)
-        thing_set_world_bounds(pacman, matrix_identity())
-        game.number_bubbles[0].position[1] = -100.0
         done = true
 
 () won(object state, object task):
@@ -304,7 +307,7 @@ from shared import (on_eat, on_eat_done)
                 thing.state = "eyes"
                 thing.eye_state = "start"
                 thing.children = [thing.eyes]
-                print(["ate something", thing.position, thing,velocity])
+                print(["ate something", thing.position, thing.velocity])
                 on_eat(task, game, thing)
                 next = "pause"
                 return
