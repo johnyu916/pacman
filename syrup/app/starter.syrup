@@ -80,14 +80,13 @@ from task import task_new
     stage.grid = get_grid()
     stage.navigation = get_navigation()
     game.stage = stage
+    game.stage_white = things.white_stage
 
     jail = things.jail
     game.jail = jail
     enemy_jail = jail_enemy_new(state)
     enemy_jail.position = jail.position
     game.enemy_jail = enemy_jail
-    #game.materials = thing_blank(new_id(state), "Materials")
-    #game.materials.children = [stage]
 
     # dots, balls, etc
     game.balls = get_balls(state)

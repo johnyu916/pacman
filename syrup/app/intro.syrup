@@ -53,7 +53,7 @@ from shared import (on_eat, on_eat_done)
 
 () clear_crew(object state):
     game = state.game
-    thing_set_position(pacman, [300.0, 0.0, 0])
+    thing_set_position(game.pacman, [300.0, 0.0, 0])
     for enemy in game.enemies:
         thing_set_position(enemy, [300, 0.0, 0])
 

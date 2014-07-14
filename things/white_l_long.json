@@ -1,0 +1,1 @@
+{"geometry_names": ["l_long"], "name": "white_l_long", "geometry_name": "white_l_long", "bounds": {"position": [0.0, 0.0, 0.0], "size": [8.0, 1.0, 32.0]}, "geometry_index": 0, "mass": 1, "position": [0.0, 0.0, 0.0], "rotates": [], "type": "WhiteWall"}

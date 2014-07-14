@@ -1,0 +1,1 @@
+{"name": "white_wall_north", "bounds": {"position": [0.0, 0.0, 148.0], "size": [224, 1, 116]}, "position": [0.0, 0.0, 0.0], "rotates": [], "type": "WhiteWallNorth", "children_names": ["white_blue_c_nw", "white_blue1by70_0", "white_blue102by1_0", "white_blue1by29_0", "white_blue4by1_0", "white_blue1by29_1", "white_blue102by1_1", "white_blue1by70_1", "white_blue_c_ne"]}

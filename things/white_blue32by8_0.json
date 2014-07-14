@@ -1,0 +1,1 @@
+{"geometry_names": ["blue32by8"], "name": "white_blue32by8_0", "geometry_name": "white_blue32by8", "bounds": {"position": [0.0, 0.0, 0.0], "size": [32.0, 1.0, 8.0]}, "geometry_index": 0, "mass": 1, "position": [60.0, 0.0, 84.0], "rotates": [], "type": "WhiteWall"}

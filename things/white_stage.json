@@ -1,0 +1,1 @@
+{"name": "white_stage", "bounds": {"position": [0.0, 0.0, 16.0], "size": [224, 1, 248]}, "position": [0.0, 0.0, 0.0], "rotates": [], "type": "WhiteStage", "children_names": ["white_wall_north", "white_wall_south", "white_blocks_north", "white_blocks_south", "white_outside_blue"]}

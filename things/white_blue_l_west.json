@@ -1,0 +1,1 @@
+{"name": "white_blue_l_west", "bounds": {"position": [0.0, 0.0, 0.0], "size": [24, 1, 32]}, "position": [44.0, 1.0, 60.0], "rotates": [{"angle": 180, "axis": 2}, {"angle": 0, "axis": 0}], "type": "WhiteWall", "children_names": ["white_l_long", "white_l_short"]}

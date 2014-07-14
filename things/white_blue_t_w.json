@@ -1,0 +1,1 @@
+{"name": "white_blue_t_w", "bounds": {"position": [0.0, 0.0, 0.0], "size": [72, 1, 32]}, "position": [92.0, 1.0, 36.0], "rotates": [{"angle": 180, "axis": 2}, {"angle": 0, "axis": 0}], "type": "WhiteWall", "children_names": ["white_t_68", "white_t_bottom_1"]}

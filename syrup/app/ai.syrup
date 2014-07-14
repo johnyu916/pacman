@@ -80,7 +80,7 @@ from wafflecore.animation import animate
             enemy.state = "jail_exit"
     # exit the jail
     elif my_state == "jail_exit":
-        plus = enemy.ghost_speed
+        plus = game.ghost_speed
         if enemy.position[2] < 165:
             move_velocity(state, task, enemy, [0, 0, plus])
         else:
@@ -106,7 +106,8 @@ from wafflecore.animation import animate
         if is_close_vector_3(enemy.position, enemy.jail_position, 0.01):
             enemy.children = enemy.normal_children
             enemy.state = "jail_center"
-        move_eyes(state, delta, enemy)
+        else:
+            move_eyes(state, delta, enemy)
     else:
         print(["enemy in unknown state", enemy.name, my_state])
 
@@ -170,7 +171,7 @@ from wafflecore.animation import animate
     x_mod = x_off % 8
     z_idx = z_off / 8
     z_mod = z_off % 8
-    
+
     if x_mod >= 7:
         x_idx += 1
     elif x_mod >= 1:
@@ -227,13 +228,12 @@ from wafflecore.animation import animate
                 # two special indices
                 if is_close(enemy.position[2], 165, 1):
                     enemy.eye_state = "close"
-                enemy.velocity = array_scaled(direction, game.enemy_speed)
+                enemy.velocity = array_scaled(direction, enemy.speed)
         else:
             # just don't go back the way you came.
             if length(enemy.collisions) > 0:
                 direction = try_direction(enemy.collisions[0].normal)
-
-            # just keep going to some open area
+                enemy.velocity = array_scaled(direction, enemy.speed)
 
     elif enemy.eye_state == "close":
         if is_close(enemy.position[0], 105, 1):
@@ -242,6 +242,7 @@ from wafflecore.animation import animate
     elif enemy.eye_state == "down":
         if is_close(enemy.position[2], 141, 1):
             enemy.children = enemy.normal_children
+            enemy.speed = game.enemy_speed
             enemy.state = "jail_exit"
 
 

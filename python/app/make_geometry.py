@@ -20,6 +20,10 @@ def column_geometry_color(x_length, z_length, offset, byte_color):
                         geometry.extend(vertices)
     return geometry
 
+def column_geometry_color_extend(x_length, z_length, offset, byte_color, geometry):
+    geometry.extend(column_geometry_color(x_length, z_length, offset, byte_color))
+    return 
+
 def column_geometry(x_length, z_length, offset):
     geometry = {}
     geometry = column_geometry_color(x_length, z_length, offset, [38.0, 38.0, 217.0, 255.0])
@@ -236,34 +240,86 @@ def change_filename():
                                             f.write(text)
     return 
 
+def make_outside(name, byte_color):
+    geometry = []
+    column_geometry_color_extend(40.0, 1.0, [0.0, 0.0, 159.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 24.0, [40.0, 0.0, 160.0], byte_color, geometry)
+    column_geometry_color_extend(36.0, 1.0, [4.0, 0.0, 184.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [2.0, 0.0, 185.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [1.0, 0.0, 186.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 72.0, [1.0, 0.0, 188.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [1.0, 0.0, 260.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [2.0, 0.0, 262.0], byte_color, geometry)
+    column_geometry_color_extend(216.0, 1.0, [4.0, 0.0, 263.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [220.0, 0.0, 262.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [222.0, 0.0, 260.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 72.0, [223.0, 0.0, 188.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [222.0, 0.0, 186.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [220.0, 0.0, 185.0], byte_color, geometry)
+    column_geometry_color_extend(36.0, 1.0, [184.0, 0.0, 184.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 24.0, [183.0, 0.0, 160.0], byte_color, geometry)
+    column_geometry_color_extend(40.0, 1.0, [184.0, 0.0, 159.0], byte_color, geometry)
+    column_geometry_color_extend(40.0, 1.0, [0.0, 0.0, 136.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 24.0, [40.0, 0.0, 112.0], byte_color, geometry)
+    column_geometry_color_extend(36.0, 1.0, [4.0, 0.0, 111.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [2.0, 0.0, 110.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [1.0, 0.0, 108.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 88.0, [1.0, 0.0, 20.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [1.0, 0.0, 18.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [2.0, 0.0, 17.0], byte_color, geometry)
+    column_geometry_color_extend(216.0, 1.0, [4.0, 0.0, 16.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [220.0, 0.0, 17.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [222.0, 0.0, 18.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 88.0, [223.0, 0.0, 20.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 2.0, [222.0, 0.0, 108.0], byte_color, geometry)
+    column_geometry_color_extend(2.0, 1.0, [220.0, 0.0, 110.0], byte_color, geometry)
+    column_geometry_color_extend(36.0, 1.0, [184.0, 0.0, 111.0], byte_color, geometry)
+    column_geometry_color_extend(1.0, 24.0, [183.0, 0.0, 112.0], byte_color, geometry)
+    column_geometry_color_extend(40.0, 1.0, [184.0, 0.0, 136.0], byte_color, geometry)
+    squares = [[4.0, 188.0], [4.0, 259.0], [107.0, 259.0], [109.0, 229.0], [114.0, 229.0], [116.0, 259.0], [219.0, 259.0], [219.0, 188.0], [4.0, 107.0], [4.0, 68.0], [18.0, 66.0], [18.0, 61.0], [4.0, 59.0], [4.0, 20.0], [219.0, 20.0], [219.0, 59.0], [205.0, 61.0], [205.0, 66.0], [219.0, 68.0], [219.0, 107.0]]
+    for square in squares:
+            column_geometry_color_extend(1.0, 1.0, [square[0], 0.0, square[1]], byte_color, geometry)
+    filename = ".".join([name, "json"])
+    filename = "/".join(["../geometries", filename])
+    with open(filename, "w") as f:
+        f.write(json.dumps(geometry, cls=SyrupEncoder))
+    return 
+
 def make_white_stage(name):
     dir = "../things"
-    filepath = "/".join([dir, name])
+    filename = ".".join([name, "json"])
+    filepath = "/".join([dir, filename])
     with open(filepath) as f:
         text = f.read()
     thing = json.loads(text)
     if array_in_string(thing.keys(), "children_names"):
             new_children_names = []
-            for name in thing["children_names"]:
-                        make_white_stage(name)
-                        new_name = "_".join(["white", name])
+            for child_name in thing["children_names"]:
+                        make_white_stage(child_name)
+                        new_name = "_".join(["white", child_name])
                         new_children_names.append(new_name)
             thing["children_names"] = new_children_names
     if array_in_string(thing.keys(), "geometry_name"):
             geometry_name = thing["geometry_name"]
-            filepath = "/".join(["../geometries", geometry_name])
+            filename = ".".join([geometry_name, "json"])
+            filepath = "/".join(["../geometries", filename])
             with open(filepath) as f:
                 text = f.read()
             geometry = json.loads(text)
-            new_geometry = vertices_copy(geometry, [255.0, 255.0, 255.0, 255.0])
+            new_geometry = copy_vertices_color(geometry, [255.0, 255.0, 255.0, 255.0])
             new_text = json.dumps(new_geometry, cls=SyrupEncoder)
             new_name = "_".join(["white", geometry_name])
-            filepath = "/".join(["../geometries", new_name])
+            filename = ".".join([new_name, "json"])
+            filepath = "/".join(["../geometries", filename])
             with open(filepath, "w") as f:
                 f.write(new_text)
-    new_name = "".join(["White", thing["name"]])
+            thing["geometry_name"] = new_name
+    new_name = "_".join(["white", name])
     thing["name"] = new_name
-    filepath = "/".join([dir, new_name])
+    filename = ".".join([new_name, "json"])
+    new_type = "".join(["White", thing["type"]])
+    thing["type"] = new_type
+    filepath = "/".join([dir, filename])
     text = json.dumps(thing, cls=SyrupEncoder)
     with open(filepath, "w") as f:
         f.write(text)
@@ -310,6 +366,6 @@ def test():
     return 
 
 def run():
-    test_eyes()
+    make_white_stage("stage")
     return 
 

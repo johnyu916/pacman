@@ -1,0 +1,1 @@
+{"name": "white_blocks_north", "bounds": {"position": [0.0, 0.0, 148.0], "size": [224, 1, 116]}, "position": [0.0, 0.0, 0.0], "rotates": [], "type": "WhiteBlocksNorth", "children_names": ["white_blue24by16_0", "white_blue24by8_0", "white_blue32by16_0", "white_blue_t_west", "white_blue_t_north", "white_blue_t_east", "white_blue32by16_1", "white_blue24by16_1", "white_blue24by8_1"]}

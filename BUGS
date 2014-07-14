@@ -1,5 +1,1 @@
-- player ready screen shows enemies when it shouldn't.
-- when enemy is eaten, their speed should be slowed down right away
-- move eyes don't work sometimes.
-- the ghosts are sometimes white/blue instead of blue/blue.
-
+- fix pacman death animation.

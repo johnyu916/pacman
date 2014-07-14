@@ -4,8 +4,8 @@ from keyboard import (keyboard_idle, place_pacman)
 from wafflecore.animation import (animate, animation_task)
 from wafflecore.standard import copy_object
 from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_position, thing_set_position_y)
-from ai import (ai_idle, move_velocity, get_enemy_legs, get_ghost_children)
-from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays)
+from ai import (ai_idle, animate_enemy, move_velocity, get_enemy_legs, get_ghost_children)
+from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays, vector_magnitude)
 from task import (task_exit, task_new_exec, task_new_exec_wait)
 from shared import (on_eat, on_eat_done)
 
@@ -262,15 +262,16 @@ from shared import (on_eat, on_eat_done)
         victory_dance_start(state, task)
         task.step = 1
     elif task.step == 1:
-        done = victory_dance_left(state)
+        done = victory_dance_left(state, task)
         if done:
             task.step = 2
     elif task.step == 2:
-        victory_dance_right(state)
+        victory_dance_right(state, task)
 
 () victory_dance_start(object state, object task):
     game = state.game
-    state.world.children = [game.pacman, game.shadow]
+    pacman = game.pacman
+    state.world.children = [pacman, game.shadow]
 
     state.world.children =  [pacman]
     extend(state.world.children, game.enemies)
@@ -287,7 +288,7 @@ from shared import (on_eat, on_eat_done)
         legs = get_enemy_legs(enemy)
         task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
 
-() victory_dance_run_left(object state, object task):
+() victory_dance_left(object state, object task):
     game = state.game
     pacman = game.pacman
 
@@ -311,7 +312,7 @@ from shared import (on_eat, on_eat_done)
         thing_set_position(enemy, sum_arrays(enemy.position, distance_delta))
 
 
-() victory_dance_run_right(object state):
+() victory_dance_right(object state, object task):
     game = state.game
     pacman = game.pacman
     if pacman.world_bounds.position[0] > 240:
@@ -345,9 +346,19 @@ from shared import (on_eat, on_eat_done)
                 thing.state = "eyes"
                 thing.eye_state = "start"
                 thing.children = [thing.eyes]
+                thing.speed = game.eyes_speed
+                thing.velocity = vector_magnitude(thing.velocity, thing.speed)
                 print(["ate something", thing.position, thing.velocity])
                 on_eat(task, game, thing)
                 next = "pause"
+                return
+
+    for enemy in game.enemies:
+        for collide in enemy.collisions:
+            thing = collide.thing
+            if thing.type == "Pacman":
+                task_exit(task, {"next": "dying"})
+                next = "stop"
                 return
 
     # hit balls and dots?
@@ -365,7 +376,7 @@ from shared import (on_eat, on_eat_done)
                 for enemy in game.enemies:
                     parts = enemy.ghost_children
                     parts[0].geometry = state.geometries{"ghost_head"}
-                    parts[0].geometry = state.geometries{"ghost_legs_0"}
+                    parts[1].geometry = state.geometries{"ghost_legs_0"}
 
                     enemy.children = enemy.ghost_children
                     enemy.state = "blue"

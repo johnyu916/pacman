@@ -10,6 +10,8 @@ from test import test_eyes
             vertices = vertices_cube(position, 1, byte_color, 0.05)
             extend(geometry, vertices)
 
+() column_geometry_color_extend(number x_length, number z_length, array offset, array byte_color, array geometry):
+    extend(geometry, column_geometry_color(x_length, z_length, offset, byte_color))
 
 (object geometry) column_geometry(number x_length, number z_length, array offset):
     geometry = column_geometry_color(x_length, z_length, offset, [38, 38, 217, 255])
@@ -214,31 +216,109 @@ from test import test_eyes
                 filename = join([dir, new_name], "/")
                 file_write(filename, text)
 
+() make_outside(string name, array byte_color):
+    geometry = []
+    # upper half
+    column_geometry_color_extend(40, 1, [0,0,159], byte_color, geometry)
+    column_geometry_color_extend(1, 24, [40,0,160], byte_color, geometry)
+    column_geometry_color_extend(36, 1, [4,0,184], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [2,0,185], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [1,0,186], byte_color, geometry)
+    column_geometry_color_extend(1, 72, [1,0,188], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [1,0,260], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [2,0,262], byte_color, geometry)
+    column_geometry_color_extend(216, 1, [4,0,263], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [220,0,262], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [222,0,260], byte_color, geometry)
+    column_geometry_color_extend(1, 72, [223,0,188], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [222,0,186], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [220,0,185], byte_color, geometry)
+    column_geometry_color_extend(36, 1, [184,0,184], byte_color, geometry)
+    column_geometry_color_extend(1, 24, [183,0,160], byte_color, geometry)
+    column_geometry_color_extend(40, 1, [184,0,159], byte_color, geometry)
+
+    # bottom half
+    column_geometry_color_extend(40, 1, [0,0,136], byte_color, geometry)
+    column_geometry_color_extend(1, 24, [40,0,112], byte_color, geometry)
+    column_geometry_color_extend(36, 1, [4,0,111], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [2,0,110], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [1,0,108], byte_color, geometry)
+    column_geometry_color_extend(1, 88, [1,0,20], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [1,0,18], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [2,0,17], byte_color, geometry)
+    column_geometry_color_extend(216, 1, [4,0,16], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [220,0,17], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [222,0,18], byte_color, geometry)
+    column_geometry_color_extend(1, 88, [223,0,20], byte_color, geometry)
+    column_geometry_color_extend(1, 2, [222,0,108], byte_color, geometry)
+    column_geometry_color_extend(2, 1, [220,0,110], byte_color, geometry)
+    column_geometry_color_extend(36, 1, [184,0,111], byte_color, geometry)
+    column_geometry_color_extend(1, 24, [183,0,112], byte_color, geometry)
+    column_geometry_color_extend(40, 1, [184,0,136], byte_color, geometry)
+
+    # squares missing inside
+    squares = [
+    [4, 188],
+    [4, 259],
+    [107, 259],
+    [109, 229],
+    [114, 229],
+    [116, 259],
+    [219, 259],
+    [219, 188],
+    [4, 107],
+    [4, 68],
+    [18, 66],
+    [18, 61],
+    [4, 59],
+    [4, 20],
+    [219, 20],
+    [219, 59],
+    [205, 61],
+    [205, 66],
+    [219, 68],
+    [219, 107]
+    ]
+
+    for square in squares:
+        column_geometry_color_extend(1,1, [square[0], 0, square[1]], byte_color, geometry)
+
+    filename = join([name, "json"], ".")
+    filename = join(["../geometries", filename], "/")
+    file_write(filename, to_json(geometry))
+
 () make_white_stage(string name):
     dir = "../things"
-    filepath = join([dir, name], "/")
+    filename = join([name, "json"], ".")
+    filepath = join([dir, filename], "/")
     file_read(filepath, text)
     thing = from_json(text)
     if array_in_string(keys(thing), "children_names"):
         new_children_names = []
-        for name in thing.children_names:
-            make_white_stage(name)
-            new_name = join(["white", name], "_")
+        for child_name in thing.children_names:
+            make_white_stage(child_name)
+            new_name = join(["white", child_name], "_")
             append(new_children_names, new_name)
         thing.children_names = new_children_names
     if array_in_string(keys(thing), "geometry_name"):
         geometry_name = thing.geometry_name
-        filepath = join(["../geometries", geometry_name], "/")
+        filename = join([geometry_name, "json"], ".")
+        filepath = join(["../geometries", filename], "/")
         file_read(filepath, text)
         geometry = from_json(text)
-        new_geometry = vertices_copy(geometry, [255,255,255,255])
+        new_geometry = copy_vertices_color(geometry, [255,255,255,255])
         new_text = to_json(new_geometry)
         new_name = join(["white", geometry_name], "_")
-        filepath = join(["../geometries", new_name], "/")
+        filename = join([new_name, "json"], ".")
+        filepath = join(["../geometries", filename], "/")
         file_write(filepath, new_text)
-    new_name = join(["White", thing.name], "")
+        thing.geometry_name = new_name
+    new_name = join(["white", name], "_")
     thing.name = new_name
-    filepath = join([dir, new_name], "/")
+    filename = join([new_name, "json"], ".")
+    new_type = join(["White", thing.type], "")
+    thing.type = new_type
+    filepath = join([dir, filename], "/")
     text = to_json(thing)
     file_write(filepath, text)
 
@@ -282,9 +362,11 @@ from test import test_eyes
     #enemy_copy()
     #ghost_copy()
     #change_filename()
-    #make_white_stage("stage")
+    make_white_stage("stage")
     #set_thing_geometry_name()
     #dot_geometry()
     #color_pink_number()
     #cubes()
-    test_eyes()
+    #make_outside("outside_blue", [38, 38, 217, 255])
+    #make_outside("outside_white", [255, 255, 255, 255])
+    #test_eyes()

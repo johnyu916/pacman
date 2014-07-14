@@ -1,0 +1,1 @@
+{"name": "white_blue_t_north", "bounds": {"position": [0.0, 0.0, 0.0], "size": [56, 1, 32]}, "position": [84.0, 0.0, 180.0], "rotates": [], "type": "WhiteWall", "children_names": ["white_t_long", "white_t_bottom"]}
