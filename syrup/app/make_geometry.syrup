@@ -1,4 +1,4 @@
-from wafflecore.compute import (new_id, vertices_cube, cuboid_new, copy_vertices_color)
+from wafflecore.compute import (new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled)
 from wafflecore.standard import array_in_string
 from test import test_eyes
 
@@ -350,6 +350,22 @@ from test import test_eyes
     new_vertices = copy_vertices_color(vertices,[236, 183, 219, 255])
     file_write(filepath,text)
 
+() make_large_pacman():
+    ["pacman_0", "pacman_1", "pacman_2"]
+    # 3x bigger
+    for num in range(3):
+        filename = join(["pacman", integer_string(num)], "_")
+        filename = join([filename, "json"], ".")
+        filepath = join(["../geometries", filename], "/")
+        text = ""
+        file_read(filepath, text)
+        geometry = from_json(text)
+        new_geometry = vertices_scaled(geometry, 4)
+        filename = join(["pacman_big", integer_string(num)], "_")
+        filename = join([filename, "json"], ".")
+        filepath = join(["../geometries", filename], "/")
+        file_write(filepath, to_json(new_geometry))
+
 () test():
     test_eyes()
 
@@ -362,7 +378,8 @@ from test import test_eyes
     #enemy_copy()
     #ghost_copy()
     #change_filename()
-    make_white_stage("stage")
+    #make_white_stage("stage")
+    make_large_pacman()
     #set_thing_geometry_name()
     #dot_geometry()
     #color_pink_number()

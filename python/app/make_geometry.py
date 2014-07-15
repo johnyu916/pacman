@@ -6,7 +6,7 @@ from random import random
 from time import time
 import numpy
 
-from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color
+from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled
 from wafflecore.standard import array_in_string
 from test import test_eyes
 
@@ -361,11 +361,29 @@ def color_pink_number():
         f.write(text)
     return 
 
+def make_large_pacman():
+    ["pacman_0", "pacman_1", "pacman_2"]
+    for num in range(3):
+            filename = "_".join(["pacman", str(int(num))])
+            filename = ".".join([filename, "json"])
+            filepath = "/".join(["../geometries", filename])
+            text = ""
+            with open(filepath) as f:
+                text = f.read()
+            geometry = json.loads(text)
+            new_geometry = vertices_scaled(geometry, 4.0)
+            filename = "_".join(["pacman_big", str(int(num))])
+            filename = ".".join([filename, "json"])
+            filepath = "/".join(["../geometries", filename])
+            with open(filepath, "w") as f:
+                f.write(json.dumps(new_geometry, cls=SyrupEncoder))
+    return 
+
 def test():
     test_eyes()
     return 
 
 def run():
-    make_white_stage("stage")
+    make_large_pacman()
     return 
 

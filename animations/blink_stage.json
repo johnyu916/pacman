@@ -7,12 +7,11 @@
     [
         {
             "time": 0,
-            "children_names": ["wall_north", "wall_south", "blocks_north", "blocks_south", "outside_blue"],
-            "geometry_name": "stage"
+            "children_names": ["wall_north", "wall_south", "blocks_north", "blocks_south", "outside_blue"]
         },
         {
             "time": 0.125,
-            "children_names": ["white_wall_north", "white_wall_south", "white_blocks_north", "white_blocks_south", "white_outside_blue"],
+            "children_names": ["white_wall_north", "white_wall_south", "white_blocks_north", "white_blocks_south", "white_outside_blue"]
         }
     ]
 }

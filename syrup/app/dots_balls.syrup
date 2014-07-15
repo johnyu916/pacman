@@ -292,7 +292,8 @@ from wafflecore.thing import (thing_new, thing_blank)
         "static": false
     }
     dots_object = thing_new(new_id(state), "Dots", [0,0,0], [], [], new_geometry, bounds)
-    dots_object.count =  length(all_dots) / length(geometry)
+    #dots_object.count =  length(all_dots) / length(geometry)
+    dots_object.count = 1
     state.all_dots = null
 
 # 0 is blocked.
@@ -369,4 +370,5 @@ from wafflecore.thing import (thing_new, thing_blank)
         "static": false
     }
     balls = thing_new(new_id(state), "Balls", [0,0,0], [], [], new_geometry, bounds)
-    balls.count = length(positions)
+    #balls.count = length(positions)
+    balls.count = 0

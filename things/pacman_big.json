@@ -1,0 +1,1 @@
+{"geometry_name": "pacman_big_0", "input_force": 300, "bounds": {"position": [0.0, 0.0, 0.0], "size": [13.0, 1.0, 13.0]}, "max_speed": 80.0, "mass": 1, "position": [85.0, 0.0, 135.0], "rotates": [], "type": "Pacman"}
