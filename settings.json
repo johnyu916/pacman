@@ -31,11 +31,26 @@
         "python_output": "."
     },
     "game": {
-        "enemy_names": [
-                "shadow",
-                "speedy",
-                "bashful",
-                "pokey"
+        "enemy_properties": [
+            {
+                "name": "shadow",
+                "color": [ ]
+            },
+            {
+                "name": "speedy",
+                "color": [ ]
+            },
+            {
+                "name": "bashful",
+                "color": [ ]
+            },
+            {
+                "name": "pokey"
+                "color": [ ]
+            }
+        ],
+        "enemy_colors": [
+
         ],
         "enemy_speed": 60.0,
         "ghost_speed": 20.0,

@@ -94,7 +94,7 @@ from task import task_new
 
     #ready = thing_load(state, "ready")
     intro = {}
-    chars = get_text(state, "CHARACTERS", [221, 221, 221, 255])
+    chars = get_text(state, "INTRODUCING", [221, 221, 221, 255])
     chars.position = [80, 0, 210]
     intro.chars = chars
     shadow_copy = thing_copy(game.shadow, things)

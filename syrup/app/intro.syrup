@@ -22,9 +22,7 @@ from shared import (on_eat, on_eat_done)
 
     intro = state.game.intro
     if task.step == 0:
-        state.world.children = [intro.chars]
-        task.number_eaten = 0
-        task.step = 1
+        intro_setup(state, task)
     elif task.step == 1:
         elapsed = state.now - task.time_start
         if elapsed > 1.0:
@@ -56,6 +54,21 @@ from shared import (on_eat, on_eat_done)
     thing_set_position(game.pacman, [300.0, 0.0, 0])
     for enemy in game.enemies:
         thing_set_position(enemy, [300, 0.0, 0])
+
+() intro_setup(object state, object task):
+    state.world.children = [intro.chars]
+    game = state.game
+    name_texts = []
+
+    z = 100
+    for property game.enemy_properties:
+        name_text = get_text(state, property.name, property.color)
+        name_text
+        append(name_texts, get_text(state, property.name, property.color))
+        z += 50
+
+    task.number_eaten = 0
+    task.step = 1
 
 
 () intro_run_start(object state, object task):
