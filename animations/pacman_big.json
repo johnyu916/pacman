@@ -1,0 +1,25 @@
+{
+    "name": "pacman_big",
+    "thing_name": "pacman_big",
+    "loop": true,
+    "duration": 0.25,
+    "actions":
+    [
+        {
+            "time": 0,
+            "geometry_name": "pacman_big_0"
+        },
+        {
+            "time": 0.0625,
+            "geometry_name": "pacman_big_1"
+        },
+        {
+            "time": 0.125,
+            "geometry_name": "pacman_big_2"
+        },
+        {
+            "time": 0.1875,
+            "geometry_name": "pacman_big_1"
+        }
+    ]
+}
