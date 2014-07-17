@@ -34,19 +34,23 @@
         "enemy_properties": [
             {
                 "name": "shadow",
-                "color": [ ]
+                "caps": "SHADOW",
+                "color": [217, 29, 5, 255]
             },
             {
                 "name": "speedy",
-                "color": [ ]
+                "caps": "SPEEDY",
+                "color": [236, 183, 219, 255]
             },
             {
                 "name": "bashful",
-                "color": [ ]
+                "caps": "BASHFUL",
+                "color": [147, 254, 222, 255]
             },
             {
-                "name": "pokey"
-                "color": [ ]
+                "name": "pokey",
+                "caps": "POKEY",
+                "color": [236, 182, 81, 255]
             }
         ],
         "enemy_colors": [

@@ -7,6 +7,7 @@ from collisions import (bump_thing)
 from ai import (animate_enemy, get_enemy_legs, get_ghost_children)
 from keyboard import (place_pacman)
 from shared import (on_eat, on_eat_done)
+from text import get_text
 
 () intro(object state, object task):
     #print("inside intro")
@@ -24,15 +25,14 @@ from shared import (on_eat, on_eat_done)
     if task.step == 0:
         intro_setup(state, task)
     elif task.step == 1:
-        elapsed = state.now - task.time_start
+        # gradually show Introduction
+        elapsed = state.now - task.camera_start
         if elapsed > 1.0:
-            state.world.children = [intro.chars, intro.shadow_copy, intro.shadow_chars]
-            task.step = 2
-    elif task.step == 2:
-        elapsed = state.now - task.time_start
-        if elapsed > 2.0:
-            task.step = 3
-            print(["set game state to intro_run"])
+            if state.camera.placement.position[2] < 0:
+                task.step = 3
+            else:
+                task.camera_start = state.now
+                task.step = 7
     elif task.step == 3:
         intro_run_start(state, task)
         task.step = 4
@@ -48,6 +48,14 @@ from shared import (on_eat, on_eat_done)
         done = intro_pause(state, task)
         if done:
             task.step = 5
+    elif task.step == 7:
+        # pause for 5 seconds
+        if state.now - task.camera_start > 1:
+            task.step = 1
+            task.camera_start = state.now
+        else:
+            intro_move_camera(state, task)
+
 
 () clear_crew(object state):
     game = state.game
@@ -55,31 +63,45 @@ from shared import (on_eat, on_eat_done)
     for enemy in game.enemies:
         thing_set_position(enemy, [300, 0.0, 0])
 
+
 () intro_setup(object state, object task):
-    state.world.children = [intro.chars]
     game = state.game
+    pacman = game.pacman
+    thing_set_position(pacman, [100.0, 0.0, 150])
     name_texts = []
 
+    game.ball = thing_new(new_id(state), "Ball", [0,0,0], [], [], state.geometries.ball, null)
+    thing_set_position(game.ball, [33.0, 0.0, 120])
+    x = 50
     z = 100
-    for property game.enemy_properties:
-        name_text = get_text(state, property.name, property.color)
-        name_text
-        append(name_texts, get_text(state, property.name, property.color))
+    for enemy in game.enemies:
+        name_text = get_text(state, enemy.caps, enemy.color)
+        thing_set_position(name_text, [x, 0.0, z])
+        thing_set_position(enemy, [x- 20, 0.0, z])
+        append(name_texts, name_text)
         z += 50
 
+    task.name_texts = name_texts
+    children = [game.intro.chars, pacman, game.ball]
+    extend(children, name_texts)
+    extend(children, game.enemies)
+    extend(children, game.number_bubbles)
+    state.world.children = children
     task.number_eaten = 0
     task.step = 1
+    task.camera_start = state.now
 
+
+() intro_move_camera(object state, object task):
+    camera = state.camera
+    camera.placement.position[2] = camera.placement.position[2] - 1
 
 () intro_run_start(object state, object task):
     game = state.game
     pacman = game.pacman
-    game.ball = thing_new(new_id(state), "Ball", [0,0,0], [], [], state.geometries.ball, null)
-    extend(state.world.children, [pacman, game.ball])
-    extend(state.world.children, game.number_bubbles)
+    state.camera.placement.position[0] = pacman.world_bounds.position[0]
     z = 117
     v_x = -100
-    thing_set_position(game.ball, [33.0, 0.0, 120])
     thing_set_position(pacman, [224.0, 0.0, z])
     #print(["pacman world bounds", pacman.world_bounds])
     pacman.velocity = [v_x, 0, 0]
@@ -97,7 +119,6 @@ from shared import (on_eat, on_eat_done)
         task.animations{animation_name} = animation_task(state.animations{animation_name}, legs, state.now)
         #print(["enemy world bounds", enemy.world_bounds])
         x+=16
-    extend(state.world.children, game.enemies)
 
 
 # framework for pausing until child is done.
@@ -126,6 +147,7 @@ from shared import (on_eat, on_eat_done)
     #print(["pacman world bounds", pacman.world_bounds])
     bump_thing(pacman, [], delta)
     distance_delta = pacman.position_delta
+    state.camera.placement.position[0] = pacman.world_bounds.position[0]
     #print(["distance delta", distance_delta])
     animate(task.animations.pacman, state.things, state.geometries, state.now)
     for enemy in game.enemies:
@@ -145,6 +167,7 @@ from shared import (on_eat, on_eat_done)
     delta = state.delta
     animate(task.animations.pacman, state.things, state.geometries, state.now)
     bump_thing(pacman, game.enemies, delta)
+    state.camera.placement.position[0] = pacman.world_bounds.position[0]
     distance_delta = pacman.position_delta
     for enemy in game.enemies:
         name = join([enemy.name, "ghost_legs"], "_")

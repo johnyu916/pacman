@@ -150,10 +150,13 @@ from task import task_new
     # rename to enemy.
     things = state.things
     game = state.game
-    for enemy_name in game.enemy_names:
+    for property in game.enemy_properties:
+        enemy_name = property.name
         thing = copy_object(things.enemy)
         thing.id = new_id(state)
         thing.name = enemy_name
+        thing.color = property.color
+        thing.caps = property.caps
         for child in thing.children:
             print(["load_enemies", child.type])
             new_name = join([enemy_name, child.geometry_name], "_")
@@ -189,7 +192,8 @@ from task import task_new
     ghost_legs = animations.ghost_legs
     ghost_blink_legs = animations.ghost_blink_legs
     ghost_blink_head = animations.ghost_blink_head
-    for enemy_name in game.enemy_names:
+    for property in game.enemy_properties:
+        enemy_name = property.name
         animation = copy_object(enemy_legs)
         for action in animation.actions:
             geometry_name = action.geometry_name
