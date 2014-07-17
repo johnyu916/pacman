@@ -1,5 +1,5 @@
-- test end of stage
-- victory dance
 - no sound
-- automatic camera
+- have camera working in intro
+- camera should follow pacman in game.
 - blink score
+- fruit

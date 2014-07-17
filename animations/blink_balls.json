@@ -1,0 +1,17 @@
+{
+    "name": "blink_balls",
+    "thing_name": "blink_score",
+    "loop": true,
+    "duration": 0.250,
+    "actions":
+    [
+        {
+            "time": 0,
+            "position":[0, 0, 0]
+        },
+        {
+            "time": 0.125,
+            "position":[0, 0, 1000]
+        }
+    ]
+}

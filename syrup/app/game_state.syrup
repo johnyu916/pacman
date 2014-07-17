@@ -85,7 +85,7 @@ from shared import (on_eat, on_eat_done)
         x += 16
     player_ready = state.game.player_ready
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.life_icons]
-    state.world.children = [game.info, game.stage, game.jail, game.pacman, game.balls, game.dots]
+    state.world.children = [game.info, game.stage, game.jail, game.pacman, game.balls, game.dots, game.cherry]
     extend(state.world.children, game.enemies)
     extend(state.world.children, game.number_bubbles)
     #extend(state.world.children, game.balls)
@@ -191,14 +191,22 @@ from shared import (on_eat, on_eat_done)
         task_exit(task, task.playing_pacman.result)
 
 () playing_blink(object state, object task):
-    # just blink
-    #animate(state.one_up)
-    #animate(state.balls)
-    return
+    if task.step == 0:
+        task.animations.blink_score_key = animation_task(state.animations.blink_score_key, state.game.score_key, state.now)
+        task.animations.blink_balls = animation_task(state.animations.blink_balls, state.game.balls, state.now)
+        task.step = 1
+    elif task.step == 1:
+        # just blink
+        animate(task.animations.blink_score_key, state.things, state.geometries, state.now)
+        animate(task.animations.blink_balls, state.things, state.geometries, state.now)
 
 () playing_pacman(object state, object task):
     step = task.step
     game = state.game
+
+    state.camera.placement.position[0] = game.pacman.world_bounds.position[0]
+    state.camera.placement.position[2] = game.pacman.world_bounds.position[2]
+
     if step == 0:
         #setup
         task.number_eaten = 0
@@ -394,7 +402,10 @@ from shared import (on_eat, on_eat_done)
                 remove_item(grid, index[0], index[1], game.dots)
                 game.score += 10
                 set_score_value(state)
-
+            elif space.type == "Fruit":
+                remove_item(grid, index[0], index[1], game.fruit)
+                game.score += 100
+                set_score_value(state)
 
         #print(["hit dot start"])
         #print(["hit dot end"])
@@ -409,7 +420,7 @@ from shared import (on_eat, on_eat_done)
     vertices = balls.geometry.vertices
     length = item.length
     for i in range(length):
-        vertices[i + offset][2] = -100
+        vertices[offset + i][2] = -100
     grid[x][y] = null
     balls.count -= 1
 

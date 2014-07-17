@@ -1,5 +1,5 @@
 from wafflecore.animation import (animate, animation_task)
-from wafflecore.compute import (new_id, sum_arrays)
+from wafflecore.compute import (new_id, sum_arrays, array_scaled)
 from wafflecore.thing import (thing_new, thing_set_position, thing_set_position_y)
 from wafflecore.standard import copy_object
 from task import task_exit
@@ -25,7 +25,7 @@ from text import get_text
     if task.step == 0:
         intro_setup(state, task)
     elif task.step == 1:
-        # gradually show Introduction
+        # pause for 1 second
         elapsed = state.now - task.camera_start
         if elapsed > 1.0:
             if state.camera.placement.position[2] < 0:
@@ -49,7 +49,7 @@ from text import get_text
         if done:
             task.step = 5
     elif task.step == 7:
-        # pause for 5 seconds
+        # move camera for 1 second
         if state.now - task.camera_start > 1:
             task.step = 1
             task.camera_start = state.now
@@ -67,19 +67,19 @@ from text import get_text
 () intro_setup(object state, object task):
     game = state.game
     pacman = game.pacman
-    thing_set_position(pacman, [100.0, 0.0, 150])
+    thing_set_position(pacman, [40.0, 0.0, 40])
     name_texts = []
 
     game.ball = thing_new(new_id(state), "Ball", [0,0,0], [], [], state.geometries.ball, null)
-    thing_set_position(game.ball, [33.0, 0.0, 120])
-    x = 50
-    z = 100
+    thing_set_position(game.ball, [20.0, 0.0, 40])
+    x = 20
+    z = 200
     for enemy in game.enemies:
         name_text = get_text(state, enemy.caps, enemy.color)
-        thing_set_position(name_text, [x, 0.0, z])
-        thing_set_position(enemy, [x- 20, 0.0, z])
+        thing_set_position(name_text, [x + 20, 0.0, z])
+        thing_set_position(enemy, [x, 0.0, z])
         append(name_texts, name_text)
-        z += 50
+        z -= 40
 
     task.name_texts = name_texts
     children = [game.intro.chars, pacman, game.ball]
@@ -88,19 +88,21 @@ from text import get_text
     extend(children, game.number_bubbles)
     state.world.children = children
     task.number_eaten = 0
-    task.step = 1
+    task.step = 7
     task.camera_start = state.now
+    state.camera.velocity = [0,0,-50]
 
 
 () intro_move_camera(object state, object task):
-    camera = state.camera
-    camera.placement.position[2] = camera.placement.position[2] - 1
+    placement = state.camera.placement
+    distance_delta = array_scaled(state.camera.velocity, state.delta)
+    placement.position = sum_arrays(placement.position, distance_delta)
 
 () intro_run_start(object state, object task):
     game = state.game
     pacman = game.pacman
     state.camera.placement.position[0] = pacman.world_bounds.position[0]
-    z = 117
+    z = 40
     v_x = -100
     thing_set_position(pacman, [224.0, 0.0, z])
     #print(["pacman world bounds", pacman.world_bounds])
