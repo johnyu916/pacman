@@ -4,7 +4,7 @@ from wafflecore.standard import copy_object
 from enemy_jail import jail_enemy_new
 from ai import get_navigation
 from text import get_text
-from dots_balls import (get_dots, get_balls, get_grid)
+from dots_balls import (get_dots, get_balls, get_grid, get_cherry)
 from task import task_new
 
 () start(array argv, object state):
@@ -121,9 +121,10 @@ from task import task_new
     game.player_ready = player_ready
 
     game.eat_scores = [200, 400, 800, 1600]
-    game.score_key = get_text(state, "1UP", [221, 221, 221, 255])
-    game.score_key.position = [26, 0, 281]
+    score_key = get_text(state, "1UP", [221, 221, 221, 255])
+    score_key.position = [26, 0, 281]
     thing.score_key = score_key
+    game.score_key = score_key
     game.score_value = get_text(state, "00", [221, 221, 221, 255])
     game.score_value.position = [41, 0, 272]
     game.high_score_key = get_text(state, "HIGH SCORE", [221, 221, 221, 255])

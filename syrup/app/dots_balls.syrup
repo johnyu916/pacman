@@ -373,10 +373,10 @@ from wafflecore.thing import (thing_new, thing_blank)
     #balls.count = length(positions)
     balls.count = 0
 
-(cherry) get_cherry(object state):
+(object cherry) get_cherry(object state):
     grid = state.game.stage.grid
     geometry = state.geometries.cherry
-    
+
     x = 50
     z = 50
     x_idx = (x - 8) / 8
@@ -386,4 +386,5 @@ from wafflecore.thing import (thing_new, thing_blank)
         "offset": 0,
         "length": length(geometry.vertices)
     }
+    # 12, 12, 12
     cherry = thing_new(new_id(state), "Fruit", [x,0,z], [], [], geometry, null)

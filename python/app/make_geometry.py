@@ -6,7 +6,7 @@ from random import random
 from time import time
 import numpy
 
-from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled
+from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled, vertices_translated
 from wafflecore.standard import array_in_string
 from test import test_eyes
 
@@ -379,11 +379,24 @@ def make_large_pacman():
                 f.write(json.dumps(new_geometry, cls=SyrupEncoder))
     return 
 
+def geometry_offset(name, position):
+    filename = ".".join([name, "json"])
+    filepath = "/".join(["../geometries", filename])
+    text = ""
+    with open(filepath) as f:
+        text = f.read()
+    vertices = json.loads(text)
+    copy = copy_vertices_offset(vertices, position)
+    with open(filepath, "w") as f:
+        f.write(json.dumps(copy, cls=SyrupEncoder))
+    return 
+
 def test():
     test_eyes()
     return 
 
 def run():
+    geometry_offset("pacman_die_5", [4.0, 0.0, 0.0])
     make_large_pacman()
     return 
 
