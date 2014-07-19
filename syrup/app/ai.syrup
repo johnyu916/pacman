@@ -96,6 +96,7 @@ from wafflecore.animation import animate
         if (state.now - game.ghost_time_start) > game.ghost_duration:
             enemy.children = enemy.normal_children
             enemy.state = "normal"
+            task.number_eaten = 0
         else:
             animate_blink(state, task, enemy)
     # move around

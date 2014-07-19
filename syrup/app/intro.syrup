@@ -28,7 +28,7 @@ from text import get_text
         # pause for 1 second
         elapsed = state.now - task.camera_start
         if elapsed > 1.0:
-            if state.camera.placement.position[2] < 0:
+            if state.camera.placement.position[2] < 80:
                 task.step = 3
             else:
                 task.camera_start = state.now
@@ -67,11 +67,12 @@ from text import get_text
 () intro_setup(object state, object task):
     game = state.game
     pacman = game.pacman
-    thing_set_position(pacman, [40.0, 0.0, 40])
+    thing_set_position(pacman, [40.0, 0.0, 0])
     name_texts = []
 
+    game.intro.chars.position = [20, 0, 240]
     game.ball = thing_new(new_id(state), "Ball", [0,0,0], [], [], state.geometries.ball, null)
-    thing_set_position(game.ball, [20.0, 0.0, 40])
+    thing_set_position(game.ball, [20.0, 0.0, 00])
     x = 20
     z = 200
     for enemy in game.enemies:
@@ -90,7 +91,16 @@ from text import get_text
     task.number_eaten = 0
     task.step = 7
     task.camera_start = state.now
-    state.camera.velocity = [0,0,-50]
+    camera = state.camera
+    # look at 45, 0, 280
+    camera.placement = {
+        "orientation": {
+            "front": [0.2182, 0.8729, 0.4364],
+            "right": [0.8944, 0, -0.447]
+        },
+        "position": [37.5,-30,265]
+    }
+    state.camera.velocity = [0,0,-40]
 
 
 () intro_move_camera(object state, object task):
@@ -101,8 +111,8 @@ from text import get_text
 () intro_run_start(object state, object task):
     game = state.game
     pacman = game.pacman
-    state.camera.placement.position[0] = pacman.world_bounds.position[0]
-    z = 40
+    state.camera.placement.position = sum_arrays(pacman.world_bounds.position, [-15, -60, -30])
+    z = 0
     v_x = -100
     thing_set_position(pacman, [224.0, 0.0, z])
     #print(["pacman world bounds", pacman.world_bounds])

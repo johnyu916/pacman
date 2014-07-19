@@ -29,6 +29,11 @@ from shared import (on_eat, on_eat_done)
         print("main_menu_start")
         main_menu = state.game.main_menu
         state.world.children = [main_menu.text]
+        state.camera.placement.orientation = {
+            "front": [0.2182, 0.8729, 0.4364],
+            "right": [0.8944, 0, -0.447]
+        }
+        state.camera.placement.position = sum_arrays(main_menu.text.position, [30, -60, -30])
         task.step = 1
     elif task.step == 1:
         keys_state = state.keyboard.keys_state
@@ -61,6 +66,7 @@ from shared import (on_eat, on_eat_done)
     game.pokey.jail_position = [121, 0, 141]
     game.pokey.state = "up_down"
     game.pokey.up_down_time = 10
+    game.cherry.position[2] = 0
 
 
 () player_ready(object state, object task):
@@ -86,6 +92,7 @@ from shared import (on_eat, on_eat_done)
     player_ready = state.game.player_ready
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.life_icons]
     state.world.children = [game.info, game.stage, game.jail, game.pacman, game.balls, game.dots, game.cherry]
+    state.camera.placement.position = [106 - 15, 0 - 60, 70 - 30]
     extend(state.world.children, game.enemies)
     extend(state.world.children, game.number_bubbles)
     #extend(state.world.children, game.balls)
@@ -204,8 +211,7 @@ from shared import (on_eat, on_eat_done)
     step = task.step
     game = state.game
 
-    state.camera.placement.position[0] = game.pacman.world_bounds.position[0]
-    state.camera.placement.position[2] = game.pacman.world_bounds.position[2]
+    state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
 
     if step == 0:
         #setup
@@ -283,6 +289,13 @@ from shared import (on_eat, on_eat_done)
 () victory_dance_start(object state, object task):
     game = state.game
     pacman = game.pacman
+    state.camera.placement = {
+        "orientation": {
+            "right" : [1.0,0.0,0.0],
+            "front" : [0.0,1.0,0.0]
+        },
+        "position": [106.0,-144.0,143.0]
+    }
     task.animations.pacman_big = animation_task(state.animations.pacman_big, state.things.pacman_big, state.now)
     pacman_big = state.things.pacman_big
     thing_set_position(pacman_big, [-180, 0, 117])
@@ -320,6 +333,7 @@ from shared import (on_eat, on_eat_done)
 
     delta = state.delta
     bump_thing(pacman, [], delta)
+    #state.camera.placement.position = sum_arrays(pacman.world_bounds.position, [-15, -60, -30])
     distance_delta = pacman.position_delta
     animate(task.animations.pacman, state.things, state.geometries, state.now)
     for enemy in game.enemies:
@@ -337,12 +351,23 @@ from shared import (on_eat, on_eat_done)
 
     delta = state.delta
     bump_thing(pacman, [], delta)
+    #state.camera.placement.position = sum_arrays(pacman.world_bounds.position, [-15, -60, -30])
     distance_delta = pacman.position_delta
     animate(task.animations.pacman_big, state.things, state.geometries, state.now)
     for enemy in game.enemies:
         animate_enemy(state, task, enemy)
         thing_set_position(enemy, sum_arrays(enemy.position, distance_delta))
 
+() ate_enemy(object game, object enemy):
+    game.score += game.eat_scores[task.number_eaten]
+    thing = enemy
+    thing.state = "eyes"
+    thing.eye_state = "start"
+    thing.children = [thing.eyes]
+    thing.speed = game.eyes_speed
+    thing.velocity = vector_magnitude(thing.velocity, thing.speed)
+    print(["ate something", thing.position, thing.velocity])
+    on_eat(task, game, thing)
 # two objects collided. specifically, one ran into two. what to do?
 #() handle_collision(object one, object two):
 (string next) game_logic(object state, object task):
@@ -358,14 +383,7 @@ from shared import (on_eat, on_eat_done)
                 next = "stop"
                 return
             elif thing.state == "blue" || thing.state == "blink":
-                game.score += game.eat_scores[task.number_eaten]
-                thing.state = "eyes"
-                thing.eye_state = "start"
-                thing.children = [thing.eyes]
-                thing.speed = game.eyes_speed
-                thing.velocity = vector_magnitude(thing.velocity, thing.speed)
-                print(["ate something", thing.position, thing.velocity])
-                on_eat(task, game, thing)
+                ate_enemy(game, thing)
                 next = "pause"
                 return
 
@@ -373,9 +391,14 @@ from shared import (on_eat, on_eat_done)
         for collide in enemy.collisions:
             thing = collide.thing
             if thing.type == "Pacman":
-                task_exit(task, {"next": "dying"})
-                next = "stop"
-                return
+                if enemy.state == "normal":
+                    task_exit(task, {"next": "dying"})
+                    next = "stop"
+                    return
+                elif enemy.state == "blue" || enemy.state == "blink":
+                    ate_enemy(game, thing)
+                    next = "pause"
+                    return
 
     # hit balls and dots?
     pacman_bounds = pacman.world_bounds

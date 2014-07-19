@@ -1,5 +1,4 @@
 - no sound
-- have camera working in intro
-- camera should follow pacman in game.
-- blink score
-- fruit
+- blink score less often
+- try eating fruit
+- change camera controls

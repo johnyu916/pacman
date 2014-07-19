@@ -57,7 +57,6 @@ from task import task_new
     state.animations = animations
 
 
-    pacman = things.pacman
     game = state.game
 
     points = []
@@ -72,7 +71,7 @@ from task import task_new
     ready_text.position = [89, 0, 121]
     game.ready_text = ready_text
 
-    game.pacman = pacman
+    game.pacman = things.pacman
 
     load_enemies(state)
 
@@ -95,8 +94,7 @@ from task import task_new
 
     #ready = thing_load(state, "ready")
     intro = {}
-    chars = get_text(state, "INTRODUCING", [221, 221, 221, 255])
-    chars.position = [20, 0, 240]
+    chars = get_text(state, "STARRING", [221, 221, 221, 255])
     intro.chars = chars
     shadow_copy = thing_copy(game.shadow, things)
     name = join(["shadow", "head_eyes_right"], "_")
