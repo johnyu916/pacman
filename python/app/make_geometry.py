@@ -6,7 +6,7 @@ from random import random
 from time import time
 import numpy
 
-from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled, vertices_translated
+from wafflecore.compute import new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled, copy_vertices_offset
 from wafflecore.standard import array_in_string
 from test import test_eyes
 
@@ -396,7 +396,6 @@ def test():
     return 
 
 def run():
-    geometry_offset("pacman_die_5", [4.0, 0.0, 0.0])
-    make_large_pacman()
+    geometry_offset("pacman_die_5", [-4.0, 0.0, 0.0])
     return 
 

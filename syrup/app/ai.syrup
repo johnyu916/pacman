@@ -230,11 +230,18 @@ from wafflecore.animation import animate
                 if is_close(enemy.position[2], 165, 1):
                     enemy.eye_state = "close"
                 enemy.velocity = array_scaled(direction, enemy.speed)
+                return
         else:
             # just don't go back the way you came.
             if length(enemy.collisions) > 0:
                 direction = try_direction(enemy.collisions[0].normal)
                 enemy.velocity = array_scaled(direction, enemy.speed)
+                return
+
+        if enemy.velocity == [0.0, 0.0, 0.0]:
+            # random direction
+            set_random_velocity(enemy, enemy.speed)
+
 
     elif enemy.eye_state == "close":
         if is_close(enemy.position[0], 105, 1):
@@ -370,18 +377,7 @@ from wafflecore.animation import animate
 
 () move_blue(object state, object task, array delta, object enemy):
     if delta == [0.0, 0.0, 0.0]:
-        plus = state.game.ghost_speed
-        minus = -1*plus
-        velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
-        value = random()
-        if value < 0.25:
-            enemy.velocity = velocities[0]
-        elif value < 0.50:
-            enemy.velocity = velocities[1]
-        elif value < 0.75:
-            enemy.velocity = velocities[2]
-        else:
-            enemy.velocity = velocities[3]
+        set_random_velocity(enemy, state.game.ghost_speed)
 
     animate_ghost_legs(state, task, enemy)
 
@@ -415,23 +411,24 @@ from wafflecore.animation import animate
         geometry_name = join([enemy.name, "head_eyes_up"], "_")
         enemy_eyes.geometry = geometries{geometry_name}
 
+() set_random_velocity(object enemy, number speed):
+    plus = speed
+    minus = -1*plus
+    velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
+    value = random()
+    if value < 0.25:
+        enemy.velocity = velocities[0]
+    elif value < 0.50:
+        enemy.velocity = velocities[1]
+    elif value < 0.75:
+        enemy.velocity = velocities[2]
+    else:
+        enemy.velocity = velocities[3]
 
 
 () move_normal(object state, object task, array delta, object enemy):
     if delta == [0.0, 0.0, 0.0]:
-        plus = state.game.enemy_speed
-        minus = -1*plus
-        velocities = [[minus,0,0], [plus,0,0],[0,0,minus],[0,0,plus]]
-        value = random()
-        if value < 0.25:
-            enemy.velocity = velocities[0]
-        elif value < 0.50:
-            enemy.velocity = velocities[1]
-        elif value < 0.75:
-            enemy.velocity = velocities[2]
-        else:
-            enemy.velocity = velocities[3]
-
+        set_random_velocity(enemy, state.game.enemy_speed)
     animate_enemy(state, task, enemy)
 
 () change_state(object state, object enemy, string enemy_state):

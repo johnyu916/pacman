@@ -2,7 +2,7 @@
     "name": "blink_score_key",
     "thing_name": "blink_score",
     "loop": true,
-    "duration": 0.250,
+    "duration": 0.50,
     "actions":
     [
         {
@@ -10,8 +10,8 @@
             "position":[26, 0, 281]
         },
         {
-            "time": 0.125,
-            "position":[26, 1000, 281]
+            "time": 0.25,
+            "position":[26, -1000, 281]
         }
     ]
 }

@@ -56,6 +56,13 @@ from task import task_new
             animations{name} = animation
     state.animations = animations
 
+    # pre-load number digits to use for score.
+    digits = {}
+    for digit in range(10):
+        text = integer_string(digit)
+        value = get_text(state, text, [221, 221, 221, 255])
+        digits{text} = value
+    state.game.digits = digits
 
     game = state.game
 

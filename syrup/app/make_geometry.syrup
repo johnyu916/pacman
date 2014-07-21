@@ -1,4 +1,4 @@
-from wafflecore.compute import (new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled, vertices_translated)
+from wafflecore.compute import (new_id, vertices_cube, cuboid_new, copy_vertices_color, vertices_scaled, copy_vertices_offset)
 from wafflecore.standard import array_in_string
 from test import test_eyes
 
@@ -379,7 +379,7 @@ from test import test_eyes
     test_eyes()
 
 () run():
-    geometry_offset("pacman_die_5", [4,0,0])
+    #geometry_offset("pacman_die_5", [4,0,0])
     #c_shape(42, 28, 37)
     #column(214,1)
     #rectangle(8,32)
@@ -389,7 +389,8 @@ from test import test_eyes
     #ghost_copy()
     #change_filename()
     #make_white_stage("stage")
-    make_large_pacman()
+    #make_large_pacman()
+    geometry_offset("pacman_die_5", [-4,0,0])
     #set_thing_geometry_name()
     #dot_geometry()
     #color_pink_number()

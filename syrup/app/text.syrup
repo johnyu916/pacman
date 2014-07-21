@@ -33,7 +33,7 @@ from wafflecore.thing import (thing_new, thing_blank)
 
         character = characters{key}
         text_color = string_color(byte_color)
-        if in_array(keys(characters), text_color) == false:
+        if in_array(keys(character), text_color) == false:
             geometry = state.geometries{key}
             vertices = copy_vertices_color(geometry.vertices, byte_color)
             new_geometry = {

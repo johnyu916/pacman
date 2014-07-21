@@ -3,7 +3,7 @@ from text import get_text
 from keyboard import (keyboard_idle, place_pacman)
 from wafflecore.animation import (animate, animation_task)
 from wafflecore.standard import copy_object
-from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_position, thing_set_position_y)
+from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_position, thing_set_position_y, thing_set_position_z)
 from ai import (ai_idle, animate_enemy, move_velocity, get_enemy_legs, get_ghost_children)
 from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays, vector_magnitude)
 from task import (task_exit, task_new_exec, task_new_exec_wait)
@@ -66,7 +66,7 @@ from shared import (on_eat, on_eat_done)
     game.pokey.jail_position = [121, 0, 141]
     game.pokey.state = "up_down"
     game.pokey.up_down_time = 10
-    game.cherry.position[2] = 0
+    game.cherry.position[1] = -1000
 
 
 () player_ready(object state, object task):
@@ -135,9 +135,10 @@ from shared import (on_eat, on_eat_done)
         enemy.force = [0, 0, 0]
 
     # cache the world bounds
-    things = [game.jail, game.enemy_jail, game.stage, game.pacman]
+    things = [game.jail, game.enemy_jail, game.stage, game.pacman, game.cherry]
     extend(things, game.enemies)
     cache_world_bounds(state, things)
+    state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
 
 () cache_world_bounds(object state, array things):
     identity = matrix_identity()
@@ -176,6 +177,7 @@ from shared import (on_eat, on_eat_done)
     if task.step == 0:
         game_over = state.game.game_over
         state.world.children = [game_over.text]
+        state.camera.placement.position = sum_arrays(game_over.text.position, [0, -60, -30])
         task.step = 1
     else:
         elapsed = state.now - task.time_start
@@ -211,7 +213,7 @@ from shared import (on_eat, on_eat_done)
     step = task.step
     game = state.game
 
-    state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
+    #print(["playing pacman position", game.pacman.world_bounds.position])
 
     if step == 0:
         #setup
@@ -231,8 +233,10 @@ from shared import (on_eat, on_eat_done)
             head = enemy.ghost_children[0]
             animation_name = join([enemy.name, "ghost_blink_head"], "_")
             task.animations{animation_name} = animation_task(state.animations{animation_name}, head, state.now)
+        thing_set_position_y(game.cherry, 0)
         task.step = 1
     elif step == 1:
+        state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
         collide_characters(state)
         #touching_all(state)
         #two = time()
@@ -252,6 +256,8 @@ from shared import (on_eat, on_eat_done)
         #print(["pacman velocity", state.pacman.velocity])
         #print(["playing_idle", one, two, three, four])
     elif step == 2:
+        position = game.pacman.world_bounds.position
+        state.camera.placement.position = [position[0] - 15, -60, position[2] - 30]
         done = playing_pacman_pause(state)
         if done == true:
             on_eat_done(task, game)
@@ -358,7 +364,7 @@ from shared import (on_eat, on_eat_done)
         animate_enemy(state, task, enemy)
         thing_set_position(enemy, sum_arrays(enemy.position, distance_delta))
 
-() ate_enemy(object game, object enemy):
+() ate_enemy(object task, object game, object enemy):
     game.score += game.eat_scores[task.number_eaten]
     thing = enemy
     thing.state = "eyes"
@@ -383,9 +389,12 @@ from shared import (on_eat, on_eat_done)
                 next = "stop"
                 return
             elif thing.state == "blue" || thing.state == "blink":
-                ate_enemy(game, thing)
+                ate_enemy(task, game, thing)
                 next = "pause"
                 return
+        elif thing.type == "Fruit":
+            game.score += 100
+            thing_set_position_z(thing, -1000)
 
     for enemy in game.enemies:
         for collide in enemy.collisions:
@@ -396,7 +405,7 @@ from shared import (on_eat, on_eat_done)
                     next = "stop"
                     return
                 elif enemy.state == "blue" || enemy.state == "blink":
-                    ate_enemy(game, thing)
+                    ate_enemy(task, game, thing)
                     next = "pause"
                     return
 
@@ -426,7 +435,7 @@ from shared import (on_eat, on_eat_done)
                 game.score += 10
                 set_score_value(state)
             elif space.type == "Fruit":
-                remove_item(grid, index[0], index[1], game.fruit)
+                remove_item(grid, index[0], index[1], game.cherry)
                 game.score += 100
                 set_score_value(state)
 

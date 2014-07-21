@@ -381,10 +381,14 @@ from wafflecore.thing import (thing_new, thing_blank)
     z = 117
     x_idx = (x - 8) / 8
     y_idx = (z - 24) / 8
-    grid[x_idx][y_idx] = {
-        "type": "Fruit",
-        "offset": 0,
-        "length": length(geometry.vertices)
-    }
+    #grid[x_idx][y_idx] = {
+    #    "type": "Fruit",
+    #    "offset": 0,
+    #    "length": length(geometry.vertices)
+    #}
     # 12, 12, 12
-    cherry = thing_new(new_id(state), "Fruit", [x,1000,z], [], [], geometry, null)
+    bounds = {
+        "position": [0, 0, 0],
+        "size": [12, 1, 12]
+    }
+    cherry = thing_new(new_id(state), "Fruit", [x,-1000,z], [], [], geometry, bounds)
