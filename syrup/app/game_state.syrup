@@ -1,13 +1,41 @@
 from collisions import (collide_characters, collisions, touching_all, overlap_bounds_thing, position_delta, bump_thing)
+from dots_balls import (get_dots, get_balls, get_grid, get_cherry)
 from text import get_text
 from keyboard import (keyboard_idle, place_pacman)
 from wafflecore.animation import (animate, animation_task)
 from wafflecore.standard import copy_object
 from wafflecore.thing import (thing_new, thing_set_world_bounds, thing_set_position, thing_set_position_y, thing_set_position_z)
 from ai import (ai_idle, animate_enemy, move_velocity, get_enemy_legs, get_ghost_children)
-from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays, vector_magnitude)
+from wafflecore.compute import (new_id, matrix_placement, cuboid_transformed, matrix_identity, is_overlap_cuboids, sum_arrays, vector_magnitude, vector_unit, subtract_arrays)
 from task import (task_exit, task_new_exec, task_new_exec_wait)
 from shared import (on_eat, on_eat_done)
+() camera_set_offset(object camera, array position, array offset):
+    front = offset
+    camera.placement.position = subtract_arrays(position, front)
+    right = [offset[2], 0, -1*offset[0]]
+    camera.placement.orientation = {
+        "front": vector_unit(front),
+        "right": vector_unit(right)
+    }
+
+() camera_set_stage(object camera, array pacman_position):
+    #224 248
+    #112 264/2 = 132
+    middle_z = 132
+    z = pacman_position[2]
+    delta_z = (middle_z - z)/3.0
+    if delta_z < 0:
+        delta_z *= -1
+    camera_set_offset(camera, pacman_position, [15, 60, delta_z])
+    #front = [15, 60, delta_z]
+    #right = [delta_z, 0, -15]
+    #camera.placement.position = subtract_arrays(pacman_position, front)
+    #camera.placement.orientation = {
+    #    "front": vector_unit(front),
+    #    "right": vector_unit(right)
+    #}
+    #camera.placement.position = 
+
 
 (array indices) indices_point(number x, number z):
     x_off = x - 5
@@ -45,6 +73,14 @@ from shared import (on_eat, on_eat_done)
                 elif key == "s":
                     task_exit(task, {})
 
+() crew_set_away(object state):
+    game = state.game
+    pacman = game.pacman
+    thing_set_position_y(pacman, -1000)
+    thing_set_position_y(game.cherry, -1000)
+    for enemy in game.enemies:
+        thing_set_position_y(enemy, -1000)
+
 () crew_set_positions(object state):
     game = state.game
     pacman = game.pacman
@@ -78,12 +114,26 @@ from shared import (on_eat, on_eat_done)
         if done:
             task_exit(task, {})
 
+() reset_items(object state):
+    game = state.game
+    for vertex in game.balls.geometry.vertices:
+        vertex[1] = 0
+    for vertex in game.dots.geometry.vertices:
+        vertex[1] = 0
+
 () player_ready_start(object state):
     game = state.game
     game.lives = 3
     game.score = 0
     game.high_score = 0
     game.life_icons.children = []
+
+    # reset balls and dots and cherry
+    reset_items(state)
+    #game.balls = get_balls(state)
+    #game.dots = get_dots(state)
+    #game.cherry = get_cherry(state)
+
     x = 19
     for i in range(game.lives - 1):
         life_icon = thing_new(new_id(state), "LiveIcon", [x, 0, 3], [], [], state.geometries{"pacman_2"}, null)
@@ -92,20 +142,24 @@ from shared import (on_eat, on_eat_done)
     player_ready = state.game.player_ready
     game.info.children = [game.score_key, game.score_value, game.high_score_key, game.high_score_value, game.ready_text, player_ready.text, game.life_icons]
     state.world.children = [game.info, game.stage, game.jail, game.pacman, game.balls, game.dots, game.cherry]
-    state.camera.placement.position = [106 - 15, 0 - 60, 70 - 30]
+    camera_set_stage(state.camera, [106, 0, 70])
+    #state.camera.placement.position = [106 - 15, 0 - 60, 70 - 30]
     extend(state.world.children, game.enemies)
     extend(state.world.children, game.number_bubbles)
     #extend(state.world.children, game.balls)
     #extend(state.world.children, game.dots)
+    crew_set_away(state)
+
+
     for enemy in game.enemies:
         enemy.children = enemy.normal_children
 
-
+# beginning song plays about 4.8 seconds
 (bool done) player_ready_idle(object state, object task):
     game = state.game
     player_ready = state.game.player_ready
     elapsed = state.now - task.time_start
-    if elapsed > 1.0:
+    if elapsed > 0.5:
         remove_thing(game.info.children, player_ready.text.id)
         done = true
         # start playing
@@ -117,7 +171,7 @@ from shared import (on_eat, on_eat_done)
     elif task.step == 1:
         game = state.game
         elapsed = state.now - task.time_start
-        if elapsed > 1.0:
+        if elapsed > 1.2:
             game.bashful.up_down_start = state.now
             game.pokey.up_down_start = state.now
             remove_thing(game.info.children, game.ready_text.id)
@@ -138,7 +192,8 @@ from shared import (on_eat, on_eat_done)
     things = [game.jail, game.enemy_jail, game.stage, game.pacman, game.cherry]
     extend(things, game.enemies)
     cache_world_bounds(state, things)
-    state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
+    camera_set_stage(state.camera, game.pacman.world_bounds.position)
+    #state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
 
 () cache_world_bounds(object state, array things):
     identity = matrix_identity()
@@ -177,7 +232,12 @@ from shared import (on_eat, on_eat_done)
     if task.step == 0:
         game_over = state.game.game_over
         state.world.children = [game_over.text]
-        state.camera.placement.position = sum_arrays(game_over.text.position, [0, -60, -30])
+        state.camera.placement.orientation = {
+            "front": [0.2182, 0.8729, 0.4364],
+            "right": [0.8944, 0, -0.447]
+        }
+        #camera_set_offset(state.camera, game_over.text.position, [0, 60, 30])
+        state.camera.placement.position = sum_arrays(game_over.text.position, [15, -60, -30])
         task.step = 1
     else:
         elapsed = state.now - task.time_start
@@ -236,7 +296,8 @@ from shared import (on_eat, on_eat_done)
         thing_set_position_y(game.cherry, 0)
         task.step = 1
     elif step == 1:
-        state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
+        #state.camera.placement.position = sum_arrays(game.pacman.world_bounds.position, [-15, -60, -30])
+        camera_set_stage(state.camera, game.pacman.world_bounds.position)
         collide_characters(state)
         #touching_all(state)
         #two = time()
@@ -257,7 +318,8 @@ from shared import (on_eat, on_eat_done)
         #print(["playing_idle", one, two, three, four])
     elif step == 2:
         position = game.pacman.world_bounds.position
-        state.camera.placement.position = [position[0] - 15, -60, position[2] - 30]
+        camera_set_stage(state.camera, [position[0], 0, position[2]])
+        #state.camera.placement.position = [position[0] - 15, -60, position[2] - 30]
         done = playing_pacman_pause(state)
         if done == true:
             on_eat_done(task, game)
@@ -415,9 +477,10 @@ from shared import (on_eat, on_eat_done)
     #print(["game_logic indices", indices])
     grid = game.stage.grid
     for index in indices:
+        #space = get_item(index, game)
         space = grid[index[0]][index[1]]
         if space != null:
-            if space.type == "Ball":
+            if space.type == "Ball" && is_filled(space, game.balls):
                 remove_item(grid, index[0], index[1], game.balls)
                 game.score += 50
                 set_score_value(state)
@@ -430,13 +493,9 @@ from shared import (on_eat, on_eat_done)
                     enemy.state = "blue"
                     enemy.velocity = vector_magnitude(enemy.velocity, game.ghost_speed)
                 game.ghost_time_start = state.now
-            elif space.type == "Dot":
+            elif space.type == "Dot" && is_filled(space, game.dots):
                 remove_item(grid, index[0], index[1], game.dots)
                 game.score += 10
-                set_score_value(state)
-            elif space.type == "Fruit":
-                remove_item(grid, index[0], index[1], game.cherry)
-                game.score += 100
                 set_score_value(state)
 
         #print(["hit dot start"])
@@ -446,14 +505,23 @@ from shared import (on_eat, on_eat_done)
         task_exit(task, {"next": "won"})
         next = "stop"
 
+(bool yes) is_filled(object space, object items):
+    offset = space.offset
+    vertices = items.geometry.vertices
+    if vertices[offset][1] < -500:
+        yes = false
+    else:
+        yes = true
+
+
 () remove_item(array grid, number x, number y, object balls):
     item = grid[x][y]
     offset = item.offset
     vertices = balls.geometry.vertices
     length = item.length
     for i in range(length):
-        vertices[offset + i][2] = -100
-    grid[x][y] = null
+        vertices[offset + i][1] = -1000
+    #grid[x][y] = null
     balls.count -= 1
 
 

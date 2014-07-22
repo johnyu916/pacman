@@ -218,6 +218,7 @@ from wafflecore.animation import animate
 () move_eyes_velocity(object game, array delta, object enemy):
     if enemy.eye_state == "start":
         # have we hit an open area?
+        print(["move_eyes_velocity", enemy.position])
         enemy_index = indices_position(enemy.position)
         if enemy_index != null:
             print(["enemy_index", enemy_index, enemy.position])
@@ -230,17 +231,20 @@ from wafflecore.animation import animate
                 if is_close(enemy.position[2], 165, 1):
                     enemy.eye_state = "close"
                 enemy.velocity = array_scaled(direction, enemy.speed)
+                print(["move_eyes_velocity", enemy.velocity])
                 return
         else:
             # just don't go back the way you came.
             if length(enemy.collisions) > 0:
                 direction = try_direction(enemy.collisions[0].normal)
                 enemy.velocity = array_scaled(direction, enemy.speed)
+                print(["move_eyes_velocity", enemy.velocity])
                 return
 
         if enemy.velocity == [0.0, 0.0, 0.0]:
             # random direction
             set_random_velocity(enemy, enemy.speed)
+            print(["move_eyes_velocity", enemy.velocity])
 
 
     elif enemy.eye_state == "close":

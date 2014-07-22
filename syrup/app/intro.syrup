@@ -23,7 +23,8 @@ from text import get_text
 
     intro = state.game.intro
     if task.step == 0:
-        intro_setup(state, task)
+        if state.now - task.time_start > 7:
+            intro_setup(state, task)
     elif task.step == 1:
         # pause for 1 second
         elapsed = state.now - task.camera_start
