@@ -121,11 +121,13 @@ from shared import (on_eat, on_eat_done)
     for vertex in game.dots.geometry.vertices:
         vertex[1] = 0
 
+    game.balls.count = game.balls.all_count
+    game.dots.count = game.dots.all_count
+
 () player_ready_start(object state):
     game = state.game
     game.lives = 3
     game.score = 0
-    game.high_score = 0
     game.life_icons.children = []
 
     # reset balls and dots and cherry
@@ -159,7 +161,7 @@ from shared import (on_eat, on_eat_done)
     game = state.game
     player_ready = state.game.player_ready
     elapsed = state.now - task.time_start
-    if elapsed > 0.5:
+    if elapsed > 3.5:
         remove_thing(game.info.children, player_ready.text.id)
         done = true
         # start playing
@@ -171,7 +173,7 @@ from shared import (on_eat, on_eat_done)
     elif task.step == 1:
         game = state.game
         elapsed = state.now - task.time_start
-        if elapsed > 1.2:
+        if elapsed > 1.5:
             game.bashful.up_down_start = state.now
             game.pokey.up_down_start = state.now
             remove_thing(game.info.children, game.ready_text.id)
@@ -426,8 +428,9 @@ from shared import (on_eat, on_eat_done)
         animate_enemy(state, task, enemy)
         thing_set_position(enemy, sum_arrays(enemy.position, distance_delta))
 
-() ate_enemy(object task, object game, object enemy):
-    game.score += game.eat_scores[task.number_eaten]
+() ate_enemy(object task, object state, object enemy):
+    game = state.game
+    game_add_score(state, game.eat_scores[task.number_eaten])
     thing = enemy
     thing.state = "eyes"
     thing.eye_state = "start"
@@ -451,11 +454,11 @@ from shared import (on_eat, on_eat_done)
                 next = "stop"
                 return
             elif thing.state == "blue" || thing.state == "blink":
-                ate_enemy(task, game, thing)
+                ate_enemy(task, state, thing)
                 next = "pause"
                 return
         elif thing.type == "Fruit":
-            game.score += 100
+            game_add_score(state, 100)
             thing_set_position_z(thing, -1000)
 
     for enemy in game.enemies:
@@ -467,7 +470,7 @@ from shared import (on_eat, on_eat_done)
                     next = "stop"
                     return
                 elif enemy.state == "blue" || enemy.state == "blink":
-                    ate_enemy(task, game, thing)
+                    ate_enemy(task, state, thing)
                     next = "pause"
                     return
 
@@ -482,8 +485,8 @@ from shared import (on_eat, on_eat_done)
         if space != null:
             if space.type == "Ball" && is_filled(space, game.balls):
                 remove_item(grid, index[0], index[1], game.balls)
-                game.score += 50
-                set_score_value(state)
+                game_add_score(state, 50)
+                #set_score_value(state)
                 for enemy in game.enemies:
                     parts = enemy.ghost_children
                     parts[0].geometry = state.geometries{"ghost_head"}
@@ -495,8 +498,9 @@ from shared import (on_eat, on_eat_done)
                 game.ghost_time_start = state.now
             elif space.type == "Dot" && is_filled(space, game.dots):
                 remove_item(grid, index[0], index[1], game.dots)
-                game.score += 10
-                set_score_value(state)
+                game_add_score(state, 10)
+                #game.score += 10
+                #set_score_value(state)
 
         #print(["hit dot start"])
         #print(["hit dot end"])
@@ -523,15 +527,23 @@ from shared import (on_eat, on_eat_done)
         vertices[offset + i][1] = -1000
     #grid[x][y] = null
     balls.count -= 1
+    print(["balls count", balls.count])
 
-
-() set_score_value(object state):
+() game_add_score(object state, number score):
     game = state.game
-    text = integer_string(game.score)
-    score_value = get_text(state, text, [221, 221, 221, 255])
-    game.score_value.children = score_value.children
-    x = 57
-    game.score_value.position[0] = 54 - 8*length(text)
+    game.score += score
+    set_score_value(state, game.score_value, game.score, 54)
+    if game.score > game.high_score:
+        game.high_score = game.score
+        set_score_value(state, game.high_score_value, game.high_score, 134)
+
+() set_score_value(object state, object score_value, number score, number x_offset):
+    game = state.game
+    #text = integer_string(game.score)
+    text = integer_string(score)
+    new_score_value = get_text(state, text, [221, 221, 221, 255])
+    score_value.children = new_score_value.children
+    score_value.position[0] = x_offset - 8*length(text)
 
 
 (object removed_thing) remove_thing(array things, number thing_id):

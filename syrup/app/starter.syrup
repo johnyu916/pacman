@@ -132,6 +132,7 @@ from task import task_new
     game.score_key = score_key
     game.score_value = get_text(state, "00", [221, 221, 221, 255])
     game.score_value.position = [41, 0, 272]
+    game.high_score = 0
     game.high_score_key = get_text(state, "HIGH SCORE", [221, 221, 221, 255])
     game.high_score_key.position = [73, 0, 281]
     game.high_score_value = get_text(state, "00", [221, 221, 221, 255])

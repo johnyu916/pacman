@@ -1,4 +1,5 @@
 from wafflecore.thing import (thing_set_position, thing_set_position_y)
+from keyboard import place_pacman
 
 () on_eat(object task, object game, object enemy):
     pacman = game.pacman
@@ -11,5 +12,7 @@ from wafflecore.thing import (thing_set_position, thing_set_position_y)
 
 () on_eat_done(object task, object game):
     pacman = game.pacman
+    #place_pacman(pacman, 0, 0)
     thing_set_position_y(pacman, 0.0)
+    #print(["on_eat_done pacman", pacman.world_bounds.position])
     game.number_bubbles[task.number_eaten - 1].position[1] = -1000.0
