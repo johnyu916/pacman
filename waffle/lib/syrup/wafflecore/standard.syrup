@@ -1,0 +1,12 @@
+(bool yes) array_in_string(array stuff, string key):
+    for element in stuff:
+        if element == key:
+            yes = true
+            return
+
+
+
+# copy
+(object b) copy_object(object a):
+    text = to_json(a)
+    b = from_json(text)

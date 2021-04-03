@@ -1,0 +1,238 @@
+from compute import (axis_signs_visible, intersect_ray_cuboid_face, magnitude_vector, subtract_arrays, cuboid_transformed, cuboid_new, cuboid_cached_new, matrix_identity, product_matrices, matrix_placement, new_id, filename_type)
+
+from standard import (array_in_string, copy_object)
+
+# thing has either children or geometry. NOT both.
+# rotates is an array of 2 rotations. Or empty list if no rotations.
+# position and rotates are relative to current context.
+# all collidable things must have bounds.
+# if thing doesn't have bounds, its descendents won't be
+# considered for collision
+(object thing) thing_new(string id, string type, array position, array rotates, array children, object geometry, object bounds):
+    thing = {
+        "id": id,
+        "type": type,
+        "position": position,
+        "velocity": [0.0, 0.0, 0.0],
+        "rotates": rotates,
+        "children": children,
+        "geometry": geometry,
+        "bounds": bounds,
+        "matrix": matrix_identity(),
+        "world_bounds": null,
+        "mass": 1,
+        "force": [0.0, 0.0, 0.0],
+        "animate_start": 0
+    }
+
+() thing_set_position(object thing, array position):
+    thing.position = position
+    thing_set_world_bounds(thing, thing.matrix)
+
+() thing_set_position_x(object thing, number x):
+    thing.position[0] = x
+    thing_set_world_bounds(thing, thing.matrix)
+
+() thing_set_position_y(object thing, number y):
+    thing.position[1] = y
+    thing_set_world_bounds(thing, thing.matrix)
+
+() thing_set_position_z(object thing, number z):
+    thing.position[2] = z
+    thing_set_world_bounds(thing, thing.matrix)
+
+(object thing) thing_blank(string id, string type):
+    thing = thing_new(id, type, [0.0, 0.0, 0.0], [], [], null, null)
+
+# thing's children are just {name: "name"} objects
+(object new_thing) thing_copy(object thing, object things):
+    for key in keys(thing):
+        value = thing{key}
+        if key == "geometry":
+            new_thing.geometry = value
+        elif key == "children":
+            new_children = []
+            for child in value:
+                child_thing = things{child.name}
+                new_child = thing_copy(child_thing, things)
+                append(new_children, new_child)
+            new_thing.children = new_children
+        else:
+            new_thing{key} = copy_object(value)
+    #if thing.name == "blue_t_s":
+    #    print(["new_thing thing_copy", new_thing, thing])
+
+() thing_set_children(object thing, object things):
+    new_children = []
+    for child in thing.children:
+        child_thing = things{child.name}
+        append(new_children, thing_copy(child_thing, things))
+    thing.children = new_children
+
+() thing_set_world_bounds(object thing, array offset):
+    thing.matrix = offset
+    matrix = matrix_placement(thing.position, thing.rotates)
+    offset = product_matrices(offset, matrix)
+    bounds = thing.bounds
+    if bounds != null:
+        (position, size) = cuboid_transformed(offset, bounds.position, bounds.size)
+        thing.world_bounds = cuboid_cached_new(position, size)
+        #print(["setting world bounds for ", thing.type, thing.position, thing.bounds, thing.world_bounds])
+        for child in thing.children:
+            thing_set_world_bounds(child, offset)
+
+# return all cuboids that thing contains.
+# each cuboid is an array:
+# [c0, c1, c2, c3, s0, s1, s2, p0, p1, p2, v0, v1, v2]
+# c is color, s is size, p is position, v is velocity
+(array cuboids) thing_get_cuboids_unused(object thing):
+    cuboids = []
+    if length(thing.children) > 0:
+        for child in thing.children:
+            if child.dpdt == null:
+                child.dpdt = thing.dpdt
+            extend(cuboids, thing_get_cuboids_unused(child))
+    else:
+        p = thing.world_bounds.position
+        v = thing.dpdt
+        for cube in thing.cuboids:
+            new = [cube[0], cube[1], cube[2], cube[3], cube[4], cube[5], cube[6], cube[7] + p[0], cube[8] + p[1], cube[9] + p[2], v[0], v[1], v[2]]
+            append(cuboids, new)
+
+
+(array thing) thing_read(object state, string filename):
+    text = null
+    file_read(join([state.things_dir, filename], "/"), text)
+    (name, ext) = filename_type(filename)
+    #print(["thing_load opening", name, text])
+    map = from_json(text)
+    children = []
+    geometry = null
+    if array_in_string(keys(map), "children_names"):
+        child_names = map.children_names
+        for child_name in child_names:
+            child = {"name": child_name}
+            append(children, child)
+    else:
+        geometry_name = map.geometry_name
+        geometry = state.geometries{geometry_name}
+    thing = thing_new(new_id(state), "", [0.0,0.0,0.0], [], children, geometry, null)
+    update(thing, map)
+    if array_in_string(keys(thing), "name") == false:
+        thing.name = name
+
+# state must have two things:
+# things_dir
+# geometries map
+(object thing) thing_load(object state, string name):
+    text = null
+    file_read(join([state.things_dir, name], "/"), text)
+    #print(["thing_load opening", name, text])
+    map = from_json(text)
+    children = []
+    geometry = null
+    if array_in_string(keys(map), "children_names"):
+        child_names = map.children_names
+        for child_name in child_names:
+            child = thing_load(state, child_name)
+            append(children, child)
+    else:
+        geometry_name = map.geometry_names[map.geometry_index]
+        geometry = state.geometries{geometry_name}
+    thing = thing_new(new_id(state), "", [0.0,0.0,0.0], [], children, geometry, null)
+    update(thing, map)
+
+
+# find a child thing that intersects with the ray defined by origin and direction.
+# faces is a array of face objects that should be checked.
+# hit_thing is null if nothing was found.
+# thing.bounds must not be null.
+# offset is a matrix
+(object hit_thing, object hit_face, array hit_point) intersect_ray_bounds_unused(array origin, array direction, object thing, array faces, array offset):
+    # first, does ray cross the bounding box?
+    hit_point = null
+    matrix = matrix_placement(thing.position, thing.rotates)
+    new_offset = product_matrices(offset, matrix)
+    (new_position, new_size) = cuboid_transformed(new_offset, thing.bounds.position, bounds.size)
+    for face in faces:
+        hit_point = intersect_ray_cuboid_face(origin, direction, thing.bounds.position, thing.bounds.size, face.axis, face.sign)
+        if hit_point != null:
+            hit_thing = thing
+            hit_face = face
+            break
+
+    if hit_point == null:
+        hit_thing = null
+        return
+    else:
+        if length(thing.cubes) == 0:
+            for child in thing.children:
+                (hit_thing, hit_face, hit_point) = intersect_ray_bounds(origin, direction, child, faces)
+                if hit_thing != null:
+                    return
+            hit_thing = null
+            return
+        else:
+            # reached bottom. hit_thing and hit_face already set.
+            return
+
+# intersect an array with a thing. Returns the thing it
+# intersected with. hit_thing is null if no cubes hit the ray.
+# return: indices ( ), hit_thing, face (Face)
+# array is matrix
+(object hit_thing, object hit_face, array hit_offset, number hit_distance) intersect_ray_thing(array origin, array direction, object thing):
+    hit_thing = null
+    faces = axis_signs_visible(direction)
+    # find the cube that has this point
+    #print(thing)
+    #print(faces)
+    #print(["intersect_ray origin ", origin])
+    #print(["intersect_ray direction ", direction])
+    #if thing.bounds == null:
+        #thing_set_bounds(thing, matrix_identity())
+        #print(["thing_bounds ", thing.bounds])
+    #(hit_thing, bounds_face, hit_point) = intersect_ray_bounds(origin, direction, thing, faces, matrix_identity())
+    #if hit_thing == null:
+    #    print(["intersect_ray_thing null "])
+    #    return
+    #print(["intersect_ray point ", hit_point, bounds_face])
+
+    (hit_thing, hit_face, hit_offset, hit_distance) = intersect_ray_thing_faces(origin, direction, thing, matrix_identity(), faces)
+    #if hit_cube == null:
+    #    hit_thing = null
+    #print(["intersect_ray hit_cube position ", hit_cube.position])
+
+# faces are visible faces as ray hits from outside.
+# hit_cube is null if none of the voxels hit
+(object hit_thing, object hit_face, array hit_offset, number min_distance) intersect_ray_thing_faces(array origin, array direction, array thing, array offset, array faces):
+    hit_thing = null
+    min_distance = 0
+    matrix = matrix_placement(thing.position, thing.rotates)
+    new_offset = product_matrices(offset, matrix)
+    if thing.bounds == null:
+        for child in thing.children:
+            (child_hit_thing, child_hit_face, child_hit_offset, child_min_distance) =  intersect_ray_thing_faces(origin, direction, child, new_offset, faces)
+            if child_hit_thing != null:
+                if hit_thing == null:
+                    hit_thing = child_hit_thing
+                    hit_face = child_hit_face
+                    min_distance = child_min_distance
+                    hit_offset = child_hit_offset
+                else:
+                    if child_min_distance < min_distance:
+                        hit_thing = child_hit_thing
+                        hit_face = child_hit_face
+                        min_distance = child_min_distance
+                        hit_offset = child_hit_offset
+    else:
+        bounds = thing.bounds
+        (new_position, new_size) = cuboid_transformed(new_offset, bounds.position, bounds.size)
+        for face in faces:
+            intersect_point = intersect_ray_cuboid_face(origin, direction, new_position, new_size, face.axis, face.sign)
+            if intersect_point != null:
+                min_distance = magnitude_vector(subtract_arrays(intersect_point, origin))
+                hit_thing = thing
+                hit_face = face
+                hit_offset = new_offset
+                return
+
